@@ -2,7 +2,8 @@ import input.CloudIn;
 import input.FilesIn;
 import input.LogFileIn;
 import input.ProductionIn;
-import input.WeatherIn;
+import input.WeatherHistoryIn;
+import input.WeatherSetupIn;
 import input.YearsIn;
 
 import java.io.IOException;
@@ -15,7 +16,8 @@ public class Main {
 		FilesIn files = new FilesIn();
 		CloudIn cloud = new CloudIn();
 		YearsIn years = new YearsIn();
-		WeatherIn weather = new WeatherIn();
+		WeatherSetupIn weatherSetup = new WeatherSetupIn();
+		WeatherHistoryIn weatherHistory = new WeatherHistoryIn();
 		ProductionIn prod = new ProductionIn();
 		
 		try {
@@ -27,12 +29,11 @@ public class Main {
 			cloud.onVerify();
 			years.onReadYearsIn(files.getYearsIn(true));
 			years.onVerify();
-			weather.setWeatherFolder(files.getWeatherPath(true));
-			weather.setWeatherPrefix(files.getWeatherPrefix());
-			weather.setLastYear(years.getEndYear());
-			weather.onReadWeatherIn(files.getWeatherSetupIn(true));
-			weather.onVerify(years.getEndYear());
-			weather.onReadWeatherHistories();
+			
+			weatherSetup.setLastYear(years.getEndYear());
+			weatherSetup.onRead(files.getWeatherSetupIn(true));
+			weatherSetup.onVerify(years.getEndYear());
+			weatherHistory.onRead(files.getWeatherPath(true),files.getWeatherPrefix(),weatherSetup.getFirstYear(), weatherSetup.getLastYear());
 			prod.onRead(files.getPlantProductivityIn(true));
 			
 			
@@ -43,10 +44,18 @@ public class Main {
 			files.onWriteFilesIn();
 			cloud.onWriteCloudIn(files.getCloudIn(true));
 			years.onWriteYearsIn(files.getYearsIn(true));
-			weather.onWriteWeatherIn(files.getWeatherSetupIn(true));
-			weather.setWeatherFolder(files.getWeatherPath(true));
-			weather.onWriteWeatherHistories();
+			weatherSetup.onWrite(files.getWeatherSetupIn(true));
+			weatherHistory.onWrite(files.getWeatherPath(true),files.getWeatherPrefix());
 			prod.onWrite(files.getPlantProductivityIn(true));
+			
+			//test weatherHistory functionality
+			files.setProjectDirectory(Paths.get("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/"));
+			weatherHistory.onClear();
+			weatherHistory.onRead(files.getWeatherHistoryFilePath(1951));
+			weatherHistory.onRead(files.getWeatherHistoryFilePath(1962));
+			files.setProjectDirectory(Paths.get("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/"));
+			weatherHistory.onWrite(files.getWeatherPath(true),files.getWeatherPrefix());
+			
 		} catch (IOException e) {
 			System.out.println("Problem: "+e.getMessage());
 			e.printStackTrace();

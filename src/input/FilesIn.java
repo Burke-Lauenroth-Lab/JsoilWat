@@ -124,6 +124,9 @@ public class FilesIn {
 		else
 			return this.pWeatherPath;
 	}
+	public Path getWeatherHistoryFilePath(int year) {
+		return getWeatherPath(true).resolve(getWeatherPrefix()+"."+String.valueOf(year));
+	}
 	public void setWeatherPath(Path WeatherPath) {
 		this.pWeatherPath = WeatherPath;
 	}

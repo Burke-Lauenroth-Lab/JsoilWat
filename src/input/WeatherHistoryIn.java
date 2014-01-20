@@ -18,6 +18,7 @@ public class WeatherHistoryIn {
 	private int nCurrentYear;
 	private List<SW_WEATHER_HIST> weatherHist;
 	private Map<Integer, Integer> yearToIndex;
+	private boolean data;
 
 	private class SW_WEATHER_HIST implements Comparable<SW_WEATHER_HIST> {
 		private int nYear;
@@ -106,7 +107,7 @@ public class WeatherHistoryIn {
 		}
 		
 		public void onClear() {
-			for(int i=0; i<Times.MAX_DAYS; i++) {
+			/*for(int i=0; i<Times.MAX_DAYS; i++) {
 				this.temp_max[i]=0;
 				this.temp_min[i]=0;
 				this.temp_avg[i]=0;
@@ -114,7 +115,7 @@ public class WeatherHistoryIn {
 			}
 			for(int i=0;i<Times.MAX_MONTHS;i++)
 				this.temp_month_avg[i]=0;
-			
+			*/
 			this.temp_year_avg=0;
 			this.nDaysInYear=0;
 			this.nYear = 0;
@@ -133,10 +134,10 @@ public class WeatherHistoryIn {
 		public int getYear() {
 			return this.nYear;
 		}
-		public void setYear(int year) {
-			onClear();
-			this.nYear = year;
-		}
+		//public void setYear(int year) {
+		//	onClear();
+		//	this.nYear = year;
+		//}
 		public double getYearAvg() {
 			return this.temp_year_avg;
 		}
@@ -149,13 +150,14 @@ public class WeatherHistoryIn {
 	public WeatherHistoryIn() {
 		this.weatherHist = new ArrayList<SW_WEATHER_HIST>();
 		yearToIndex = new HashMap<Integer,Integer>();
+		this.data = false;
 	}
 	
 	public void onRead(Path WeatherHistoryFile) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		int year = 0;
 		try {
-			year = Integer.parseInt(WeatherHistoryFile.getRoot().toString().split(".")[1]);
+			year = Integer.parseInt(WeatherHistoryFile.getFileName().toString().split("\\.")[1]);
 		} catch(NumberFormatException n) {
 			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistoryIn onRead : Convert Year From Path Failed :" +n.getMessage());
 		}
@@ -163,10 +165,21 @@ public class WeatherHistoryIn {
 			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistoryIn onRead : Contains Data for Year :" +String.valueOf(year));
 		} else {
 			if(Files.exists(WeatherHistoryFile)) {
-				SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST();
-				weathHist.onRead(WeatherHistoryFile, year);
-				this.weatherHist.add(weathHist);
-				this.yearToIndex.put(year, this.weatherHist.indexOf(weathHist));
+				if(this.yearToIndex.size() < this.weatherHist.size()) {//reuse an object
+					for(int i=0; i<this.weatherHist.size(); i++) {
+						if(!this.yearToIndex.containsValue(i)) {//This object is not used
+							this.weatherHist.get(i).onRead(WeatherHistoryFile, year);
+							this.yearToIndex.put(year, i);
+							break;
+						}
+					}
+				} else {
+					SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST();
+					weathHist.onRead(WeatherHistoryFile, year);
+					this.weatherHist.add(weathHist);
+					this.yearToIndex.put(year, this.weatherHist.indexOf(weathHist));
+				}
+				this.data=true;
 			} else {
 				f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistIn onRead : Path '"+WeatherHistoryFile.toString()+"' doesn't exists.");
 			}
@@ -193,7 +206,7 @@ public class WeatherHistoryIn {
 		}
 	}
 	public void onWrite(Path WeatherHistoryFolder, String prefix) throws IOException {
-		if(!this.weatherHist.isEmpty()) {
+		if(this.data) {
 			Iterator<Entry<Integer, Integer>> it = this.yearToIndex.entrySet().iterator();
 			while(it.hasNext()) {
 				Map.Entry<Integer, Integer> pair = (Map.Entry<Integer, Integer>)it.next();
@@ -203,6 +216,23 @@ public class WeatherHistoryIn {
 			LogFileIn f = LogFileIn.getInstance();
 			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onWriteWeatherHistories : No Historical Data.");
 		}
+	}
+	
+	public void onClear() {
+		this.yearToIndex.clear();
+		if(this.data) {
+			for(int i=0; i<this.weatherHist.size(); i++) {
+				this.weatherHist.get(i).onClear();
+			}
+		}
+		this.data = false;
+	}
+	
+	public double getYearAvg(int year) {
+		if(this.data)
+			return this.weatherHist.get(this.yearToIndex.get(year)).getYearAvg();
+		else
+			return 0;
 	}
 
 	public int getCurrentYear() {
