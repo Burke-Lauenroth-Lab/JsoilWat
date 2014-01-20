@@ -49,6 +49,7 @@ public class MarkovIn {
 				break;
 			//Skip Comments and empty lines
 			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+				line = line.trim();
 				String[] values = line.split("[ \t]+");
 				if(values.length < 5)
 					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovProbIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
@@ -78,6 +79,7 @@ public class MarkovIn {
 				break;
 			//Skip Comments and empty lines
 			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+				line = line.trim();
 				String[] values = line.split("[ \t]+");
 				if(values.length < 7)
 					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovCovIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");

@@ -54,6 +54,7 @@ public class WeatherHistoryIn {
 			for (String line : lines) {
 				//Skip Comments and empty lines
 				if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+					line = line.trim();
 					String[] values = line.split("[ \t]+");
 					if(values.length != 4)
 						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherHistoryFile : Items != 4.");
