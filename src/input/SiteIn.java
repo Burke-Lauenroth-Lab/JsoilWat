@@ -26,6 +26,10 @@ public class SiteIn {
 		}
 		public Flags flags;
 		public Coefficients coefficients;
+		public Model() {
+			this.flags = new Flags();
+			this.coefficients = new Coefficients();
+		}
 	}
 	private class Snow {
 		public double TminAccu2;
@@ -101,7 +105,7 @@ public class SiteIn {
 			if(nTranspRgn > 0) {
 				String sTable = "";
 				for(int i=0;i<nTranspRgn;i++) {
-					sTable+="\t"+String.valueOf(i)+"\t"+String.valueOf(table[i-1][1])+"\n";
+					sTable+="\t"+String.valueOf(i+1)+"\t"+String.valueOf(table[i][1])+"\n";
 				}
 				return sTable;
 			} else
@@ -137,6 +141,10 @@ public class SiteIn {
 	public void onClear() {
 		this.data = false;
 		this.transpirationRegions.onClear();
+	}
+	
+	public boolean onVerify() {
+		return true;
 	}
 	
 	public void onRead(Path siteIn) throws IOException {
@@ -507,5 +515,9 @@ public class SiteIn {
 			LogFileIn f = LogFileIn.getInstance();
 			f.LogError(LogMode.LOGWARN, "ProductionIn : onWrite : No data.");
 		}
+	}
+
+	public boolean getDeepdrain() {
+		return this.model.flags.deepdrain;
 	}
 }

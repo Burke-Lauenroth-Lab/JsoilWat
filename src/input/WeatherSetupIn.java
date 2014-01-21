@@ -121,7 +121,7 @@ public class WeatherSetupIn {
 			//Skip Comments and empty lines
 			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
 				line = line.trim();
-				String[] values = line.split("[ \t]+");
+				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
 				switch (this.nFileItemsRead) {
 				case 0:
 					try {

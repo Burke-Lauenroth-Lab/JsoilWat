@@ -2,6 +2,8 @@ import input.CloudIn;
 import input.FilesIn;
 import input.LogFileIn;
 import input.ProductionIn;
+import input.SiteIn;
+import input.SoilsIn;
 import input.WeatherHistoryIn;
 import input.WeatherSetupIn;
 import input.YearsIn;
@@ -19,25 +21,33 @@ public class Main {
 		WeatherSetupIn weatherSetup = new WeatherSetupIn();
 		WeatherHistoryIn weatherHistory = new WeatherHistoryIn();
 		ProductionIn prod = new ProductionIn();
+		SiteIn site = new SiteIn();
+		SoilsIn soils = new SoilsIn();
 		
 		try {
 			//Test Read
 			files.onReadFilesIn("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
 			f.setLogFile(files.getLogFileIn(true));
 			
+			//Read Data
 			cloud.onReadCloudIn(files.getCloudIn(true));
-			cloud.onVerify();
 			years.onReadYearsIn(files.getYearsIn(true));
-			years.onVerify();
-			
 			weatherSetup.setLastYear(years.getEndYear());
 			weatherSetup.onRead(files.getWeatherSetupIn(true));
-			weatherSetup.onVerify(years.getEndYear());
 			weatherHistory.onRead(files.getWeatherPath(true),files.getWeatherPrefix(),weatherSetup.getFirstYear(), weatherSetup.getLastYear());
 			prod.onRead(files.getPlantProductivityIn(true));
+			site.onRead(files.getSiteParametersIn(true));
+			soils.onRead(files.getSoilsIn(true));
 			
+			//Verify Data
+			cloud.onVerify();
+			years.onVerify();
+			weatherSetup.onVerify(years.getEndYear());
+			prod.onVerify();
+			site.onVerify();
+			soils.onVerify(site.getDeepdrain());
 			
-			//Test Write
+			//Write
 			files.setProjectDirectory(Paths.get("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/"));
 			files.onCreateFiles();
 			files.onVerify();
@@ -47,6 +57,8 @@ public class Main {
 			weatherSetup.onWrite(files.getWeatherSetupIn(true));
 			weatherHistory.onWrite(files.getWeatherPath(true),files.getWeatherPrefix());
 			prod.onWrite(files.getPlantProductivityIn(true));
+			site.onWrite(files.getSiteParametersIn(true));
+			soils.onWrite(files.getSoilsIn(true));
 			
 			//test weatherHistory functionality
 			files.setProjectDirectory(Paths.get("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/"));
