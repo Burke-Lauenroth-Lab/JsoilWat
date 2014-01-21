@@ -19,4 +19,15 @@ public final class Defines {
 		t = thetasMatric * p * 0.01 * (1 - fractionGravel);
 		return (t);
 	}
+	
+	/* types to identify the various modules/objects */
+	public enum ObjType { eF,   /* file management */
+	               eMDL, /* model */
+	               eWTH, /* weather */
+	               eSIT, /* site */
+	               eSWC, /* soil water */
+	               eVES, /* vegetation establishement */
+	               eVPD, /* vegetation production */
+	               eOUT  /* output */
+	}
 }
