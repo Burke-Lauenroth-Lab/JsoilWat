@@ -28,6 +28,7 @@ public final class Defines {
 	               eSWC, /* soil water */
 	               eVES, /* vegetation establishement */
 	               eVPD, /* vegetation production */
-	               eOUT  /* output */
+	               eOUT,  /* output */
+	               eNONE /* none */
 	}
 }
