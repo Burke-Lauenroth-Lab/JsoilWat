@@ -12,8 +12,6 @@ import java.util.List;
 import defines.Defines;
 
 public class SoilsIn {
-	public static final int MAX_LAYERS = 25;
-	
 	private class Layer {
 		public double depth,/*for printing out line*/
 		width, /* width of the soil layer (cm) */
@@ -65,8 +63,8 @@ public class SoilsIn {
 	deep_lyr; /* index of deep drainage layer if deepdrain, 0 otherwise */
 	
 	public SoilsIn() {
-		this.layers = new Layer[MAX_LAYERS];
-		for(int i=0; i<MAX_LAYERS;  i++)
+		this.layers = new Layer[Defines.MAX_LAYERS];
+		for(int i=0; i<Defines.MAX_LAYERS;  i++)
 			this.layers[i] = new Layer();
 		this.data = false;
 		this.deepdrainSet = false;
@@ -136,7 +134,7 @@ public class SoilsIn {
 				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
 				if(values.length != 12)
 					f.LogError(LogFileIn.LogMode.LOGERROR, "SoilsIn onRead : Expected 10 Values read "+String.valueOf(values.length));
-				if(this.n_layers == MAX_LAYERS)
+				if(this.n_layers == Defines.MAX_LAYERS)
 					f.LogError(LogFileIn.LogMode.LOGERROR, "SoilsIn onRead : Too many layers specified "+String.valueOf(values.length));
 				try {
 					dmax = Double.parseDouble(values[0]);
@@ -233,7 +231,7 @@ public class SoilsIn {
 			Files.write(soilsIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "ProductionIn : onWrite : No data.");
+			f.LogError(LogMode.LOGWARN, "SoilsIn : onWrite : No data.");
 		}
 	}
 	

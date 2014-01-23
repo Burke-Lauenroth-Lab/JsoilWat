@@ -513,7 +513,7 @@ public class SiteIn {
 			Files.write(siteIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "ProductionIn : onWrite : No data.");
+			f.LogError(LogMode.LOGWARN, "SiteIn : onWrite : No data.");
 		}
 	}
 

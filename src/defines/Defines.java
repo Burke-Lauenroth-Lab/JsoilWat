@@ -2,6 +2,10 @@ package defines;
 
 public final class Defines {
 	public static final double BARCONV = 1024.0;
+	public static final int MAX_LAYERS=25;
+	public static final int MAX_TRANSP_REGIONS=4;
+	public static final int MAX_ST_RGR=30;
+	public static final int SLOW_DRAIN_DEPTH=15;
 	
 	public static boolean isZero(double value){
 		return Math.abs(value) <= 0+5*Math.ulp(value);

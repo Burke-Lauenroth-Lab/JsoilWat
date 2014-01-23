@@ -413,7 +413,7 @@ public class OutputSetupIn {
 			Files.write(OutputSetupIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "ProductionIn : onWrite : No data.");
+			f.LogError(LogMode.LOGWARN, "OutputSetupIn : onWrite : No data.");
 		}
 	}
 }
