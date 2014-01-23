@@ -1,6 +1,7 @@
 import input.CloudIn;
 import input.FilesIn;
 import input.LogFileIn;
+import input.OutputSetupIn;
 import input.ProductionIn;
 import input.SiteIn;
 import input.SoilsIn;
@@ -23,6 +24,7 @@ public class Main {
 		ProductionIn prod = new ProductionIn();
 		SiteIn site = new SiteIn();
 		SoilsIn soils = new SoilsIn();
+		OutputSetupIn outSetup = new OutputSetupIn();
 		
 		try {
 			//Test Read
@@ -38,6 +40,7 @@ public class Main {
 			prod.onRead(files.getPlantProductivityIn(true));
 			site.onRead(files.getSiteParametersIn(true));
 			soils.onRead(files.getSoilsIn(true));
+			outSetup.onRead(files.getOutputSetupIn(true), files.getOutputDirectory(true), site.getDeepdrain());
 			
 			//Verify Data
 			cloud.onVerify();
@@ -59,6 +62,7 @@ public class Main {
 			prod.onWrite(files.getPlantProductivityIn(true));
 			site.onWrite(files.getSiteParametersIn(true));
 			soils.onWrite(files.getSoilsIn(true));
+			outSetup.onWrite(files.getOutputSetupIn(true));
 			
 			//test weatherHistory functionality
 			files.setProjectDirectory(Paths.get("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/"));

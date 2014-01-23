@@ -11,7 +11,7 @@ import java.util.List;
 
 import defines.Defines;
 
-public class OutputIn {
+public class OutputSetupIn {
 	
 	private static final int SW_OUTNKEYS=28;/* must also match number of items in enum (minus eSW_NoKey and eSW_LastKey) */
 	
@@ -31,9 +31,9 @@ public class OutputIn {
 		eSW_VWCBulk (6, "VWCBULK",Defines.ObjType.eSWC),
 		eSW_VWCMatric (7, "VWCMATRIC",Defines.ObjType.eSWC),
 		eSW_SWCBulk (8, "SWCBULK",Defines.ObjType.eSWC),
-		eSW_SWABulk (9, "SWPMATRIC",Defines.ObjType.eSWC),
-		eSW_SWAMatric (10, "SWABULK",Defines.ObjType.eSWC),
-		eSW_SWPMatric (11, "SWAMATRIC",Defines.ObjType.eSWC),
+		eSW_SWABulk (9, "SWABULK",Defines.ObjType.eSWC),
+		eSW_SWAMatric (10, "SWAMATRIC",Defines.ObjType.eSWC),
+		eSW_SWPMatric (11, "SWPMATRIC",Defines.ObjType.eSWC),
 		eSW_SurfaceWater (12, "SURFACEWATER",Defines.ObjType.eSWC),
 		eSW_Transp (13, "TRANSP",Defines.ObjType.eSWC),
 		eSW_EvapSoil (14, "EVAPSOIL",Defines.ObjType.eSWC),
@@ -52,7 +52,7 @@ public class OutputIn {
 		eSW_AllVeg (26,"ALLVEG",Defines.ObjType.eVES),
 		eSW_Estab (27,"ESTABL",Defines.ObjType.eVES), /* make sure this is the last one */
 		eSW_LastKey (28, "END",Defines.ObjType.eNONE);
-		
+			
 		private final int index;
 		private final String name;
 		private final Defines.ObjType object;
@@ -79,6 +79,14 @@ public class OutputIn {
 		public Defines.ObjType objType() {
 			return this.object;
 		}
+		public static OutKey getEnum(String value) {
+			if(value==null)
+				throw new IllegalArgumentException();
+			for (OutKey v : values()) {
+				if(value.equalsIgnoreCase(v.key())) return v;
+			}
+			throw new IllegalArgumentException();
+		}
 	}
 	/* output period specifiers found in input file */
 	public enum OutPeriod {
@@ -89,6 +97,15 @@ public class OutputIn {
 		
 		private final int index;
 		private final String name;
+		
+		public static OutPeriod getEnum(String value) {
+			if(value==null)
+				throw new IllegalArgumentException();
+			for (OutPeriod v : values()) {
+				if(value.equalsIgnoreCase(v.key())) return v;
+			}
+			throw new IllegalArgumentException();
+		}
 		
 		private OutPeriod(int index, String name) {
 			this.index = index;
@@ -112,12 +129,20 @@ public class OutputIn {
 		private OutSum(int index, String name) {
 			this.index = index;
 			this.name = name;
-		}
+		}		
 		public int idx() {
 			return this.index;
 		}
 		public String key() {
 			return this.name;
+		}
+		public static OutSum getEnum(String value) {
+			if(value==null)
+				throw new IllegalArgumentException();
+			for (OutSum v : values()) {
+				if(value.equalsIgnoreCase(v.key())) return v;
+			}
+			throw new IllegalArgumentException();
 		}
 	}
 	
@@ -126,12 +151,45 @@ public class OutputIn {
 		private Defines.ObjType myobj;
 		private OutPeriod period;
 		private OutSum sumtype;
+		private String filename_prefix;
 		private boolean use;
 		private int first, last, /* updated for each year */
 			first_orig, last_orig;
 		private int yr_row, mo_row, wk_row, dy_row;
 		private Path file_dy, file_wk, file_mo, file_yr;
 		
+		private final String[] comments = {"/* */",
+			"/* max., min, average temperature (C) */",
+			"/* total precip = sum(rain, snow), rain, snow-fall, snowmelt, and snowloss (cm) */",
+			"/* water to infiltrate in top soil layer (cm), runoff (cm); (not-intercepted rain)+(snowmelt-runoff) */",
+			"/* runoff (cm): total runoff, runoff from ponded water, runoff from snowmelt */",
+			"/* */",
+			"/* bulk volumetric soilwater (cm / layer) */",
+			"/* matric volumetric soilwater (cm / layer) */",
+			"/* bulk soilwater content (cm / cm layer); swc.l1(today) = swc.l1(yesterday)+inf_soil-lyrdrain.l1-transp.l1-evap_soil.l1; swc.li(today) = swc.li(yesterday)+lyrdrain.l(i-1)-lyrdrain.li-transp.li-evap_soil.li; swc.llast(today) = swc.llast(yesterday)+lyrdrain.l(last-1)-deepswc-transp.llast-evap_soil.llast */",
+			"/* bulk available soil water (cm/layer) = swc - wilting point */",
+			"/* matric available soil water (cm/layer) = swc - wilting point */",
+			"/* matric soilwater potential (-bars) */",
+			"/* surface water (cm) */",
+			"/* transpiration from each soil layer (cm): total, trees, shrubs, forbs, grasses */",
+			"/* bare-soil evaporation from each soil layer (cm) */",
+			"/* evaporation (cm): total, trees, shrubs, forbs, grasses, litter, surface water */",
+			"/* intercepted rain (cm): total, trees, shrubs, forbs, grasses, and litter (cm) */",
+			"/* water percolated from each layer (cm) */",
+			"/* hydraulic redistribution from each layer (cm): total, trees, shrubs, forbs, grasses */",
+			"/* */",
+			"/* actual evapotr. (cm) */",
+			"/* potential evaptr (cm) */",
+			"/* days above swc_wet */",
+			"/* snowpack water equivalent (cm), snowdepth (cm); since snowpack is already summed, use avg - sum sums the sums = nonsense */",
+			"/* deep drainage into lowest layer (cm) */",
+			"/* soil temperature from each soil layer (in celsius) */",
+			"/* */",
+			"/* yearly establishment results */"};
+		
+		public String toString() {
+			return String.format("%13s %7s   %6s      %2s     %3s %15s      %s", mykey.key(),sumtype.key(),period.key(),this.first_orig, this.last_orig==366?"end":this.last_orig,filename_prefix, comments[mykey.idx()]);
+		}
 	}
 	
 	private SW_OUTPUT[] SW_Output;
@@ -143,7 +201,7 @@ public class OutputIn {
 	private int timeStep[];
 	private int[][] timeSteps;
 	
-	public OutputIn() {
+	public OutputSetupIn() {
 		this.SW_Output = new SW_OUTPUT[SW_OUTNKEYS];
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			this.SW_Output[i] = new SW_OUTPUT();
@@ -170,10 +228,11 @@ public class OutputIn {
 				
 				if(values[0].equals("TIMESTEP")) {
 					for(int i=1; i<values.length; i++) {
-						timeStep[i-1] = OutPeriod.valueOf(values[i]).idx();
+						timeStep[i-1] = OutPeriod.getEnum(values[i].toUpperCase()).idx();
 						numPeriod++;
 					}
 					useTimeStep=true;
+					continue;
 				} else {
 					if(values.length < 6) {
 						if(values[0].equals("OUTSEP")) {
@@ -183,14 +242,16 @@ public class OutputIn {
 								_sep=" ";
 							else
 								_sep=values[1];
+							continue;
 						} else {
 							f.LogError(LogMode.LOGERROR, "OutputSetupIn onRead: Insufficient key parameters for item.");
+							continue;
 						}
 					}
-					k = OutKey.valueOf(values[0]);
+					k = OutKey.getEnum(values[0]);
 					for(int i=0; i< numPeriods; i++) {
 						if(i<1 && !useTimeStep) {
-							timeSteps[k.idx()][i] = OutPeriod.valueOf(values[2]).idx();
+							timeSteps[k.idx()][i] = OutPeriod.getEnum(values[2]).idx();
 						} else if(i<numPeriod && useTimeStep) {
 							timeSteps[k.idx()][i] = timeStep[i];
 						} else {
@@ -210,7 +271,7 @@ public class OutputIn {
 					continue;
 				}
 				/* check validity of summary type */
-				SW_Output[k.idx()].sumtype = OutSum.valueOf(values[1]);
+				SW_Output[k.idx()].sumtype = OutSum.getEnum(values[1]);
 				if (SW_Output[k.idx()].sumtype == OutSum.eSW_Fnl && !(k == OutKey.eSW_VWCBulk || k == OutKey.eSW_VWCMatric || k == OutKey.eSW_SWPMatric || k == OutKey.eSW_SWCBulk || k == OutKey.eSW_SWABulk || k == OutKey.eSW_SWAMatric || k == OutKey.eSW_DeepSWC)) {
 					f.LogError(LogMode.LOGWARN, OutputSetupIn.toString()+" : Summary Type FIN with key "+k.key()+" is meaningless.\n"+"  Using type AVG instead.");
 					SW_Output[k.idx()].sumtype = OutSum.eSW_Avg;
@@ -225,7 +286,8 @@ public class OutputIn {
 				if (SW_Output[k.idx()].use) {
 					SW_Output[k.idx()].mykey = k;
 					SW_Output[k.idx()].myobj = k.objType();
-					SW_Output[k.idx()].period = OutPeriod.valueOf(values[2]);
+					SW_Output[k.idx()].period = OutPeriod.getEnum(values[2]);
+					SW_Output[k.idx()].filename_prefix = values[5];
 					try {
 						SW_Output[k.idx()].first_orig = Integer.valueOf(values[3]);
 						if(values[4].toLowerCase().equals("end"))
@@ -270,7 +332,7 @@ public class OutputIn {
 		this.data = true;
 	}
 	
-	public void onWrite(Path OutputSetupIn) {
+	public void onWrite(Path OutputSetupIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Output setup file for SOILWAT v4 compiled on Mac OS X (20100202)");
@@ -343,8 +405,12 @@ public class OutputIn {
 				lines.add(temp);
 			}
 			lines.add("");
-			lines.add(String.format("#  %4s        %7s   %6s   %5s    %3s    %15s   %7s","key","SUMTYPE","PERIOD","start","end","filename_prefix","comment"));
-			
+			lines.add(String.format("#     %4s     %7s   %6s   %5s    %3s    %15s   %7s","key","SUMTYPE","PERIOD","start","end","filename_prefix","comment"));
+			for(int i=0; i<SW_OUTNKEYS; i++) {
+				if(SW_Output[i].use)
+					lines.add(SW_Output[i].toString());
+			}
+			Files.write(OutputSetupIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
 			f.LogError(LogMode.LOGWARN, "ProductionIn : onWrite : No data.");
