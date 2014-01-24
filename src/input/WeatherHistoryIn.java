@@ -96,7 +96,7 @@ public class WeatherHistoryIn {
 		public void onWrite(Path WeatherHistoryFolder, String prefix) throws IOException {
 			if(this.data) {
 				List<String> lines = new ArrayList<String>();
-				lines.add("# weather for site 002_-119.415_39.046 year =  1949");
+				lines.add("# weather for year = "+this.getYear());
 				lines.add("# DOY Tmax(C) Tmin(C) PPT(cm)");
 				for(int i=0; i<this.nDaysInYear; i++)
 					lines.add(String.valueOf(i+1)+"\t"+String.valueOf(this.temp_max[i])+"\t"+String.valueOf(this.temp_min[i])+"\t"+String.valueOf(this.ppt[i]));

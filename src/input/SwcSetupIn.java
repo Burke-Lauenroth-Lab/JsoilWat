@@ -19,16 +19,7 @@ public class SwcSetupIn {
 	private SW_TIMES yr;
 	private String filePrefix;
 	private boolean data;
-	
-	private class SW_SOILWAT_HIST {
-		private double swc[][];
-		private double std_err[][];
-		public SW_SOILWAT_HIST() {
-			this.swc = new double[Times.MAX_DAYS][Defines.MAX_LAYERS];
-			this.std_err = new double[Times.MAX_DAYS][Defines.MAX_LAYERS];
-		}
-	}
-	
+		
 	public SwcSetupIn() {
 		method = 0;
 		yr = new SW_TIMES();
