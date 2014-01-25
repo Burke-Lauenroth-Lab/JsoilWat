@@ -12,7 +12,7 @@ import java.util.List;
 import defines.Defines;
 
 public class SoilsIn {
-	private class Layer {
+	private class SW_LAYER_INFO {
 		public double depth,/*for printing out line*/
 		width, /* width of the soil layer (cm) */
 		soilBulk_density, /* bulk soil density, i.e., including gravel component, (g/cm3) */
@@ -53,7 +53,7 @@ public class SoilsIn {
 		}
 	}
 	
-	private Layer[] layers;
+	private SW_LAYER_INFO[] layers;
 	private boolean data;
 	private boolean deepdrainSet;
 	private int n_layers, /* total number of soil layers */
@@ -63,9 +63,9 @@ public class SoilsIn {
 	deep_lyr; /* index of deep drainage layer if deepdrain, 0 otherwise */
 	
 	public SoilsIn() {
-		this.layers = new Layer[Defines.MAX_LAYERS];
+		this.layers = new SW_LAYER_INFO[Defines.MAX_LAYERS];
 		for(int i=0; i<Defines.MAX_LAYERS;  i++)
-			this.layers[i] = new Layer();
+			this.layers[i] = new SW_LAYER_INFO();
 		this.data = false;
 		this.deepdrainSet = false;
 		this.n_layers = 0;

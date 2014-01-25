@@ -27,6 +27,7 @@ public final class Times {
 	public static final int MAX_DAYS = 366;
 	
 	public static final int WKDAYS = 7;
+	public static final int WEEKDAYS=7;
 	/* number of days in each week. unlikely to change, but
 	 * useful as a readable indicator of usage where it occurs.
 	 * On the other hand, it is conceivable that one might be
@@ -41,6 +42,10 @@ public final class Times {
 	private static int[] days_in_month = new int[MAX_MONTHS], cum_monthdays = new int[MAX_MONTHS + 1];
 	private static Date _timestamp;
 	private static Calendar _tym; /* "current" time for the code */
+	
+	public static int Doy2Week(int d) {
+		return(((int)(((d)-1) /WEEKDAYS)));
+	}
 	
 	public static Date get_timestamp() {
 		return _timestamp;

@@ -36,7 +36,7 @@ public class Main {
 			f.setLogFile(files.getLogFileIn(true));
 			
 			//Read Data
-			cloud.onReadCloudIn(files.getCloudIn(true));
+			cloud.onRead(files.getCloudIn(true));
 			years.onReadYearsIn(files.getYearsIn(true));
 			weatherSetup.setLastYear(years.getEndYear());
 			weatherSetup.onRead(files.getWeatherSetupIn(true));
@@ -61,7 +61,7 @@ public class Main {
 			files.onCreateFiles();
 			files.onVerify();
 			files.onWriteFilesIn();
-			cloud.onWriteCloudIn(files.getCloudIn(true));
+			cloud.onWrite(files.getCloudIn(true));
 			years.onWriteYearsIn(files.getYearsIn(true));
 			weatherSetup.onWrite(files.getWeatherSetupIn(true));
 			weatherHistory.onWrite(files.getWeatherPath(true),files.getWeatherPrefix());
