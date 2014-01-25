@@ -1,4 +1,6 @@
 package input;
+import input.LogFileIn.LogMode;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,37 +24,7 @@ public class CloudIn {
 	private double[] snow_density; /* snow density (kg/m3) */
 	private boolean data;
 	
-	public double[] getCloudcov() {
-		return cloudcov;
-	}
-
-	public void setCloudcov(double[] cloudcov) {
-		this.cloudcov = cloudcov;
-	}
-
-	public double[] getWindspeed() {
-		return windspeed;
-	}
-
-	public void setWindspeed(double[] windspeed) {
-		this.windspeed = windspeed;
-	}
-
-	public double[] getR_humidity() {
-		return r_humidity;
-	}
-
-	public void setR_humidity(double[] r_humidity) {
-		this.r_humidity = r_humidity;
-	}
-
-	public double[] getSnow_density() {
-		return snow_density;
-	}
-
-	public void setSnow_density(double[] snow_density) {
-		this.snow_density = snow_density;
-	}
+	
 
 	public CloudIn() {
 		this.data = false;
@@ -85,20 +57,21 @@ public class CloudIn {
 			return false;
 	}
 	
-	public void onReadCloudIn(Path CloudIn) throws IOException {
+	public void onRead(Path CloudIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(CloudIn, StandardCharsets.UTF_8);
-
-		if(lines.size() < 5)
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : not enough lines.");
-		try {
-			for (int i=0;i<5;i++) {
-				if(!lines.get(i).equals("[ \t]*")) {
-					String[] values = lines.get(i).split("[ \t]+");
-					if(values.length < 12)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : Line "+String.valueOf(i+1)+": Not enough values.");
-					for (int j=0; j<12; j++) {
-						switch (i) {
+		int lineno=0;
+		
+		for (String line : lines) {
+			//Skip Comments and empty lines
+			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+				line = line.trim();
+				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
+				if(values.length < 12)
+					f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : Line "+String.valueOf(lineno+1)+": Not enough values.");
+				for (int j=0; j<12; j++) {
+					try {
+						switch (lineno) {
 						case 0:
 							cloudcov[j] = Double.parseDouble(values[j]);
 							break;
@@ -116,15 +89,16 @@ public class CloudIn {
 						default:
 							break;
 						}
+					} catch(NumberFormatException e) {
+						f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : Line:"+String.valueOf(lineno)+" Could not convert string to number." + e.getMessage());
 					}
 				}
+				lineno++;
 			}
-		} catch(NumberFormatException e) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : Could not convert string to number." + e.getMessage());
 		}
 		this.data = true;
 	}
-	public void onWriteCloudIn(Path CloudIn) throws IOException {
+	public void onWrite(Path CloudIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();

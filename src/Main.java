@@ -1,4 +1,5 @@
 import input.CloudIn;
+import input.EstabIn;
 import input.FilesIn;
 import input.LogFileIn;
 import input.OutputSetupIn;
@@ -27,6 +28,7 @@ public class Main {
 		SoilsIn soils = new SoilsIn();
 		OutputSetupIn outSetup = new OutputSetupIn();
 		SwcSetupIn swcsetup = new SwcSetupIn();
+		EstabIn estab = new EstabIn();
 		
 		try {
 			//Test Read
@@ -34,7 +36,7 @@ public class Main {
 			f.setLogFile(files.getLogFileIn(true));
 			
 			//Read Data
-			cloud.onReadCloudIn(files.getCloudIn(true));
+			cloud.onRead(files.getCloudIn(true));
 			years.onReadYearsIn(files.getYearsIn(true));
 			weatherSetup.setLastYear(years.getEndYear());
 			weatherSetup.onRead(files.getWeatherSetupIn(true));
@@ -44,6 +46,7 @@ public class Main {
 			soils.onRead(files.getSoilsIn(true));
 			outSetup.onRead(files.getOutputSetupIn(true), files.getOutputDirectory(true), site.getDeepdrain());
 			swcsetup.onRead(files.getSWCSetupIn(true));
+			estab.onRead(files.getEstablishmentIn(true), files.getProjectDirectory());
 			
 			//Verify Data
 			cloud.onVerify();
@@ -58,7 +61,7 @@ public class Main {
 			files.onCreateFiles();
 			files.onVerify();
 			files.onWriteFilesIn();
-			cloud.onWriteCloudIn(files.getCloudIn(true));
+			cloud.onWrite(files.getCloudIn(true));
 			years.onWriteYearsIn(files.getYearsIn(true));
 			weatherSetup.onWrite(files.getWeatherSetupIn(true));
 			weatherHistory.onWrite(files.getWeatherPath(true),files.getWeatherPrefix());
@@ -67,6 +70,7 @@ public class Main {
 			soils.onWrite(files.getSoilsIn(true));
 			outSetup.onWrite(files.getOutputSetupIn(true));
 			swcsetup.onWrite(files.getSWCSetupIn(true));
+			estab.onWrite(files.getEstablishmentIn(true), files.getProjectDirectory());
 			
 			//test weatherHistory functionality
 			files.setProjectDirectory(Paths.get("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/"));
