@@ -340,7 +340,7 @@ public class ProductionIn {
 				switch (this.nFileItemsRead) {
 				case 0:
 					if(values.length != 5)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : VegetationComposition : Expected 5 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : VegetationComposition : Expected 5 Values read "+String.valueOf(values.length));
 					try {
 						this.vegComp.grasses = Double.parseDouble(values[0]);
 						this.vegComp.shrubs = Double.parseDouble(values[1]);
@@ -348,12 +348,12 @@ public class ProductionIn {
 						this.vegComp.forbs = Double.parseDouble(values[3]);
 						this.vegComp.bareGround = Double.parseDouble(values[4]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : VegetationComposition : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : VegetationComposition : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 1:
 					if(values.length != 5)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Albedo : Expected 5 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Albedo : Expected 5 Values read "+String.valueOf(values.length));
 					try {
 						this.albedo.grasses = Double.parseDouble(values[0]);
 						this.albedo.shrubs = Double.parseDouble(values[1]);
@@ -361,337 +361,337 @@ public class ProductionIn {
 						this.albedo.forbs = Double.parseDouble(values[3]);
 						this.albedo.bareGround = Double.parseDouble(values[4]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Albedo : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Albedo : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 2:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Cover Percent : Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Cover Percent : Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.cover.grasses = Double.parseDouble(values[0]);
 						this.cover.shrubs = Double.parseDouble(values[1]);
 						this.cover.trees = Double.parseDouble(values[2]);
 						this.cover.forbs = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Cover Percent : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Cover Percent : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 3:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - xinflec : Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - xinflec : Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.canopy.grasses.xinflec = Double.parseDouble(values[0]);
 						this.canopy.shrubs.xinflec = Double.parseDouble(values[1]);
 						this.canopy.trees.xinflec = Double.parseDouble(values[2]);
 						this.canopy.forbs.xinflec = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - xinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - xinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 4:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - yinflec : Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - yinflec : Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.canopy.grasses.yinflec = Double.parseDouble(values[0]);
 						this.canopy.shrubs.yinflec = Double.parseDouble(values[1]);
 						this.canopy.trees.yinflec = Double.parseDouble(values[2]);
 						this.canopy.forbs.yinflec = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - yinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - yinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 5:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - range : Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - range : Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.canopy.grasses.range = Double.parseDouble(values[0]);
 						this.canopy.shrubs.range = Double.parseDouble(values[1]);
 						this.canopy.trees.range = Double.parseDouble(values[2]);
 						this.canopy.forbs.range = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - range : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - range : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 6:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - slope : Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - slope : Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.canopy.grasses.slope = Double.parseDouble(values[0]);
 						this.canopy.shrubs.slope = Double.parseDouble(values[1]);
 						this.canopy.trees.slope = Double.parseDouble(values[2]);
 						this.canopy.forbs.slope = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 7:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - height: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - height: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.canopy.grasses.canopyHeight = Double.parseDouble(values[0]);
 						this.canopy.shrubs.canopyHeight = Double.parseDouble(values[1]);
 						this.canopy.trees.canopyHeight = Double.parseDouble(values[2]);
 						this.canopy.forbs.canopyHeight = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Canopy Height - height : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Canopy Height - height : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 8:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - a: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - a: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.vegInterception.grasses.a = Double.parseDouble(values[0]);
 						this.vegInterception.shrubs.a = Double.parseDouble(values[1]);
 						this.vegInterception.trees.a = Double.parseDouble(values[2]);
 						this.vegInterception.forbs.a = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - a: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - a: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 9:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - b: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - b: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.vegInterception.grasses.b = Double.parseDouble(values[0]);
 						this.vegInterception.shrubs.b = Double.parseDouble(values[1]);
 						this.vegInterception.trees.b = Double.parseDouble(values[2]);
 						this.vegInterception.forbs.b = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - b: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - b: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 10:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - c: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - c: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.vegInterception.grasses.c = Double.parseDouble(values[0]);
 						this.vegInterception.shrubs.c = Double.parseDouble(values[1]);
 						this.vegInterception.trees.c = Double.parseDouble(values[2]);
 						this.vegInterception.forbs.c = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - c: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - c: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 11:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - d: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - d: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.vegInterception.grasses.d = Double.parseDouble(values[0]);
 						this.vegInterception.shrubs.d = Double.parseDouble(values[1]);
 						this.vegInterception.trees.d = Double.parseDouble(values[2]);
 						this.vegInterception.forbs.d = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Vegetation interception - d: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Vegetation interception - d: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 12:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - a: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - a: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.litterInterception.grasses.a = Double.parseDouble(values[0]);
 						this.litterInterception.shrubs.a = Double.parseDouble(values[1]);
 						this.litterInterception.trees.a = Double.parseDouble(values[2]);
 						this.litterInterception.forbs.a = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - a: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - a: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 13:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - b: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - b: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.litterInterception.grasses.b = Double.parseDouble(values[0]);
 						this.litterInterception.shrubs.b = Double.parseDouble(values[1]);
 						this.litterInterception.trees.b = Double.parseDouble(values[2]);
 						this.litterInterception.forbs.b = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - b: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - b: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 14:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - c: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - c: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.litterInterception.grasses.c = Double.parseDouble(values[0]);
 						this.litterInterception.shrubs.c = Double.parseDouble(values[1]);
 						this.litterInterception.trees.c = Double.parseDouble(values[2]);
 						this.litterInterception.forbs.c = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - c: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - c: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 15:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - d: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - d: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.litterInterception.grasses.d = Double.parseDouble(values[0]);
 						this.litterInterception.shrubs.d = Double.parseDouble(values[1]);
 						this.litterInterception.trees.d = Double.parseDouble(values[2]);
 						this.litterInterception.forbs.d = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Litter interception - d: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Litter interception - d: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 16:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : estPartitioning: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : estPartitioning: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.estPartitioning.grasses = Double.parseDouble(values[0]);
 						this.estPartitioning.shrubs = Double.parseDouble(values[1]);
 						this.estPartitioning.trees = Double.parseDouble(values[2]);
 						this.estPartitioning.forbs = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : estPartitioning: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : estPartitioning: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 17:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : esLimit: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : esLimit: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.esLimit.grasses = Double.parseDouble(values[0]);
 						this.esLimit.shrubs = Double.parseDouble(values[1]);
 						this.esLimit.trees = Double.parseDouble(values[2]);
 						this.esLimit.forbs = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : esLimit: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : esLimit: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 18:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - shadeScale: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - shadeScale: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.shade.grasses.shadeScale = Double.parseDouble(values[0]);
 						this.shade.shrubs.shadeScale = Double.parseDouble(values[1]);
 						this.shade.trees.shadeScale = Double.parseDouble(values[2]);
 						this.shade.forbs.shadeScale = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - shadeScale: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - shadeScale: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 19:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - shadeMaximalDeadBiomass: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - shadeMaximalDeadBiomass: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.shade.grasses.shadeMaximalDeadBiomass = Double.parseDouble(values[0]);
 						this.shade.shrubs.shadeMaximalDeadBiomass = Double.parseDouble(values[1]);
 						this.shade.trees.shadeMaximalDeadBiomass = Double.parseDouble(values[2]);
 						this.shade.forbs.shadeMaximalDeadBiomass = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - shadeMaximalDeadBiomass: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - shadeMaximalDeadBiomass: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 20:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - xinflec: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - xinflec: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.shade.grasses.xinflec = Double.parseDouble(values[0]);
 						this.shade.shrubs.xinflec = Double.parseDouble(values[1]);
 						this.shade.trees.xinflec = Double.parseDouble(values[2]);
 						this.shade.forbs.xinflec = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - xinflec: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - xinflec: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 21:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - yinflec: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - yinflec: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.shade.grasses.yinflec = Double.parseDouble(values[0]);
 						this.shade.shrubs.yinflec = Double.parseDouble(values[1]);
 						this.shade.trees.yinflec = Double.parseDouble(values[2]);
 						this.shade.forbs.yinflec = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - yinflec: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - yinflec: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 22:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - range: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - range: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.shade.grasses.range = Double.parseDouble(values[0]);
 						this.shade.shrubs.range = Double.parseDouble(values[1]);
 						this.shade.trees.range = Double.parseDouble(values[2]);
 						this.shade.forbs.range = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - range: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - range: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 23:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - slope: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - slope: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.shade.grasses.slope = Double.parseDouble(values[0]);
 						this.shade.shrubs.slope = Double.parseDouble(values[1]);
 						this.shade.trees.slope = Double.parseDouble(values[2]);
 						this.shade.forbs.slope = Double.parseDouble(values[3]); 
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Shade - slope: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Shade - slope: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 24:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - flag: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - flag: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.hydraulicRedistribution.grasses.flag = Integer.parseInt(values[0])>0 ? true : false;
 						this.hydraulicRedistribution.shrubs.flag = Integer.parseInt(values[1])>0 ? true : false;
 						this.hydraulicRedistribution.trees.flag = Integer.parseInt(values[2])>0 ? true : false;
 						this.hydraulicRedistribution.forbs.flag = Integer.parseInt(values[3])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - flag: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - flag: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 25:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - maxCondroot: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - maxCondroot: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.hydraulicRedistribution.grasses.maxCondRoot = Double.parseDouble(values[0]);
 						this.hydraulicRedistribution.shrubs.maxCondRoot = Double.parseDouble(values[1]);
 						this.hydraulicRedistribution.trees.maxCondRoot = Double.parseDouble(values[2]);
 						this.hydraulicRedistribution.forbs.maxCondRoot = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - maxCondroot: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - maxCondroot: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 26:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - swp50: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - swp50: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.hydraulicRedistribution.grasses.swp50 = Double.parseDouble(values[0]);
 						this.hydraulicRedistribution.shrubs.swp50 = Double.parseDouble(values[1]);
 						this.hydraulicRedistribution.trees.swp50 = Double.parseDouble(values[2]);
 						this.hydraulicRedistribution.forbs.swp50 = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - swp50: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - swp50: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 27:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - shapeCond: Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - shapeCond: Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.hydraulicRedistribution.grasses.shapeCond = Double.parseDouble(values[0]);
 						this.hydraulicRedistribution.shrubs.shapeCond = Double.parseDouble(values[1]);
 						this.hydraulicRedistribution.trees.shapeCond = Double.parseDouble(values[2]);
 						this.hydraulicRedistribution.forbs.shapeCond = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Hydraulic redistribution - shapeCond: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Hydraulic redistribution - shapeCond: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 28:
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Critical soil water potential (MPa): Expected 4 Values read "+String.valueOf(values.length));
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Critical soil water potential (MPa): Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.criticalSWP.grasses = Double.parseDouble(values[0]);
 						this.criticalSWP.shrubs = Double.parseDouble(values[1]);
 						this.criticalSWP.trees = Double.parseDouble(values[2]);
 						this.criticalSWP.forbs = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Critical soil water potential (MPa): Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Critical soil water potential (MPa): Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				default:
 					if(this.nFileItemsRead > 28 && this.nFileItemsRead <= 40) {
 						if(values.length != 4)
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
 						try {
 							month = this.nFileItemsRead-29;
 							this.monthlyProd.grasses.litter[month] = Double.parseDouble(values[0]);
@@ -699,11 +699,11 @@ public class ProductionIn {
 							this.monthlyProd.grasses.percLive[month] = Double.parseDouble(values[2]);
 							this.monthlyProd.grasses.lai_conv[month] = Double.parseDouble(values[3]);
 						} catch(NumberFormatException e) {
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}
 					} else if(this.nFileItemsRead > 40 && this.nFileItemsRead <= 52) {
 						if(values.length != 4)
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
 						try {
 							month = this.nFileItemsRead-41;
 							this.monthlyProd.shrubs.litter[month] = Double.parseDouble(values[0]);
@@ -711,11 +711,11 @@ public class ProductionIn {
 							this.monthlyProd.shrubs.percLive[month] = Double.parseDouble(values[2]);
 							this.monthlyProd.shrubs.lai_conv[month] = Double.parseDouble(values[3]);
 						} catch(NumberFormatException e) {
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}
 					} else if(this.nFileItemsRead > 52 && this.nFileItemsRead <= 64) {
 						if(values.length != 4)
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
 						try {
 							month = this.nFileItemsRead-53;
 							this.monthlyProd.trees.litter[month] = Double.parseDouble(values[0]);
@@ -723,11 +723,11 @@ public class ProductionIn {
 							this.monthlyProd.trees.percLive[month] = Double.parseDouble(values[2]);
 							this.monthlyProd.trees.lai_conv[month] = Double.parseDouble(values[3]);
 						} catch(NumberFormatException e) {
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}
 					} else if(this.nFileItemsRead > 64 && this.nFileItemsRead <= 76) {
 						if(values.length != 4)
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Expected 4 Values read "+String.valueOf(values.length));
 						try {
 							month = this.nFileItemsRead-65;
 							this.monthlyProd.forbs.litter[month] = Double.parseDouble(values[0]);
@@ -735,10 +735,10 @@ public class ProductionIn {
 							this.monthlyProd.forbs.percLive[month] = Double.parseDouble(values[2]);
 							this.monthlyProd.forbs.lai_conv[month] = Double.parseDouble(values[3]);
 						} catch(NumberFormatException e) {
-							f.LogError(LogFileIn.LogMode.LOGERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
+							f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}
 					} else {
-						f.LogError(LogMode.LOGERROR, "Unknown line read. "+line);
+						f.LogError(LogMode.ERROR, "Unknown line read. "+line);
 					}
 					break;
 				}
@@ -898,7 +898,7 @@ public class ProductionIn {
 			Files.write(prodIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "ProductionIn : onWrite : No data.");
+			f.LogError(LogMode.WARN, "ProductionIn : onWrite : No data.");
 		}
 	}
 }

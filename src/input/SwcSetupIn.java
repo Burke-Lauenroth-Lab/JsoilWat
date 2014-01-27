@@ -41,49 +41,49 @@ public class SwcSetupIn {
 				switch (lineno) {
 				case 0:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Expected only one value for swc history use line.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc history use line.");
 					try {
 						this.useSWCHistoryData = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Could not convert swc history use line.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert swc history use line.");
 					}
 					break;
 				case 1:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Expected only one value for swc file prefix.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc file prefix.");
 					this.filePrefix = values[0];
 					break;
 				case 2:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Expected only one value for swc history start year.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc history start year.");
 					try {
 						this.yr.setFirst(Integer.parseInt(values[0]));
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Could not convert swc first year line.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert swc first year line.");
 					}
 					break;
 				case 3:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Expected only one value for method.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for method.");
 					try {
 						this.method = Integer.parseInt(values[0]);
 						if(this.method < 1 || this.method >2)
-							f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Invalid swc adjustment method.");
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Invalid swc adjustment method.");
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Could not convert method line.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert method line.");
 					}
 					break;
 				default:
 					System.out.println(line);
 					if(lineno > nitems)
-						f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Too many lines.");
+						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too many lines.");
 					break;
 				}
 				lineno++;
 			}
 		}
 		if(lineno < nitems)
-			f.LogError(LogMode.LOGERROR, "SwcSetupIn onRead : Too few lines.");
+			f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too few lines.");
 		this.data = true;
 	}
 	public void onWrite(Path swcSetupIn) throws IOException {
@@ -99,7 +99,7 @@ public class SwcSetupIn {
 			Files.write(swcSetupIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "SwcSetupIn : onWrite : No data.");
+			f.LogError(LogMode.WARN, "SwcSetupIn : onWrite : No data.");
 		}
 	}
 }

@@ -73,13 +73,13 @@ public class SW_MODEL {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			if(this.startyr < 0)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears StartYear Negative.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears StartYear Negative.");
 			if(this.endyr < 0)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears EndYear Negative.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears EndYear Negative.");
 			if(this.endyr < this.startyr)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears StartYear > EndYear Negative.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears StartYear > EndYear Negative.");
 			if(this.daymid == 0)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears Day Middle not set.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears Day Middle not set.");
 			return true;
 		} else {
 			return false;
@@ -130,7 +130,7 @@ public class SW_MODEL {
 		boolean fhemi=false,fenddy=false,fstartdy=false;
 		int d=0;
 		if(lines.isEmpty() | lines.size() < 5 ) {
-			f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears onReadYearsIn Empty or not enough Lines.");
+			f.LogError(LogFileIn.LogMode.FATAL, "swYears onReadYearsIn Empty or not enough Lines.");
 		}
 		try {
 			this.startyr = Integer.parseInt(lines.get(nLineStartYear).split("[ \t]+")[0]);
@@ -151,7 +151,7 @@ public class SW_MODEL {
 				}
 			}
 		} catch (NumberFormatException e) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swYears onReadYearsIn could not read integer: "+e.getMessage());
+			f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read integer: "+e.getMessage());
 		}
 		if(lines.size() > 5) {
 			if(FirstEnd)
@@ -163,7 +163,7 @@ public class SW_MODEL {
 				this.isnorth = false;
 				fhemi = true;
 			} else {
-				f.LogError(LogFileIn.LogMode.LOGWARN, "swYears onReadYearsIn isNorth format wrong: Set to TRUE");
+				f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn isNorth format wrong: Set to TRUE");
 				this.isnorth = true;
 			}
 		}
@@ -179,7 +179,7 @@ public class SW_MODEL {
 				message += "\tHemisphere - using 'N'\n";
 				this.isnorth = true;
 			}
-			f.LogError(LogFileIn.LogMode.LOGWARN, "swYears onReadYearsIn : "+message);
+			f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn : "+message);
 		}
 		this.startstart += ((this.isIsNorth()) ? Times.DAYFIRST_NORTH : Times.DAYFIRST_SOUTH) - 1;
 		if(endString)
@@ -208,7 +208,7 @@ public class SW_MODEL {
 			Files.write(YearsIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swYears onWriteYears : No Data.");
+			f.LogError(LogFileIn.LogMode.ERROR, "swYears onWriteYears : No Data.");
 		}
 	}
 

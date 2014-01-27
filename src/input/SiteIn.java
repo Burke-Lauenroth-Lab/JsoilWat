@@ -163,258 +163,258 @@ public class SiteIn {
 					try {
 						this.swc.swc_min = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : SWC Limit - swc_min : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : SWC Limit - swc_min : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 1:
 					try {
 						this.swc.swc_init = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : SWC Limit - swc_init : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : SWC Limit - swc_init : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 2:
 					try {
 						this.swc.swc_wet = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : SWC Limit - swc_wet : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : SWC Limit - swc_wet : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 3:
 					try {
 						this.model.flags.reset = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Flags - reset : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Flags - reset : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 4:
 					try {
 						this.model.flags.deepdrain = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Flags - deepdrain : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Flags - deepdrain : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 5:
 					try {
 						this.model.coefficients.petMultiplier = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Coefficients - PET multiplier : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Coefficients - PET multiplier : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 6:
 					try {
 						this.model.coefficients.percentRunoff = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Coefficients - runoff : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Coefficients - runoff : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 7:
 					try {
 						this.snow.TminAccu2 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - TminAccu2 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - TminAccu2 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 8:
 					try {
 						this.snow.TmaxCrit = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - TmaxCrit : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - TmaxCrit : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 9:
 					try {
 						this.snow.lambdasnow = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - lambdasnow : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - lambdasnow : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 10:
 					try {
 						this.snow.RmeltMin = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMin : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMin : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 11:
 					try {
 						this.snow.RmeltMax = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMax : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMax : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 12:
 					try {
 						this.drainage.slow_drain_coeff = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Drainage Coefficient - slow drain: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Drainage Coefficient - slow drain: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 13:
 					try {
 						this.evaporation.xinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 14:
 					try {
 						this.evaporation.slope = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 15:
 					try {
 						this.evaporation.yinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 16:
 					try {
 						this.evaporation.range = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - range : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - range : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 17:
 					try {
 						this.transpiration.xinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 18:
 					try {
 						this.transpiration.slope = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 19:
 					try {
 						this.transpiration.yinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 20:
 					try {
 						this.transpiration.range = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - range : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - range : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 21:
 					try {
 						this.intrinsic.latitude = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - Latitiude : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - Latitiude : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 22:
 					try {
 						this.intrinsic.altitude = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - Altitude : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - Altitude : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 23:
 					try {
 						this.intrinsic.slope = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 24:
 					try {
 						this.intrinsic.aspect = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - aspect : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - aspect : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 25:
 					try {
 						this.soilTemperature.bmLimiter = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - Biomass Limiter : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - Biomass Limiter : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 26:
 					try {
 						this.soilTemperature.t1Param1 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - t1Param1 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - t1Param1 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 27:
 					try {
 						this.soilTemperature.t1Param2 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - t1Param2 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - t1Param2 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 28:
 					try {
 						this.soilTemperature.t1Param3 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - t1Param3 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - t1Param3 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 29:
 					try {
 						this.soilTemperature.csParam1 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - csParam1 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - csParam1 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 30:
 					try {
 						this.soilTemperature.csParam2 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - csParam2 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - csParam2 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 31:
 					try {
 						this.soilTemperature.shParam = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - shParam : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - shParam : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 32:
 					try {
 						this.soilTemperature.meanAirTemp = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - meanAirTemp : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - meanAirTemp : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 33:
 					try {
 						this.soilTemperature.stDeltaX = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - stDeltaX : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - stDeltaX : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 34:
 					try {
 						this.soilTemperature.stMaxDepth = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - stMaxDepth : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - stMaxDepth : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 35:
 					try {
 						this.soilTemperature.use_soil_temp = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - use_soil_temp : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - use_soil_temp : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				default:
 					if(this.nFileItemsRead > 35 && this.nFileItemsRead <= 38 && !too_many_regions) {
 						if(values.length != 2)
-							f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Regions : Expected 2 values, read "+String.valueOf(values.length));
+							f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Regions : Expected 2 values, read "+String.valueOf(values.length));
 						try {
 							if(this.transpirationRegions.MAX_TRANSP_REGIONS < this.transpirationRegions.nTranspRgn) {
 								too_many_regions = true;
@@ -422,10 +422,10 @@ public class SiteIn {
 							}
 							this.transpirationRegions.set(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
 						} catch(NumberFormatException e) {
-							f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
+							f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}
 					} else {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Regions : Too many regions.");
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Regions : Too many regions.");
 					}
 					break;
 				}
@@ -513,7 +513,7 @@ public class SiteIn {
 			Files.write(siteIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "SiteIn : onWrite : No data.");
+			f.LogError(LogMode.WARN, "SiteIn : onWrite : No data.");
 		}
 	}
 

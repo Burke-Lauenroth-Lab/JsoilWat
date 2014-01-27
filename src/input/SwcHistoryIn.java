@@ -50,21 +50,21 @@ public class SwcHistoryIn {
 					line = line.trim();
 					String[] values = line.split("[ \t]+");
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherHistoryFile : Items != 4.");
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherHistoryFile : Items != 4.");
 					try {
 						doy = Integer.parseInt(values[0])-1;
 						if(doy < 0 || doy > (Times.MAX_DAYS-1))
-							f.LogError(LogFileIn.LogMode.LOGERROR, "SwcHistory onRead : Day of Year out of range doy "+String.valueOf(doy));
+							f.LogError(LogFileIn.LogMode.ERROR, "SwcHistory onRead : Day of Year out of range doy "+String.valueOf(doy));
 						lyr = Integer.parseInt(values[1])-1;
 						if(doy == 0)
 							if(this.nLayers < (lyr+1))
 								this.nLayers = lyr+1;
 						if(lyr < 0 || lyr > (Defines.MAX_LAYERS-1))
-							f.LogError(LogFileIn.LogMode.LOGERROR, "SwcHistory onRead : Layer out of range doy "+String.valueOf(doy));
+							f.LogError(LogFileIn.LogMode.ERROR, "SwcHistory onRead : Layer out of range doy "+String.valueOf(doy));
 						this.swc[doy][lyr] = Double.parseDouble(values[2]);
 						this.std_err[doy][lyr] = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SwcHistory onRead : Convert Error :" +e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SwcHistory onRead : Convert Error :" +e.getMessage());
 					}
 				}
 			}
@@ -83,7 +83,7 @@ public class SwcHistoryIn {
 				Files.write(swcHistoryFile.resolve(prefix+"."+this.toString()), lines, StandardCharsets.UTF_8);
 			} else {
 				LogFileIn f = LogFileIn.getInstance();
-				f.LogError(LogFileIn.LogMode.LOGWARN, "SwcHistory onWrite : No data from files or default.");
+				f.LogError(LogFileIn.LogMode.WARN, "SwcHistory onWrite : No data from files or default.");
 			}
 		}
 		public void onClear() {
@@ -119,10 +119,10 @@ public class SwcHistoryIn {
 		try {
 			year = Integer.parseInt(swcHistoryFile.getFileName().toString().split("\\.")[1]);
 		} catch(NumberFormatException n) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swcHistory onRead : Convert Year From Path Failed :" +n.getMessage());
+			f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onRead : Convert Year From Path Failed :" +n.getMessage());
 		}
 		if(yearToIndex.containsKey(year)) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swcHistory onRead : Contains Data for Year :" +String.valueOf(year));
+			f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onRead : Contains Data for Year :" +String.valueOf(year));
 		} else {
 			if(Files.exists(swcHistoryFile)) {
 				if(this.yearToIndex.size() < this.swcHist.size()) {//reuse an object
@@ -141,7 +141,7 @@ public class SwcHistoryIn {
 				}
 				this.data=true;
 			} else {
-				f.LogError(LogFileIn.LogMode.LOGERROR, "swcHistory onRead : Path '"+swcHistoryFile.toString()+"' doesn't exists.");
+				f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onRead : Path '"+swcHistoryFile.toString()+"' doesn't exists.");
 			}
 		}
 	}
@@ -159,10 +159,10 @@ public class SwcHistoryIn {
 			if(this.swcHist.get(i).getYear() == year) {
 				this.swcHist.get(i).onWrite(WeatherHistoryFolder, prefix);
 			} else {
-				f.LogError(LogFileIn.LogMode.LOGERROR, "swcHistory onWrite : Year and Year of Data do not match.");
+				f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onWrite : Year and Year of Data do not match.");
 			}
 		} else {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swcHistory onWrite : Year and Year of Data do not match.");
+			f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onWrite : Year and Year of Data do not match.");
 		}
 	}
 	
@@ -175,7 +175,7 @@ public class SwcHistoryIn {
 			}
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swcHistory onWrite : No Historical Data.");
+			f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onWrite : No Historical Data.");
 		}
 	}
 	

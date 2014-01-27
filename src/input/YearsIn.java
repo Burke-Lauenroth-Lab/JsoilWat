@@ -53,13 +53,13 @@ public class YearsIn {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			if(this.nStartYear < 0)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears StartYear Negative.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears StartYear Negative.");
 			if(this.nEndYear < 0)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears EndYear Negative.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears EndYear Negative.");
 			if(this.nEndYear < this.nStartYear)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears StartYear > EndYear Negative.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears StartYear > EndYear Negative.");
 			if(this.nDayMiddle == 0)
-				f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears Day Middle not set.");
+				f.LogError(LogFileIn.LogMode.FATAL, "swYears Day Middle not set.");
 			return true;
 		} else {
 			return false;
@@ -118,7 +118,7 @@ public class YearsIn {
 			Files.write(YearsIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swYears onWriteYears : No Data.");
+			f.LogError(LogFileIn.LogMode.ERROR, "swYears onWriteYears : No Data.");
 		}
 	}
 	public void onReadYearsIn(Path YearsIn) throws IOException {
@@ -128,7 +128,7 @@ public class YearsIn {
 		boolean fhemi=false,fenddy=false,fstartdy=false;
 		int d=0;
 		if(lines.isEmpty() | lines.size() < 5 ) {
-			f.LogError(LogFileIn.LogMode.LOGFATAL, "swYears onReadYearsIn Empty or not enough Lines.");
+			f.LogError(LogFileIn.LogMode.FATAL, "swYears onReadYearsIn Empty or not enough Lines.");
 		}
 		try {
 			this.nStartYear = Integer.parseInt(lines.get(nLineStartYear).split("[ \t]+")[0]);
@@ -149,7 +149,7 @@ public class YearsIn {
 				}
 			}
 		} catch (NumberFormatException e) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swYears onReadYearsIn could not read integer: "+e.getMessage());
+			f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read integer: "+e.getMessage());
 		}
 		if(lines.size() > 5) {
 			if(FirstEnd)
@@ -161,7 +161,7 @@ public class YearsIn {
 				this.bIsNorth = false;
 				fhemi = true;
 			} else {
-				f.LogError(LogFileIn.LogMode.LOGWARN, "swYears onReadYearsIn isNorth format wrong: Set to TRUE");
+				f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn isNorth format wrong: Set to TRUE");
 				this.bIsNorth = true;
 			}
 		}
@@ -177,7 +177,7 @@ public class YearsIn {
 				message += "\tHemisphere - using 'N'\n";
 				this.bIsNorth = true;
 			}
-			f.LogError(LogFileIn.LogMode.LOGWARN, "swYears onReadYearsIn : "+message);
+			f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn : "+message);
 		}
 		this.nFirstDayOfFirstYear += ((this.isIsNorth()) ? Times.DAYFIRST_NORTH : Times.DAYFIRST_SOUTH) - 1;
 		if(endString)

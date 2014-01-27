@@ -93,20 +93,20 @@ public class WeatherSetupIn {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.read) {
 			if(this.nFileItemsRead != nFileItems)
-				f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onVerify : Too few input lines.");
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Too few input lines.");
 			if(!this.yr.totalSet()) {
 				if(!this.yr.firstSet())
-					f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onVerify : Year First Not Set.");
+					f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Year First Not Set.");
 				if(!this.yr.lastSet())
-					f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onVerify : Year Last Not Set.");
+					f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Year Last Not Set.");
 			}
 			if(!this.use_markov && (ModelStartYear < this.yr.getFirst()))
-				f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onVerify : Model Year ("+String.valueOf(ModelStartYear)+") starts before Weather Files ("+String.valueOf(this.yr.getFirst())+")"+
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Model Year ("+String.valueOf(ModelStartYear)+") starts before Weather Files ("+String.valueOf(this.yr.getFirst())+")"+
 						" and use_Markov=FALSE.\nPlease synchronize the years or setup the Markov Weather Files.");
 			this.verified = true;
 			return this.verified;
 		} else {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onVerify : No Data.");
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : No Data.");
 			this.verified = false;
 			return false;
 		}
@@ -127,42 +127,42 @@ public class WeatherSetupIn {
 					try {
 						this.use_snow = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : Use Snow : Could not convert string to integer." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Use Snow : Could not convert string to integer." + e.getMessage());
 					}
 					break;
 				case 1:
 					try {
 						this.pct_snowdrift = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : pct snow drift : Could not convert string to double." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : pct snow drift : Could not convert string to double." + e.getMessage());
 					}
 					break;
 				case 2:
 					try {
 						this.pct_snowRunoff = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : pct snow Runoff : Could not convert string to double." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : pct snow Runoff : Could not convert string to double." + e.getMessage());
 					}
 					break;
 				case 3:
 					try {
 						this.use_markov = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : Use Markov : Could not convert string to integer." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Use Markov : Could not convert string to integer." + e.getMessage());
 					}
 					break;
 				case 4:
 					try {
 						this.yr.setFirst(Integer.parseInt(values[0]));
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : Year First : Could not convert string to integer." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Year First : Could not convert string to integer." + e.getMessage());
 					}
 					break;
 				case 5:
 					try{
 						this.days_in_runavg = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : Days in Runavg : Could not convert string to integer." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Days in Runavg : Could not convert string to integer." + e.getMessage());
 					}
 					break;
 				default:
@@ -174,7 +174,7 @@ public class WeatherSetupIn {
 						this.scale_temp_max[month] = Double.parseDouble(values[2]);
 						this.scale_temp_min[month] = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherIn : Monthly scaling parameters : Could not convert line:"+String.valueOf(this.nFileItemsRead)+". " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Monthly scaling parameters : Could not convert line:"+String.valueOf(this.nFileItemsRead)+". " + e.getMessage());
 					}
 					break;
 				}
@@ -208,7 +208,7 @@ public class WeatherSetupIn {
 			Files.write(WeatherSetupIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.LOGWARN, "WeatherIn onWriteWeatherIn : No data from files or default.");
+			f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherIn : No data from files or default.");
 		}
 	}
 }

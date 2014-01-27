@@ -1,27 +1,22 @@
 package defines;
 
 public final class Defines {
+		
 	public static final double BARCONV = 1024.0;
 	public static final int MAX_LAYERS=25;
 	public static final int MAX_TRANSP_REGIONS=4;
 	public static final int MAX_ST_RGR=30;
 	public static final int SLOW_DRAIN_DEPTH=15;
 	
+	/* convenience indices to arrays in the model */
+	public static final int TWO_DAYS=2;
+	public static final int SW_TOP=0;
+	public static final int SW_BOT=1;
+	public static final int SW_MIN=0;
+	public static final int SW_MAX=1;
+	
 	public static boolean isZero(double value){
 		return Math.abs(value) <= 0+5*Math.ulp(value);
-	}
-	
-	public static double SW_SWPmatric2VWCBulk(double fractionGravel, double swpMatric,  double psisMatric, double binverseMatric, double thetasMatric) {
-		/* =================================================== */
-		/* used to be swfunc in the fortran version */
-		/* 27-Aug-03 (cwb) moved from the Site module. */
-		/* return the volume as cmH2O/cmSOIL */
-		double t, p;
-
-		swpMatric *= BARCONV;
-		p = Math.pow(psisMatric / swpMatric, binverseMatric);
-		t = thetasMatric * p * 0.01 * (1 - fractionGravel);
-		return (t);
 	}
 	
 	/* types to identify the various modules/objects */

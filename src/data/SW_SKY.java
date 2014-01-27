@@ -75,7 +75,7 @@ public class SW_SKY {
 				line = line.trim();
 				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
 				if(values.length < 12)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : Line "+String.valueOf(lineno+1)+": Not enough values.");
+					f.LogError(LogFileIn.LogMode.ERROR, "swCloud onRead : Line "+String.valueOf(lineno+1)+": Not enough values.");
 				for (int j=0; j<12; j++) {
 					try {
 						switch (lineno) {
@@ -97,7 +97,7 @@ public class SW_SKY {
 							break;
 						}
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onRead : Line:"+String.valueOf(lineno)+" Could not convert string to number." + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "swCloud onRead : Line:"+String.valueOf(lineno)+" Could not convert string to number." + e.getMessage());
 					}
 				}
 				lineno++;
@@ -139,7 +139,7 @@ public class SW_SKY {
 
 			Files.write(CloudIn, lines, StandardCharsets.UTF_8);
 		} else {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "swCloud onWrite : No Data to Write.");
+			f.LogError(LogFileIn.LogMode.ERROR, "swCloud onWrite : No Data to Write.");
 		}
 	}
 	

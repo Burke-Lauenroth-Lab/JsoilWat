@@ -57,18 +57,18 @@ public class WeatherHistoryIn {
 					line = line.trim();
 					String[] values = line.split("[ \t]+");
 					if(values.length != 4)
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherHistoryFile : Items != 4.");
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherHistoryFile : Items != 4.");
 					try {
 						doy = Integer.parseInt(values[0])-1;
 						if(doy < 0 || doy > (Times.MAX_DAYS-1))
-							f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherHistoryFile : Day of Year out of range doy "+String.valueOf(doy));
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherHistoryFile : Day of Year out of range doy "+String.valueOf(doy));
 						this.temp_max[doy] = Double.parseDouble(values[1]);
 						this.temp_min[doy] = Double.parseDouble(values[2]);
 						this.temp_avg[doy] = (this.temp_max[doy]+this.temp_min[doy])/2.0;
 						this.ppt[doy] = Double.parseDouble(values[3]);
 						this.nDaysInYear++;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onReadWeatherHistoryFile : Convert Error :" +e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherHistoryFile : Convert Error :" +e.getMessage());
 					}
 					acc+=this.temp_avg[doy];
 					k++;
@@ -103,7 +103,7 @@ public class WeatherHistoryIn {
 				Files.write(WeatherHistoryFolder.resolve(prefix+"."+this.toString()), lines, StandardCharsets.UTF_8);
 			} else {
 				LogFileIn f = LogFileIn.getInstance();
-				f.LogError(LogFileIn.LogMode.LOGWARN, "WeatherIn onWriteWeatherHistory : No data from files or default.");
+				f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherHistory : No data from files or default.");
 			}
 		}
 		
@@ -160,10 +160,10 @@ public class WeatherHistoryIn {
 		try {
 			year = Integer.parseInt(WeatherHistoryFile.getFileName().toString().split("\\.")[1]);
 		} catch(NumberFormatException n) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistoryIn onRead : Convert Year From Path Failed :" +n.getMessage());
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onRead : Convert Year From Path Failed :" +n.getMessage());
 		}
 		if(yearToIndex.containsKey(year)) {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistoryIn onRead : Contains Data for Year :" +String.valueOf(year));
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onRead : Contains Data for Year :" +String.valueOf(year));
 		} else {
 			if(Files.exists(WeatherHistoryFile)) {
 				if(this.yearToIndex.size() < this.weatherHist.size()) {//reuse an object
@@ -182,7 +182,7 @@ public class WeatherHistoryIn {
 				}
 				this.data=true;
 			} else {
-				f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistIn onRead : Path '"+WeatherHistoryFile.toString()+"' doesn't exists.");
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistIn onRead : Path '"+WeatherHistoryFile.toString()+"' doesn't exists.");
 			}
 		}
 	}
@@ -200,10 +200,10 @@ public class WeatherHistoryIn {
 			if(this.weatherHist.get(i).getYear() == year) {
 				this.weatherHist.get(i).onWrite(WeatherHistoryFolder, prefix);
 			} else {
-				f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistIn onWrite : Year and Year of Data do not match.");
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistIn onWrite : Year and Year of Data do not match.");
 			}
 		} else {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherHistIn onWrite : Year and Year of Data do not match.");
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistIn onWrite : Year and Year of Data do not match.");
 		}
 	}
 	public void onWrite(Path WeatherHistoryFolder, String prefix) throws IOException {
@@ -215,7 +215,7 @@ public class WeatherHistoryIn {
 			}
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.LOGERROR, "WeatherIn onWriteWeatherHistories : No Historical Data.");
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onWriteWeatherHistories : No Historical Data.");
 		}
 	}
 	

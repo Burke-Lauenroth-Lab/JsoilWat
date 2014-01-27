@@ -263,7 +263,7 @@ public class SW_OUTPUT {
 								_sep=values[1];
 							continue;
 						} else {
-							f.LogError(LogMode.LOGERROR, "OutputSetupIn onRead: Insufficient key parameters for item.");
+							f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Insufficient key parameters for item.");
 							continue;
 						}
 					}
@@ -286,18 +286,18 @@ public class SW_OUTPUT {
 					SW_Output[k.idx()].last = 366;
 				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
 					SW_Output[k.idx()].use = false;
-					f.LogError(LogMode.LOGNOTE, "OutputSetupIn onRead: Unimplemented output key.");
+					f.LogError(LogMode.NOTE, "OutputSetupIn onRead: Unimplemented output key.");
 					continue;
 				}
 				/* check validity of summary type */
 				SW_Output[k.idx()].sumtype = OutSum.getEnum(values[1]);
 				if (SW_Output[k.idx()].sumtype == OutSum.eSW_Fnl && !(k == OutKey.eSW_VWCBulk || k == OutKey.eSW_VWCMatric || k == OutKey.eSW_SWPMatric || k == OutKey.eSW_SWCBulk || k == OutKey.eSW_SWABulk || k == OutKey.eSW_SWAMatric || k == OutKey.eSW_DeepSWC)) {
-					f.LogError(LogMode.LOGWARN, OutputSetupIn.toString()+" : Summary Type FIN with key "+k.key()+" is meaningless.\n"+"  Using type AVG instead.");
+					f.LogError(LogMode.WARN, OutputSetupIn.toString()+" : Summary Type FIN with key "+k.key()+" is meaningless.\n"+"  Using type AVG instead.");
 					SW_Output[k.idx()].sumtype = OutSum.eSW_Avg;
 				}
 				/* verify deep drainage parameters */
 				if (k == OutKey.eSW_DeepSWC && SW_Output[k.idx()].sumtype != OutSum.eSW_Off && !deepdrain) {
-					f.LogError(LogMode.LOGWARN, OutputSetupIn.toString()+" : DEEPSWC cannot be output if flag not set in Site Param.");
+					f.LogError(LogMode.WARN, OutputSetupIn.toString()+" : DEEPSWC cannot be output if flag not set in Site Param.");
 					continue;
 				}
 				//Set the values
@@ -314,10 +314,10 @@ public class SW_OUTPUT {
 						else
 							SW_Output[k.idx()].last_orig = Integer.valueOf(values[4]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "OutputSetupIn onRead: Could not covert start or end."+e.getMessage());
+						f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Could not covert start or end."+e.getMessage());
 					}
 					if (SW_Output[k.idx()].last_orig == 0) {
-						f.LogError(LogMode.LOGERROR, "OutputSetupIn onRead : Invalid ending day");
+						f.LogError(LogMode.ERROR, "OutputSetupIn onRead : Invalid ending day");
 					}
 				}
 				//Set the outputs for the Periods
@@ -432,7 +432,7 @@ public class SW_OUTPUT {
 			Files.write(OutputSetupIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "OutputSetupIn : onWrite : No data.");
+			f.LogError(LogMode.WARN, "OutputSetupIn : onWrite : No data.");
 		}
 	}
 	
@@ -462,7 +462,7 @@ public class SW_OUTPUT {
 			break;
 		default:
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGFATAL, "PGMR: Invalid key in sumof_wth");
+			f.LogError(LogMode.FATAL, "PGMR: Invalid key in sumof_wth");
 			break;
 		}
 	}

@@ -58,7 +58,7 @@ public class MarkovIn {
 				line = line.trim();
 				String[] values = line.split("[ \t]+");
 				if(values.length < 5)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovProbIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovProbIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
 				try {
 					int day = Integer.parseInt(values[0])-1;
 					this.wetprob[day] = Double.parseDouble(values[1]);
@@ -66,7 +66,7 @@ public class MarkovIn {
 					this.avg_ppt[day] = Double.parseDouble(values[3]);
 					this.std_ppt[day] = Double.parseDouble(values[4]);
 				} catch(NumberFormatException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovProbIn : Could not convert string to number." + e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovProbIn : Could not convert string to number." + e.getMessage());
 				}
 				
 				nDays++;
@@ -88,7 +88,7 @@ public class MarkovIn {
 				line = line.trim();
 				String[] values = line.split("[ \t]+");
 				if(values.length < 7)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovCovIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovCovIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
 				try {
 					int week = Integer.parseInt(values[0])-1;
 					this.u_cov[week][0] = Double.parseDouble(values[1]);
@@ -98,7 +98,7 @@ public class MarkovIn {
 					this.v_cov[week][1][0] = Double.parseDouble(values[5]);
 					this.v_cov[week][1][1] = Double.parseDouble(values[6]);
 				} catch(NumberFormatException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovCovIn : Could not convert string to number." + e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovCovIn : Could not convert string to number." + e.getMessage());
 				}
 				nWeeks++;
 			}

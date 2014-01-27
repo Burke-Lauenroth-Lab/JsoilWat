@@ -10,16 +10,18 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import defines.Defines;
+
 public class SW_SITE {
 	public class SWC {
-		public double swc_min=0;
-		public double swc_init=0;
-		public double swc_wet=0;
+		public double swc_min=0; /* lower bound on swc.          */
+		public double swc_init=0; /* initialization value for swc */
+		public double swc_wet=0; /* value for a "wet" day,       */
 	}
 	public class Model {
 		private class Flags {
-			public boolean reset;
-			public boolean deepdrain;
+			public boolean reset;		/* 1: reset values at start of each year */
+			public boolean deepdrain;	/* 1: allow drainage into deepest layer  */
 		}
 		private class Coefficients {
 			public double petMultiplier;
@@ -71,8 +73,10 @@ public class SW_SITE {
 		public double meanAirTemp;
 		public double stDeltaX;
 		public double stMaxDepth;
-		public boolean use_soil_temp;
+		public boolean use_soil_temp;	/* whether or not to do soil_temperature calculations */
 	}
+	/* transpiration regions  shallow, moderately shallow,  */
+	/* deep and very deep. units are in layer numbers. */
 	public class TranspirationRegions {
 		private int[][] table;
 		private int nTranspRgn;
@@ -90,14 +94,28 @@ public class SW_SITE {
 					this.table[ndx-1][1] = layer;
 					this.nTranspRgn++;
 				}
+			} else {
+				LogFileIn f = LogFileIn.getInstance();
+				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE TranspirationRegions : Index out of bounds");
 			}
 		}
-		public int get(int ndx) {
+		public void onVerify() {
+			for(int r=1; r<this.nTranspRgn; r++) {
+				if(this.table[r-r][1] >= this.table[r][1]) {
+					LogFileIn f = LogFileIn.getInstance();
+					f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE TranspirationRegions : Discontinuity/reversal in transpiration regions.");
+				}
+			}
+		}
+		public int getRegion(int ndx) {
 			if(ndx <= this.nTranspRgn)
 				return this.table[ndx-1][1];
 			else {
 				return -1;
 			}
+		}
+		public int get_nRegions() {
+			return this.nTranspRgn;
 		}
 		public void onClear() {
 			this.nTranspRgn=0;
@@ -123,10 +141,17 @@ public class SW_SITE {
 	private Intrinsic intrinsic;
 	private SoilTemperature soilTemperature;
 	private TranspirationRegions transpirationRegions;
+	
+	private int stNRGR; /* number of regressions, for the soil_temperature function */
+	
 	private boolean data;
+	private boolean EchoInits;
 	private int nFileItemsRead;
 	
-	public SW_SITE() {
+	private SW_VEGPROD SW_VegProd;
+	private SW_SOILS SW_Soils;
+	
+	public SW_SITE(SW_VEGPROD SW_VegProd, SW_SOILS SW_Soils, boolean EchoInits) {
 		this.swc = new SWC();
 		this.model = new Model();
 		this.snow = new Snow();
@@ -137,6 +162,9 @@ public class SW_SITE {
 		this.soilTemperature = new SoilTemperature();
 		this.transpirationRegions = new TranspirationRegions();
 		this.data = false;
+		this.SW_VegProd = SW_VegProd;
+		this.SW_Soils = SW_Soils;
+		this.EchoInits = EchoInits;
 	}
 	
 	public void onClear() {
@@ -145,6 +173,9 @@ public class SW_SITE {
 	}
 	
 	public boolean onVerify() {
+		_init_site_info();
+		if(EchoInits)
+			_echo_inputs("");
 		return true;
 	}
 	
@@ -164,258 +195,258 @@ public class SW_SITE {
 					try {
 						this.swc.swc_min = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : SWC Limit - swc_min : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : SWC Limit - swc_min : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 1:
 					try {
 						this.swc.swc_init = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : SWC Limit - swc_init : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : SWC Limit - swc_init : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 2:
 					try {
 						this.swc.swc_wet = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : SWC Limit - swc_wet : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : SWC Limit - swc_wet : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 3:
 					try {
 						this.model.flags.reset = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Flags - reset : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Flags - reset : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 4:
 					try {
 						this.model.flags.deepdrain = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Flags - deepdrain : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Flags - deepdrain : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 5:
 					try {
 						this.model.coefficients.petMultiplier = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Coefficients - PET multiplier : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Coefficients - PET multiplier : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 6:
 					try {
 						this.model.coefficients.percentRunoff = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Model Coefficients - runoff : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Coefficients - runoff : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 7:
 					try {
 						this.snow.TminAccu2 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - TminAccu2 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - TminAccu2 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 8:
 					try {
 						this.snow.TmaxCrit = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - TmaxCrit : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - TmaxCrit : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 9:
 					try {
 						this.snow.lambdasnow = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - lambdasnow : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - lambdasnow : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 10:
 					try {
 						this.snow.RmeltMin = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMin : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMin : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 11:
 					try {
 						this.snow.RmeltMax = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMax : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Snow Simulation Parameters - RmeltMax : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 12:
 					try {
 						this.drainage.slow_drain_coeff = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Drainage Coefficient - slow drain: Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Drainage Coefficient - slow drain: Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 13:
 					try {
 						this.evaporation.xinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 14:
 					try {
 						this.evaporation.slope = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 15:
 					try {
 						this.evaporation.yinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 16:
 					try {
 						this.evaporation.range = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Evaporation Coefficients - range : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Evaporation Coefficients - range : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 17:
 					try {
 						this.transpiration.xinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - xinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 18:
 					try {
 						this.transpiration.slope = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 19:
 					try {
 						this.transpiration.yinflec = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - yinflec : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 20:
 					try {
 						this.transpiration.range = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Coefficients - range : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Coefficients - range : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 21:
 					try {
 						this.intrinsic.latitude = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - Latitiude : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - Latitiude : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 22:
 					try {
 						this.intrinsic.altitude = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - Altitude : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - Altitude : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 23:
 					try {
 						this.intrinsic.slope = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - slope : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - slope : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 24:
 					try {
 						this.intrinsic.aspect = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Intrinsic Site Params - aspect : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Intrinsic Site Params - aspect : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 25:
 					try {
 						this.soilTemperature.bmLimiter = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - Biomass Limiter : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - Biomass Limiter : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 26:
 					try {
 						this.soilTemperature.t1Param1 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - t1Param1 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - t1Param1 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 27:
 					try {
 						this.soilTemperature.t1Param2 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - t1Param2 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - t1Param2 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 28:
 					try {
 						this.soilTemperature.t1Param3 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - t1Param3 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - t1Param3 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 29:
 					try {
 						this.soilTemperature.csParam1 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - csParam1 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - csParam1 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 30:
 					try {
 						this.soilTemperature.csParam2 = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - csParam2 : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - csParam2 : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 31:
 					try {
 						this.soilTemperature.shParam = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - shParam : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - shParam : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 32:
 					try {
 						this.soilTemperature.meanAirTemp = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - meanAirTemp : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - meanAirTemp : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 33:
 					try {
 						this.soilTemperature.stDeltaX = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - stDeltaX : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - stDeltaX : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 34:
 					try {
 						this.soilTemperature.stMaxDepth = Double.parseDouble(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - stMaxDepth : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - stMaxDepth : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				case 35:
 					try {
 						this.soilTemperature.use_soil_temp = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Soil Temperature Constants - use_soil_temp : Could not convert string to double. " + e.getMessage());
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Soil Temperature Constants - use_soil_temp : Could not convert string to double. " + e.getMessage());
 					}
 					break;
 				default:
 					if(this.nFileItemsRead > 35 && this.nFileItemsRead <= 38 && !too_many_regions) {
 						if(values.length != 2)
-							f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Regions : Expected 2 values, read "+String.valueOf(values.length));
+							f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Regions : Expected 2 values, read "+String.valueOf(values.length));
 						try {
 							if(this.transpirationRegions.MAX_TRANSP_REGIONS < this.transpirationRegions.nTranspRgn) {
 								too_many_regions = true;
@@ -423,16 +454,17 @@ public class SW_SITE {
 							}
 							this.transpirationRegions.set(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
 						} catch(NumberFormatException e) {
-							f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
+							f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}
 					} else {
-						f.LogError(LogFileIn.LogMode.LOGERROR, "SiteIn onRead : Transpiration Regions : Too many regions.");
+						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Transpiration Regions : Too many regions.");
 					}
 					break;
 				}
 				this.nFileItemsRead++;
 			}
 		}
+		this.transpirationRegions.onVerify();
 		this.data = true;
 	}
 
@@ -514,10 +546,10 @@ public class SW_SITE {
 			Files.write(siteIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "SiteIn : onWrite : No data.");
+			f.LogError(LogMode.WARN, "SiteIn : onWrite : No data.");
 		}
 	}
-
+	
 	public boolean getDeepdrain() {
 		return this.model.flags.deepdrain;
 	}
@@ -548,5 +580,266 @@ public class SW_SITE {
 	}
 	public TranspirationRegions getTranspirationRegions() {
 		return this.transpirationRegions;
+	}
+	
+	private void _init_site_info() {
+		LogFileIn f = LogFileIn.getInstance();
+		
+		int r,currentregion;
+		int wiltminflag=0, initminflag=0;
+		double evsum=0., trsum_forb = 0., trsum_tree = 0., trsum_shrub = 0., trsum_grass = 0., swcmin_help1, swcmin_help2;
+		
+		SW_SOILS.LayersInfo layersInfo = SW_Soils.getLayersInfo();
+		
+		/* sp->deepdrain indicates an extra (dummy) layer for deep drainage
+		 * has been added, so n_layers really should be n_layers -1
+		 * otherwise, the bottom layer is functional, so don't decrement n_layers
+		 * and set deep_layer to zero as a flag.
+		 * NOTE: deep_lyr is base0, n_layers is BASE1
+		 */
+		layersInfo.deep_lyr = this.model.flags.deepdrain ? layersInfo.n_layers : 0;
+		for(int s=0; s<layersInfo.n_layers; s++) {
+			SW_SOILS.SW_LAYER_INFO lyr = SW_Soils.getLayer(s);
+			/* sum ev and tr coefficients for later */
+			evsum += lyr.evap_coeff;
+			trsum_forb += lyr.transp_coeff_forb;
+			trsum_tree += lyr.transp_coeff_tree;
+			trsum_shrub += lyr.transp_coeff_shrub;
+			trsum_grass += lyr.transp_coeff_grass;
+			
+			/* calculate soil water content at SWPcrit for each vegetation type */
+			lyr.swcBulk_atSWPcrit_forb = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().forbs, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_tree = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().trees, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_shrub = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().shrubs, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_grass = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().grasses, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			
+			/* Find which transpiration region the current soil layer
+			 * is in and check validity of result. Region bounds are
+			 * base1 but s is base0.
+			 */
+			/* for forbs */
+			currentregion = 0;
+			for(r=0; r<this.transpirationRegions.get_nRegions(); r++)
+			{
+				if (s < this.transpirationRegions.getRegion(r)) {
+					if (Defines.isZero(lyr.transp_coeff_forb))
+						break; /* end of transpiring layers */
+					currentregion = r + 1;
+					break;
+				}
+			}
+			if (currentregion>0 || Defines.isZero(this.transpirationRegions.getRegion(currentregion))) {
+				lyr.my_transp_rgn_forb = currentregion;
+				layersInfo.n_transp_lyrs_forb = Math.max(layersInfo.n_transp_lyrs_forb, s);
+			} else if (s == 0) {
+				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE _init_site_info : Top soil layer must be included in your forb tranpiration regions.");
+			} else if (r < layersInfo.n_transp_rgn) {
+				f.LogError(LogFileIn.LogMode.ERROR,  "SW_SITE _init_site_info : Transpiration region "+String.valueOf(r+1)+" is deeper than the deepest layer with a"+
+						"  forb transpiration coefficient > 0 "+String.valueOf(s)+". Please fix the discrepancy and try again.");
+			}
+
+			/* for trees */
+			currentregion = 0;
+			for(r=0; r<this.transpirationRegions.get_nRegions(); r++)
+			{
+				if (s < this.transpirationRegions.getRegion(r)) {
+					if (Defines.isZero(lyr.transp_coeff_tree))
+						break; /* end of transpiring layers */
+					currentregion = r + 1;
+					break;
+				}
+			}
+			if (currentregion>0 || Defines.isZero(this.transpirationRegions.getRegion(currentregion))) {
+				lyr.my_transp_rgn_tree = currentregion;
+				layersInfo.n_transp_lyrs_tree = Math.max(layersInfo.n_transp_lyrs_tree, s);
+			} else if (s == 0) {
+				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE _init_site_info : Top soil layer must be included in your tree tranpiration regions.");
+			} else if (r < layersInfo.n_transp_rgn) {
+				f.LogError(LogFileIn.LogMode.ERROR,  "SW_SITE _init_site_info : Transpiration region "+String.valueOf(r+1)+" is deeper than the deepest layer with a"+
+						"  tree transpiration coefficient > 0 "+String.valueOf(s)+". Please fix the discrepancy and try again.");
+			}
+			
+			/* for shrubs */
+			currentregion = 0;
+			for(r=0; r<this.transpirationRegions.get_nRegions(); r++)
+			{
+				if (s < this.transpirationRegions.getRegion(r)) {
+					if (Defines.isZero(lyr.transp_coeff_shrub))
+						break; /* end of transpiring layers */
+					currentregion = r + 1;
+					break;
+				}
+			}
+			if (currentregion>0 || Defines.isZero(this.transpirationRegions.getRegion(currentregion))) {
+				lyr.my_transp_rgn_shrub = currentregion;
+				layersInfo.n_transp_lyrs_shrub = Math.max(layersInfo.n_transp_lyrs_shrub, s);
+			} else if (s == 0) {
+				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE _init_site_info : Top soil layer must be included in your shrub tranpiration regions.");
+			} else if (r < layersInfo.n_transp_rgn) {
+				f.LogError(LogFileIn.LogMode.ERROR,  "SW_SITE _init_site_info : Transpiration region "+String.valueOf(r+1)+" is deeper than the deepest layer with a"+
+						"  shrub transpiration coefficient > 0 "+String.valueOf(s)+". Please fix the discrepancy and try again.");
+			}
+			
+			/* for grasses */
+			currentregion = 0;
+			for(r=0; r<this.transpirationRegions.get_nRegions(); r++)
+			{
+				if (s < this.transpirationRegions.getRegion(r)) {
+					if (Defines.isZero(lyr.transp_coeff_grass))
+						break; /* end of transpiring layers */
+					currentregion = r + 1;
+					break;
+				}
+			}
+			if (currentregion>0 || Defines.isZero(this.transpirationRegions.getRegion(currentregion))) {
+				lyr.my_transp_rgn_grass = currentregion;
+				layersInfo.n_transp_lyrs_grass = Math.max(layersInfo.n_transp_lyrs_grass, s);
+			} else if (s == 0) {
+				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE _init_site_info : Top soil layer must be included in your grass tranpiration regions.");
+			} else if (r < layersInfo.n_transp_rgn) {
+				f.LogError(LogFileIn.LogMode.ERROR,  "SW_SITE _init_site_info : Transpiration region "+String.valueOf(r+1)+" is deeper than the deepest layer with a"+
+						"  grass transpiration coefficient > 0 "+String.valueOf(s)+". Please fix the discrepancy and try again.");
+			}
+			
+			/* Compute swc wet and dry limits and init value */
+			if (Double.compare(this.swc.swc_min, 0.0)<0) { /* estimate swcBulk_min for each layer based on residual SWC from an equation in Rawls WJ, Brakensiek DL (1985) Prediction of soil water properties for hydrological modeling. In Watershed management in the Eighties (eds Jones EB, Ward TJ), pp. 293-299. American Society of Civil Engineers, New York.
+			 or based on SWC at -3 MPa if smaller (= suction at residual SWC from Fredlund DG, Xing AQ (1994) EQUATIONS FOR THE SOIL-WATER CHARACTERISTIC CURVE. Canadian Geotechnical Journal, 31, 521-532.) */
+				swcmin_help1 = SW_SOILWATER.SW_VWCBulkRes(lyr.fractionVolBulk_gravel, lyr.fractionWeightMatric_sand, lyr.fractionWeightMatric_clay, lyr.swcBulk_saturated / lyr.width) * lyr.width;
+				swcmin_help2 = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, 30., lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+				lyr.swcBulk_min = Math.max(0., Math.min(swcmin_help1, swcmin_help2));
+			} else if (Double.compare(this.swc.swc_min, 1.0)>0) { /* assume that unit(_SWCMinVal) == -bar */
+				lyr.swcBulk_min = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_min, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			} else { /* assume that unit(_SWCMinVal) == cm/cm */
+				lyr.swcBulk_min = this.swc.swc_min * lyr.width;
+			}
+
+			lyr.swcBulk_wet = Double.compare(this.swc.swc_wet, 1.0)>0 ? SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_wet, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width : this.swc.swc_wet * lyr.width;
+			lyr.swcBulk_init = Double.compare(this.swc.swc_init, 1.0)>0 ? SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_init, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width : this.swc.swc_init * lyr.width;
+
+			/* test validity of values */
+			if (Double.compare(lyr.swcBulk_init, lyr.swcBulk_min)<0)
+				initminflag++;
+			if (Double.compare(lyr.swcBulk_wiltpt, lyr.swcBulk_min)<0)
+				wiltminflag++;
+			if (Double.compare(lyr.swcBulk_wet, lyr.swcBulk_min)<0) {
+				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE _init_site_info : Layer "+String.valueOf(s+1)+" calculated swcBulk_wet "+String.valueOf(lyr.swcBulk_wet)+" <= swcBulk_min "+
+						String.valueOf(lyr.swcBulk_min)+".  Recheck parameters and try again.");
+			}
+
+		} /*end ForEachSoilLayer */
+		if(wiltminflag>0)
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : %d layers were found in which wiltpoint < swcBulk_min.\n"+
+					"  You should reconsider wiltpoint or swcBulk_min.\n"+
+					"  See site parameter file for swcBulk_min and site.log for swc details.", wiltminflag));
+		if (initminflag>0)
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : %d layers were found in which swcBulk_init < swcBulk_min.\n"+
+					"  You should reconsider swcBulk_init or swcBulk_min.\n"+
+					"  See site parameter file for swcBulk_init and site.log for swc details.", initminflag));
+		
+		/* normalize the evap and transp coefficients separately
+		 * to avoid obfuscation in the above loop */
+		if (!(Double.compare(evsum, 1.0)==0)) {
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : Evap coefficients were normalized, "+
+					"ev_co sum (%5.4f) != 1.0.\nNew coefficients are:", evsum));
+			for(int s=0; s<layersInfo.n_layers; s++)
+			{
+				SW_Soils.getLayer(s).evap_coeff /= evsum;
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Layer %d : %5.4f", s + 1, SW_Soils.getLayer(s).evap_coeff));
+			}
+		}
+		if (!(Double.compare(trsum_forb, 1.0)==0)) {
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : Transp coefficients for forbs were normalized, "+
+					"tr_co_forb sum (%5.4f) != 1.0.\nNew Coefficients are:", trsum_forb));
+			for(int s=0; s<layersInfo.n_layers; s++)
+			{
+				SW_Soils.getLayer(s).transp_coeff_forb /= trsum_forb;
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Layer %d : %5.4f", s + 1, SW_Soils.getLayer(s).transp_coeff_forb));
+			}
+		}
+		if (!(Double.compare(trsum_tree, 1.0)==0)) {
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : Transp coefficients for trees were normalized, "+
+					"tr_co_tree sum (%5.4f) != 1.0.\nNew coefficients are:", trsum_tree));
+			for(int s=0; s<layersInfo.n_layers; s++)
+			{
+				SW_Soils.getLayer(s).transp_coeff_tree /= trsum_tree;
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Layer %d : %5.4f", s + 1, SW_Soils.getLayer(s).transp_coeff_tree));
+			}
+		}
+		if (!(Double.compare(trsum_shrub, 1.0)==0)) {
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : Transp coefficients for shrubs were normalized, "+
+					"tr_co_shrub sum (%5.4f) != 1.0.\nNew coefficients are:", trsum_shrub));
+			for(int s=0; s<layersInfo.n_layers; s++)
+			{
+				SW_Soils.getLayer(s).transp_coeff_shrub /= trsum_shrub;
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Layer %d : %5.4f", s + 1, SW_Soils.getLayer(s).transp_coeff_shrub));
+			}
+		}
+		if (!(Double.compare(trsum_grass, 1.0)==0)) {
+			f.LogError(LogFileIn.LogMode.WARN, String.format("SW_SITE _init_site_info : Transp coefficients for grasses were normalized, "+
+					"tr_co_grass sum (%5.4f) != 1.0.\nNew coefficients are:", trsum_grass));
+			for(int s=0; s<layersInfo.n_layers; s++)
+			{
+				SW_Soils.getLayer(s).transp_coeff_grass /= trsum_grass;
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Layer %d : %5.4f", s + 1, SW_Soils.getLayer(s).transp_coeff_grass));
+			}
+		}
+		
+		this.stNRGR = (int)(this.soilTemperature.stMaxDepth / this.soilTemperature.stDeltaX) - 1; // getting the number of regressions, for use in the soil_temperature function
+		if (!(Double.compare(Math.IEEEremainder(this.soilTemperature.stMaxDepth, this.soilTemperature.stDeltaX), 0.0)==0) || (this.stNRGR > Defines.MAX_ST_RGR)) {
+			// resets it to the default values if the remainder of the division != 0.  fmod is like the % symbol except it works with double values
+			// without this reset, then there wouldn't be a whole number of regressions in the soil_temperature function (ie there is a remainder from the division), so this way I don't even have to deal with that possibility
+			if (this.stNRGR > Defines.MAX_ST_RGR)
+				f.LogError(LogFileIn.LogMode.WARN, "\nSOIL_TEMP FUNCTION ERROR: the number of regressions is > the maximum number of regressions.  resetting max depth, deltaX, nRgr values to 180, 15, & 11 respectively\n");
+			else
+				f.LogError(LogFileIn.LogMode.WARN, "\nSOIL_TEMP FUNCTION ERROR: max depth is not evenly divisible by deltaX (ie the remainder != 0).  resetting max depth, deltaX, nRgr values to 180, 15, & 11 respectively\n");
+
+			this.soilTemperature.stMaxDepth = 180.0;
+			this.stNRGR = 11;
+			this.soilTemperature.stDeltaX = 15.0;
+		}
+	}
+	
+	private void _echo_inputs(String fileSite) {
+		/* =================================================== */
+		LogFileIn f = LogFileIn.getInstance();
+		
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("\n\n=====================================================\n"+
+				"Site Related Parameters:\n"+
+				"---------------------\n"));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Site File: %s\n", fileSite));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Reset SWC values each year: %B\n", this.model.flags.reset));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Use deep drainage reservoir: %B\n", this.model.flags.deepdrain));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Slow Drain Coefficient: %5.4f\n", this.drainage.slow_drain_coeff));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  PET Scale: %5.4f\n", this.model.coefficients.petMultiplier));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Proportion of surface water lost: %5.4f\n", this.model.coefficients.percentRunoff));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Latitude (radians): %4.2f\n", this.intrinsic.latitude));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Altitude (m a.s.l.): %4.2f \n", this.intrinsic.altitude));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Slope (degrees): %4.2f\n", this.intrinsic.slope));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Aspect (degrees): %4.2f\n", this.intrinsic.aspect));
+
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("\nSnow simulation parameters (SWAT2K model):\n----------------------\n"));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Avg. air temp below which ppt is snow ( C): %5.4f\n", this.snow.TminAccu2));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Snow temperature at which snow melt starts ( C): %5.4f\n", this.snow.TmaxCrit));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Relative contribution of avg. air temperature to todays snow temperture vs. yesterday's snow temperature (0-1): %5.4f\n", this.snow.lambdasnow));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Minimum snow melt rate on winter solstice (cm/day/C): %5.4f\n", this.snow.RmeltMin));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Maximum snow melt rate on summer solstice (cm/day/C): %5.4f\n", this.snow.RmeltMax));
+
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("\nSoil Temperature Constants:\n----------------------\n"));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Biomass Limiter constant: %5.4f\n", this.soilTemperature.bmLimiter));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  T1Param1: %5.4f\n", this.soilTemperature.t1Param1));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  T1Param2: %5.4f\n", this.soilTemperature.t1Param2));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  T1Param3: %5.4f\n", this.soilTemperature.t1Param3));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  csParam1: %5.4f\n", this.soilTemperature.csParam1));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  csParam2: %5.4f\n", this.soilTemperature.csParam2));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  shParam: %5.4f\n", this.soilTemperature.shParam));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  meanAirTemp: %5.4f\n", this.soilTemperature.meanAirTemp));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  deltaX: %5.4f\n", this.soilTemperature.stDeltaX));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  max depth: %5.4f\n", this.soilTemperature.stMaxDepth));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Make soil temperature calculations: %s\n", (this.soilTemperature.use_soil_temp) ? "TRUE" : "FALSE"));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Number of regressions for the soil temperature function: %d\n", this.stNRGR));
+
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("\n------------ End of Site Parameters ------------------\n"));
+		//fflush(logfp);
+
 	}
 }

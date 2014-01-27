@@ -113,7 +113,7 @@ public class SoilsIn {
 			
 		}
 		if(fail)
-			f.LogError(LogFileIn.LogMode.LOGERROR, message);
+			f.LogError(LogFileIn.LogMode.ERROR, message);
 	}
 	
 	public void onRead(Path soilsIn) throws IOException {
@@ -133,9 +133,9 @@ public class SoilsIn {
 				line = line.trim();
 				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
 				if(values.length != 12)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "SoilsIn onRead : Expected 10 Values read "+String.valueOf(values.length));
+					f.LogError(LogFileIn.LogMode.ERROR, "SoilsIn onRead : Expected 10 Values read "+String.valueOf(values.length));
 				if(this.n_layers == Defines.MAX_LAYERS)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "SoilsIn onRead : Too many layers specified "+String.valueOf(values.length));
+					f.LogError(LogFileIn.LogMode.ERROR, "SoilsIn onRead : Too many layers specified "+String.valueOf(values.length));
 				try {
 					dmax = Double.parseDouble(values[0]);
 					this.layers[this.n_layers].depth = dmax;
@@ -158,7 +158,7 @@ public class SoilsIn {
 					this.layers[this.n_layers].sTemp = Double.parseDouble(values[11]);
 					
 				} catch(NumberFormatException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, "Soils onRead : Could not convert string to double. " + e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, "Soils onRead : Could not convert string to double. " + e.getMessage());
 				}
 				if(evap_ok) {
 					if(this.layers[this.n_layers].evap_coeff > 0.0)
@@ -231,7 +231,7 @@ public class SoilsIn {
 			Files.write(soilsIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "SoilsIn : onWrite : No data.");
+			f.LogError(LogMode.WARN, "SoilsIn : onWrite : No data.");
 		}
 	}
 	
@@ -252,7 +252,7 @@ public class SoilsIn {
 
 		if (Defines.isZero(this.layers[n].bMatric)) {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "SoilsIn : water_eqn : Value of beta Possible division by zero. Exit."+String.valueOf(this.layers[n].bMatric));
+			f.LogError(LogMode.WARN, "SoilsIn : water_eqn : Value of beta Possible division by zero. Exit."+String.valueOf(this.layers[n].bMatric));
 		}
 
 		this.layers[n].binverseMatric = 1.0 / this.layers[n].bMatric;

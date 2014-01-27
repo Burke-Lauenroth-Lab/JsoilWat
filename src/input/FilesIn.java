@@ -259,35 +259,35 @@ public class FilesIn {
 			LogFileIn f = LogFileIn.getInstance();
 			//create directories if they do not exist
 			if(Files.notExists(pProjectDirectory))
-				f.LogError(LogFileIn.LogMode.LOGERROR, pProjectDirectory.toString() + " : Directory does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, pProjectDirectory.toString() + " : Directory does not exist.");
 			if(Files.notExists(this.getOutputDirectory(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getOutputDirectory(true).toString()+" : Directory does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getOutputDirectory(true).toString()+" : Directory does not exist.");
 			if(Files.notExists(getWeatherPath(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, getWeatherPath(true).toString()+" : Directory does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, getWeatherPath(true).toString()+" : Directory does not exist.");
 			if(Files.notExists(this.getFilesIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getFilesIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getFilesIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getYearsIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getYearsIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getYearsIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getSiteParametersIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getSiteParametersIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getSiteParametersIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getSoilsIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getSoilsIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getSoilsIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getWeatherSetupIn(true))) 
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getMarkovProbabilityIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getMarkovProbabilityIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovProbabilityIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getMarkovCovarianceIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getMarkovCovarianceIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovCovarianceIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getCloudIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getCloudIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getCloudIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getPlantProductivityIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getPlantProductivityIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getPlantProductivityIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getEstablishmentIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getEstablishmentIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getEstablishmentIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getSWCSetupIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getSWCSetupIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getSWCSetupIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getOutputSetupIn(true)))
-				f.LogError(LogFileIn.LogMode.LOGERROR, this.getOutputSetupIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.ERROR, this.getOutputSetupIn(true).toString()+" : file does not exist.");
 			this.verified = true;
 			return true;
 		} else {
@@ -303,116 +303,116 @@ public class FilesIn {
 				try {
 					Files.createDirectories(pProjectDirectory);
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, pProjectDirectory.toString() + " : Directory does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, pProjectDirectory.toString() + " : Directory does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getOutputDirectory(true))) {
 				try {
 					Files.createDirectories(this.getOutputDirectory(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getOutputDirectory(true).toString()+" : Directory does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getOutputDirectory(true).toString()+" : Directory does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(getWeatherPath(true))) {
 				try {
 					Files.createDirectories(getWeatherPath(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, getWeatherPath(true).toString()+" : Directory does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, getWeatherPath(true).toString()+" : Directory does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getFilesIn(true))) {
 				try {
 					Files.createFile(this.getFilesIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getFilesIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getFilesIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getYearsIn(true))) {
 				try {
 					Files.createFile(this.getYearsIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getYearsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getYearsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getSiteParametersIn(true))) {
 				try {
 					Files.createFile(this.getSiteParametersIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getSiteParametersIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getSiteParametersIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getSoilsIn(true))) {
 				try {
 					Files.createFile(this.getSoilsIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getSoilsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getSoilsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getWeatherSetupIn(true))) {
 				try {
 					Files.createFile(this.getWeatherSetupIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getMarkovProbabilityIn(true))) {
 				try {
 					Files.createFile(this.getMarkovProbabilityIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getMarkovProbabilityIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovProbabilityIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getMarkovCovarianceIn(true))) {
 				try {
 					Files.createFile(this.getMarkovCovarianceIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getMarkovCovarianceIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovCovarianceIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getCloudIn(true))) {
 				try {
 					Files.createFile(this.getCloudIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getCloudIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getCloudIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getPlantProductivityIn(true))) {
 				try {
 					Files.createFile(this.getPlantProductivityIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getPlantProductivityIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getPlantProductivityIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getEstablishmentIn(true))) {
 				try {
 					Files.createFile(this.getEstablishmentIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getEstablishmentIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getEstablishmentIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getSWCSetupIn(true))) {
 				try {
 					Files.createFile(this.getSWCSetupIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getSWCSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getSWCSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getSWCSetupIn(true))) {
 				try {
 					Files.createFile(this.getSWCSetupIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getSWCSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getSWCSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 			if(Files.notExists(this.getOutputSetupIn(true))) {
 				try {
 					Files.createFile(this.getOutputSetupIn(true));
 				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, this.getOutputSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, this.getOutputSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
 				}
 			}
 		} else {
-			f.LogError(LogFileIn.LogMode.LOGERROR, "FilesIn CreateFiles : No Data To Create File Structure.");
+			f.LogError(LogFileIn.LogMode.ERROR, "FilesIn CreateFiles : No Data To Create File Structure.");
 		}
 	}
 	/* Public Functions */
@@ -473,7 +473,7 @@ public class FilesIn {
 			Files.write(getFilesIn(true), lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.LOGWARN, "FilesIn onWrite : No Data to Write or not Verified.");
+			f.LogError(LogFileIn.LogMode.WARN, "FilesIn onWrite : No Data to Write or not Verified.");
 		}
 	}
 }

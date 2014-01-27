@@ -106,11 +106,11 @@ public class EstabIn {
 				switch (lineno) {
 				case 0:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn onRead : Expected only one value for use line.");
+						f.LogError(LogMode.ERROR, "EstabIn onRead : Expected only one value for use line.");
 					try {
 						this.SW_VegEstab.use = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn onRead : Could not convert use line.");
+						f.LogError(LogMode.ERROR, "EstabIn onRead : Could not convert use line.");
 					}
 					break;
 				default:
@@ -150,7 +150,7 @@ public class EstabIn {
 			Files.write(estabIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "EstabIn onWrite : onWrite : No data.");
+			f.LogError(LogMode.WARN, "EstabIn onWrite : onWrite : No data.");
 		}
 	}
 	
@@ -173,146 +173,146 @@ public class EstabIn {
 				switch (lineno) {
 				case 0:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for name line.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for name line.");
 					v.sppName = values[0];
 					break;
 				case 1:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for number of layers affecting establishment.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for number of layers affecting establishment.");
 					try {
 						v.estab_lyrs = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert number of layers affecting establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert number of layers affecting establishment line.");
 					}
 					break;
 				case 2:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for germination (top layer).");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for germination (top layer).");
 					try {
 						v.bars[SW_GERM_BARS] = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for germination (top layer) line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for germination (top layer) line.");
 					}
 					break;
 				case 3:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for establishment (average of top layers).");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for establishment (average of top layers).");
 					try {
 						v.bars[SW_ESTAB_BARS] = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for establishment (average of top layers) line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for establishment (average of top layers) line.");
 					}
 					break;
 				case 4:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for first possible day of germination.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for first possible day of germination.");
 					try {
 						v.min_pregerm_days = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert first possible day of germination line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert first possible day of germination line.");
 					}
 					break;
 				case 5:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for last possible day of germination.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for last possible day of germination.");
 					try {
 						v.max_pregerm_days = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert last possible day of germination line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert last possible day of germination line.");
 					}
 					break;
 				case 6:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days for germination to occur.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days for germination to occur.");
 					try {
 						v.min_wetdays_for_germ = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert min number of consecutive 'wet' days for germination to occur line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of consecutive 'wet' days for germination to occur line.");
 					}
 					break;
 				case 7:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for max number of consecutive 'dry' days after germination allowing estab.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of consecutive 'dry' days after germination allowing estab.");
 					try {
 						v.max_drydays_postgerm = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert max number of consecutive 'dry' days after germination allowing estab line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of consecutive 'dry' days after germination allowing estab line.");
 					}
 					break;
 				case 8:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days after germination before establishment.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days after germination before establishment.");
 					try {
 						v.min_wetdays_for_estab = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert consecutive 'wet' days after germination before establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert consecutive 'wet' days after germination before establishment line.");
 					}
 					break;
 				case 9:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for min number of days between germination and establishment.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of days between germination and establishment.");
 					try {
 						v.min_days_germ2estab = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert min number of days between germination and establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of days between germination and establishment line.");
 					}
 					break;
 				case 10:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for max number of days between germination and establishment.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of days between germination and establishment.");
 					try {
 						v.max_days_germ2estab = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert max number of days between germination and establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of days between germination and establishment line.");
 					}
 					break;
 				case 11:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for germination.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for germination.");
 					try {
 						v.min_temp_germ = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert min temp threshold for germination line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for germination line.");
 					}
 					break;
 				case 12:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for germination.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for germination.");
 					try {
 						v.max_temp_germ = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert max temp threshold for germination line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for germination line.");
 					}
 					break;
 				case 13:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for establishment.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for establishment.");
 					try {
 						v.min_temp_estab = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert min temp threshold for establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for establishment line.");
 					}
 					break;
 				case 14:
 					if(values.length > 1)
-						f.LogError(LogMode.LOGERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for establishment.");
+						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for establishment.");
 					try {
 						v.max_temp_estab = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
 					}
 					break;
 				}
 				if(lineno == 0) {
 					if(v.sppName.length() > 4) {
-						f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
+						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
 					}
 				}
 				lineno++;
 			}
 		}
 		if(lineno  < nitems) {
-			f.LogError(LogMode.LOGERROR, "EstabIn _spp_read : Too few input parameters.");
+			f.LogError(LogMode.ERROR, "EstabIn _spp_read : Too few input parameters.");
 		}
 		v.data=true;
 	}
@@ -340,7 +340,7 @@ public class EstabIn {
 			Files.write(sppFile, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.LOGWARN, "EstabIn _write_spp : onWrite : No data.");
+			f.LogError(LogMode.WARN, "EstabIn _write_spp : onWrite : No data.");
 		}
 	}
 }

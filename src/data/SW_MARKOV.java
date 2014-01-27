@@ -100,7 +100,7 @@ public class SW_MARKOV {
 				line = line.trim();
 				String[] values = line.split("[ \t]+");
 				if(values.length < 5)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovProbIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovProbIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
 				try {
 					int day = Integer.parseInt(values[0])-1;
 					this.wetprob[day] = Double.parseDouble(values[1]);
@@ -108,7 +108,7 @@ public class SW_MARKOV {
 					this.avg_ppt[day] = Double.parseDouble(values[3]);
 					this.std_ppt[day] = Double.parseDouble(values[4]);
 				} catch(NumberFormatException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovProbIn : Could not convert string to number." + e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovProbIn : Could not convert string to number." + e.getMessage());
 				}
 				
 				nDays++;
@@ -130,7 +130,7 @@ public class SW_MARKOV {
 				line = line.trim();
 				String[] values = line.split("[ \t]+");
 				if(values.length < 7)
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovCovIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovCovIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
 				try {
 					int week = Integer.parseInt(values[0])-1;
 					this.u_cov[week][0] = Double.parseDouble(values[1]);
@@ -140,7 +140,7 @@ public class SW_MARKOV {
 					this.v_cov[week][1][0] = Double.parseDouble(values[5]);
 					this.v_cov[week][1][1] = Double.parseDouble(values[6]);
 				} catch(NumberFormatException e) {
-					f.LogError(LogFileIn.LogMode.LOGERROR, "swMarkov onReadMarkovCovIn : Could not convert string to number." + e.getMessage());
+					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovCovIn : Could not convert string to number." + e.getMessage());
 				}
 				nWeeks++;
 			}
@@ -174,7 +174,7 @@ public class SW_MARKOV {
 		vc10 = (vc00 > 0.) ? vc10 / vc00 : 0;
 		s = vc10 * vc10;
 		if (s > vc11)
-			f.LogError(LogFileIn.LogMode.LOGERROR, "\nBad covariance matrix in mvnorm()");
+			f.LogError(LogFileIn.LogMode.ERROR, "\nBad covariance matrix in mvnorm()");
 		vc11 = (Double.compare(vc11, s))==0 ? 0. : Math.sqrt(vc11 -s);
 		
 		

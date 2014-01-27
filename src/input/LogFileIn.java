@@ -14,9 +14,11 @@ public class LogFileIn {
 	private boolean bLogged;
 	private boolean fileSet = false;
 	private boolean fileGood = false;
+	private List<String> lines;
 	
 	private LogFileIn() {
 		setbLogged(false);
+		lines = new ArrayList<String>();
 	}
 	
 	public boolean isbLogged() {
@@ -34,21 +36,24 @@ public class LogFileIn {
 		return instance;
 	}
 	
+	public void onClear() {
+		lines.clear();
+	}
+	
 	public enum LogMode {
-		LOGNOTE, LOGWARN, LOGERROR, LOGEXIT, LOGFATAL, MAX_ERROR
+		NOTE, WARN, ERROR, EXIT, FATAL, MAX_ERROR
 	}
 	
 	public void LogError(LogMode mode, String Message) {
 		Path path = Paths.get(pLogFile.toString());
 		String output = "";
 		setbLogged(true);
-		List<String> lines = new ArrayList<String>();
 		
-		if(mode == LogMode.LOGNOTE)
+		if(mode == LogMode.NOTE)
 			output = "NOTE: ";
-		else if(mode == LogMode.LOGWARN)
+		else if(mode == LogMode.WARN)
 			output = "WARNING: ";
-		else if(mode == LogMode.LOGERROR)
+		else if(mode == LogMode.ERROR)
 			output = "ERROR: ";
 		
 		output = output+Message;
@@ -65,7 +70,7 @@ public class LogFileIn {
 			e.printStackTrace();
 		}
 		
-		if(mode == LogMode.LOGERROR | mode == LogMode.LOGEXIT | mode == LogMode.LOGFATAL) {
+		if(mode == LogMode.ERROR | mode == LogMode.EXIT | mode == LogMode.FATAL) {
 			System.exit(-1);
 		}
 	}
