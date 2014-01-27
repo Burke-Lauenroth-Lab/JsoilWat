@@ -14,7 +14,6 @@ import times.Times;
 import times.Times.Months;
 
 public class SW_VEGPROD {
-
 	public class VegetationComposition {
 		public double grasses;
 		public double shrubs;
@@ -242,6 +241,43 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
+	public class DailyVegProd {
+		public class Params {
+			public double[] litter_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly litter values (g/m**2)    */
+			public double[] biomass_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly aboveground biomass (g/m**2) */
+			public double[] biolive_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of biomass * pct_live               */
+			public double[] biodead_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of biomass - biolive                */
+			public double[] pct_live_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly live biomass in percent   */
+			public double[] lai_conv_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly amount of biomass needed to produce lai=1 (g/m**2) */
+			public double[] lai_live_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of lai of live biomass               */
+			public double[] total_agb_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of sum of aboveground biomass & litter */
+			public double[] veg_height_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly height of vegetation (cm)   */
+			public double[] pct_cover_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of veg cover for today; function of monthly biomass */
+			public double[] vegcov_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of veg cover for today; function of monthly biomass */
+			public void onClear() {
+				for(int i=0; i<Times.MAX_DAYS+1; i++) {
+					litter_daily[i]=biomass_daily[i]=biolive_daily[i]=biodead_daily[i]=pct_live_daily[i]=lai_conv_daily[i]=lai_live_daily[i]=0;
+					total_agb_daily[i]=veg_height_daily[i]=pct_cover_daily[i]=vegcov_daily[i]=0;
+				}
+			}
+		}
+		public Params grass;
+		public Params shrub;
+		public Params tree;
+		public Params forb;
+		public DailyVegProd() {
+			this.grass = new Params();
+			this.shrub = new Params();
+			this.tree = new Params();
+			this.forb = new Params();
+		}
+		public void onClear() {
+			this.grass.onClear();
+			this.shrub.onClear();
+			this.tree.onClear();
+			this.forb.onClear();
+		}
+	}
 
 	private VegetationComposition vegComp;
 	private Albedo albedo;
@@ -255,6 +291,7 @@ public class SW_VEGPROD {
 	private HydraulicRedistribution hydraulicRedistribution;
 	private CriticalSWP criticalSWP;
 	private MonthlyProductionValues monthlyProd;
+	private DailyVegProd daily;
 	private int nFileItemsRead;
 	private boolean data;
 	
@@ -271,6 +308,7 @@ public class SW_VEGPROD {
 		this.hydraulicRedistribution = new HydraulicRedistribution();
 		this.criticalSWP = new CriticalSWP();
 		this.monthlyProd = new MonthlyProductionValues();
+		this.daily = new DailyVegProd();
 		this.nFileItemsRead = 0;
 		this.data = false;
 	}
@@ -938,5 +976,8 @@ public class SW_VEGPROD {
 	}
 	public MonthlyProductionValues getMonthlyProductionValues() {
 		return this.monthlyProd;
+	}
+	public DailyVegProd getDailyValues() {
+		return this.daily;
 	}
 }

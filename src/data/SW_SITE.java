@@ -19,11 +19,11 @@ public class SW_SITE {
 		public double swc_wet=0; /* value for a "wet" day,       */
 	}
 	public class Model {
-		private class Flags {
-			public boolean reset;		/* 1: reset values at start of each year */
+		public class Flags {
+			public boolean reset_yr;		/* 1: reset values at start of each year */
 			public boolean deepdrain;	/* 1: allow drainage into deepest layer  */
 		}
-		private class Coefficients {
+		public class Coefficients {
 			public double petMultiplier;
 			public double percentRunoff;
 		}
@@ -214,7 +214,7 @@ public class SW_SITE {
 					break;
 				case 3:
 					try {
-						this.model.flags.reset = Integer.parseInt(values[0])>0 ? true : false;
+						this.model.flags.reset_yr = Integer.parseInt(values[0])>0 ? true : false;
 					} catch(NumberFormatException e) {
 						f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Model Flags - reset : Could not convert string to double. " + e.getMessage());
 					}
@@ -477,7 +477,7 @@ public class SW_SITE {
 			lines.add(String.valueOf(this.swc.swc_wet)+"\t\t\t# swc_wet : cm/cm if < 1.0, -bars if >= 1.0. ");
 			lines.add("");
 			lines.add("# ---- Model flags and coefficients ----");
-			lines.add(String.valueOf(this.model.flags.reset?1:0)+"\t\t\t# reset (1/0): reset/don't reset swc each new year");
+			lines.add(String.valueOf(this.model.flags.reset_yr?1:0)+"\t\t\t# reset (1/0): reset/don't reset swc each new year");
 			lines.add(String.valueOf(this.model.flags.deepdrain?1:0)+"\t\t\t# deepdrain (1/0): allow/disallow deep drainage function.");
 			lines.add("\t\t\t#   if deepdrain == 1, model expects extra layer in soils file.");
 			lines.add(String.valueOf(this.model.coefficients.petMultiplier)+"\t\t\t# multiplier for PET (eg for climate change).");
@@ -807,7 +807,7 @@ public class SW_SITE {
 				"Site Related Parameters:\n"+
 				"---------------------\n"));
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Site File: %s\n", fileSite));
-		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Reset SWC values each year: %B\n", this.model.flags.reset));
+		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Reset SWC values each year: %B\n", this.model.flags.reset_yr));
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Use deep drainage reservoir: %B\n", this.model.flags.deepdrain));
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("  Slow Drain Coefficient: %5.4f\n", this.drainage.slow_drain_coeff));
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("  PET Scale: %5.4f\n", this.model.coefficients.petMultiplier));

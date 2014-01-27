@@ -246,4 +246,23 @@ public class SW_MODEL {
 	public void setIsNorth(boolean bIsNorth) {
 		this.isnorth = bIsNorth;
 	}
+	
+	public int getFirstdoy() {
+		return this.firstdoy;
+	}
+	
+	
+	public int getYear() {
+		return this.year;
+	}
+	public int getMonth() {
+		return this.month;
+	}
+	public int getWeek() {
+		return this.week;
+	}
+	public int getDOY() {
+		return this.doy;
+	}
+	
 }

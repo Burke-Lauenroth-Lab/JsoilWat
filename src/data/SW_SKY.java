@@ -168,6 +168,80 @@ public class SW_SKY {
 		Times.interpolate_monthlyValues(this.snow_density, this.snow_density_daily);
 	}
 	
+	public double[] getCloudcov_daily() {
+		return cloudcov_daily;
+	}
+	
+	public double getCloudcov_daily(int doy) {
+		return cloudcov_daily[doy-1];
+	}
+
+	public void setCloudcov_daily(double[] cloudcov_daily) {
+		if(cloudcov_daily.length == Times.MAX_DAYS+1)
+			this.cloudcov_daily = cloudcov_daily;
+	}
+	
+	public void setCloudcov_daily(double cloudcov_daily, int doy) {
+		this.cloudcov_daily[doy-1] = cloudcov_daily;
+	}
+
+	public double[] getWindspeed_daily() {
+		return windspeed_daily;
+	}
+	
+	public double getWindspeed_daily(int doy) {
+		return windspeed[doy-1];
+	}
+
+	public void setWindspeed_daily(double[] windspeed_daily) {
+		if(windspeed_daily.length == Times.MAX_DAYS+1)
+			this.windspeed_daily = windspeed_daily;
+	}
+	
+	public void setWindspeed_daily(double windspeed_daily, int doy) {
+		this.windspeed_daily[doy-1] = windspeed_daily;
+	}
+
+	public double[] getR_humidity_daily_daily() {
+		return r_humidity_daily;
+	}
+	
+	public double getR_humidity_daily(int doy) {
+		return r_humidity_daily[doy-1];
+	}
+
+	public void setR_humidity_daily(double[] r_humidity_daily) {
+		if(r_humidity_daily.length == Times.MAX_DAYS+1)
+			this.r_humidity_daily = r_humidity_daily;
+	}
+	
+	public void setR_humidity_daily(double r_humidity_daily, int doy) {
+		this.r_humidity_daily[doy] = r_humidity_daily;
+	}
+
+	public double[] getSnow_density_daily() {
+		return snow_density_daily;
+	}
+	
+	public double getSnow_density_daily(int doy) {
+		return snow_density_daily[doy-1];
+	}
+
+	public void setSnow_density_daily(double[] snow_density_daily) {
+		if(snow_density_daily.length == Times.MAX_DAYS+1)
+			this.snow_density_daily = snow_density_daily;
+	}
+	
+	public void setSnow_density_daily(double snow_density_daily, int doy) {
+		this.snow_density_daily[doy-1] = snow_density_daily;
+	}
+	
+	
+	
+	
+	
+	
+	
 	public double[] getCloudcov() {
 		return cloudcov;
 	}

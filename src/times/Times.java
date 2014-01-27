@@ -4,6 +4,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 public final class Times {
+	
+	public static final int Yesterday=0;
+	public static final int Today=1;
+	
 	public static enum TwoDays {
 		Yesterday, Today
 	}
