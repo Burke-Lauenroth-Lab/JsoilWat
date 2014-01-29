@@ -198,8 +198,13 @@ public class SW_SOILWAT_HISTORY {
 		return nCurrentYear;
 	}
 
-	public void setCurrentYear(int nCurrentYear) {
-		this.nCurrentYear = nCurrentYear;
+	public boolean setCurrentYear(int nCurrentYear) {
+		if(this.yearToIndex.containsKey(nCurrentYear)) {
+			this.nCurrentYear = nCurrentYear;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public boolean swcMissing(int doy) {

@@ -33,4 +33,38 @@ public final class Defines {
 	               eOUT,  /* output */
 	               eNONE /* none */
 	}
+	public static boolean LE(double d1, double d2) {
+		if(Double.compare(d1, d2) <= 0)
+			return true;
+		else
+			return false;
+	}
+	public static boolean LT(double d1, double d2) {
+		if(Double.compare(d1, d2) < 0)
+			return true;
+		else
+			return false;
+	}
+	public static boolean GE(double d1, double d2) {
+		if(Double.compare(d1, d2) >= 0)
+			return true;
+		else
+			return false;
+	}
+	public static boolean GT(double d1, double d2) {
+		if(Double.compare(d1, d2) > 0)
+			return true;
+		else
+			return false;
+	}
+	public static boolean EQ(double d1, double d2) {
+		if(Double.compare(d1, d2) == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	public static double tanfunc(double z, double a, double b, double c, double d) {
+		return ((b)+((c)/Math.PI)*Math.atan(Math.PI*(d)*((z)-(a))) );
+	}
 }

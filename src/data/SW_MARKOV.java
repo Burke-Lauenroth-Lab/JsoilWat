@@ -26,12 +26,16 @@ public class SW_MARKOV {
 	private int ppt_events;		/* number of ppt events generated this year */
 	private double[][] _vcov;
 	private double[] _ucov;
+	private MaxMinRain values;
 	private Random random;
 	private boolean data;
 
 	
 	public class MaxMinRain {
 		public double tmax,tmin,rain;
+		public MaxMinRain() {
+			tmax=tmin=rain=0;
+		}
 	}
 	
 	public SW_MARKOV() {
@@ -44,7 +48,8 @@ public class SW_MARKOV {
 		this.v_cov = new double[Times.MAX_WEEKS][2][2];
 		this._ucov = new double[2];
 		this._vcov = new double[2][2];
-		this.ppt_events = 0;
+		this.values = new MaxMinRain();
+		this.setPpt_events(0);
 		this.random = new Random();
 	}
 	public boolean onVerify() {
@@ -54,7 +59,7 @@ public class SW_MARKOV {
 			return false;
 	}
 	
-	public void SW_MKV_today(int doy, MaxMinRain values) {
+	public void SW_MKV_today(int doy) {
 		int week;
 		double prob,p,x;
 		
@@ -68,7 +73,7 @@ public class SW_MARKOV {
 		}
 
 		if (!Defines.isZero(values.rain))
-			this.ppt_events++;
+			this.setPpt_events(this.getPpt_events() + 1);
 
 		/* Calculate temperature */
 		week = Times.Doy2Week(doy+1);
@@ -182,5 +187,19 @@ public class SW_MARKOV {
 		z2 = random.nextGaussian();
 		t.tmin = (vc10 * z1) + (vc11 * z2) + _ucov[1];
 		t.tmax = vc00 * z1 + _ucov[0];
+	}
+	public int getPpt_events() {
+		return ppt_events;
+	}
+	public void setPpt_events(int ppt_events) {
+		this.ppt_events = ppt_events;
+	}
+	public MaxMinRain get_MaxMinRain() {
+		return this.values;
+	}
+	public void set_MaxMinRain(double max, double min, double rain) {
+		this.values.tmax = max;
+		this.values.tmin = min;
+		this.values.rain = rain;
 	}
 }

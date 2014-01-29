@@ -72,7 +72,7 @@ public class SW_VEGPROD {
 		}
 	}
 	public class VegetationInterceptionParameters {
-		private class Params {
+		public class Params {
 			public double a;
 			public double b;
 			public double c;

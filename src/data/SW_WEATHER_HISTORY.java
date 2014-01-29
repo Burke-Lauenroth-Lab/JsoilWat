@@ -243,8 +243,21 @@ public class SW_WEATHER_HISTORY {
 		return nCurrentYear;
 	}
 
-	public void setCurrentYear(int nCurrentYear) {
-		this.nCurrentYear = nCurrentYear;
+	public boolean setCurrentYear(int nCurrentYear) {
+		if(this.yearToIndex.containsKey(nCurrentYear)) {
+			this.nCurrentYear = nCurrentYear;
+			return true;
+		} else {
+			return false;
+		}
 	}
-	
+	public double get_ppt(int doy) {
+		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).ppt[doy];
+	}
+	public double get_temp_max(int doy) {
+		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_max[doy];
+	}
+	public double get_temp_min(int doy) {
+		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_min[doy];
+	}
 }

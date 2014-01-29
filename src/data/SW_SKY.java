@@ -219,6 +219,23 @@ public class SW_SKY {
 		this.r_humidity_daily[doy] = r_humidity_daily;
 	}
 
+	public double[] getTransmission_daily() {
+		return transmission_daily;
+	}
+	
+	public double getTransmission_daily(int doy) {
+		return transmission_daily[doy-1];
+	}
+
+	public void setTransmission_daily(double[] transmission_daily) {
+		if(transmission_daily.length == Times.MAX_DAYS+1)
+			this.transmission_daily = transmission_daily;
+	}
+	
+	public void setTransmissiony_daily(double transmission_daily, int doy) {
+		this.transmission_daily[doy-1] = transmission_daily;
+	}
+	
 	public double[] getSnow_density_daily() {
 		return snow_density_daily;
 	}
@@ -235,9 +252,6 @@ public class SW_SKY {
 	public void setSnow_density_daily(double snow_density_daily, int doy) {
 		this.snow_density_daily[doy-1] = snow_density_daily;
 	}
-	
-	
-	
 	
 	
 	
@@ -292,6 +306,23 @@ public class SW_SKY {
 	public void setR_humidity(double r_humidity, Times.Months month) {
 		this.r_humidity[month.ordinal()] = r_humidity;
 	}
+	
+	public double[] getTransmission() {
+		return transmission;
+	}
+	
+	public double getTransmission(Times.Months month) {
+		return transmission[month.ordinal()];
+	}
+
+	public void setTransmission(double[] transmission) {
+		if(transmission.length == Times.MAX_MONTHS)
+			this.transmission = transmission;
+	}
+	
+	public void setTransmission(double transmission, Times.Months month) {
+		this.transmission[month.ordinal()] = transmission;
+	}
 
 	public double[] getSnow_density() {
 		return snow_density;
@@ -305,4 +336,5 @@ public class SW_SKY {
 	public void setSnow_density(double snow_density, Times.Months month) {
 		this.snow_density[month.ordinal()] = snow_density;
 	}
+	
 }

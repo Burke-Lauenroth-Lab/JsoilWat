@@ -1,6 +1,7 @@
 package data;
 
 import input.LogFileIn;
+import input.LogFileIn.LogMode;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -85,6 +86,7 @@ public class SW_WEATHER {
 		double pct_snowdrift, pct_snowRunoff;
 		int days_in_runavg;
 		SW_TIMES yr;
+		double[] runavg_list;
 		double[] scale_precip, scale_temp_max, scale_temp_min;
 		String name_prefix;
 		double snowRunoff, surfaceRunoff, soil_inf;
@@ -129,35 +131,55 @@ public class SW_WEATHER {
 		}
 	}
 	
-	private SW_SOILWAT_HISTORY hist;
+	private int tail;
+	private SW_MODEL SW_Model;
+	private SW_MARKOV SW_Markov;
+	private SW_SOILWATER SW_SoilWater;
+	private SW_WEATHER_HISTORY hist;
 	private WEATHER weather;
+	private boolean firsttime;
+	private boolean weth_found; /* TRUE=success reading this years weather file */
 	private boolean verified;
 	private boolean read;
 	private int nFileItemsRead;
 	private final int nFileItems=18;
 	
-	public SW_WEATHER() {
-		this.hist = new SW_SOILWAT_HISTORY();
+	public SW_WEATHER(SW_MODEL SW_Model, SW_MARKOV SW_Markov, SW_SOILWATER SW_SoilWater) {
+		this.hist = new SW_WEATHER_HISTORY();
 		this.nFileItemsRead=0;
 		this.verified = false;
 		this.read = false;
+		this.weth_found = false;
+		this.firsttime = true;
 		this.weather = new WEATHER();
+		this.SW_Markov = SW_Markov;
+		this.SW_Model = SW_Model;
+		this.SW_SoilWater = SW_SoilWater;
+		tail=0;
+		SW_Markov.setPpt_events(0);
 	}
 	
 	public void onClear() {
 		this.read = false;
 		this.verified = false;
+		this.weth_found = false;
+		hist.onClear();
 		weather.use_markov = false;
 		weather.use_snow = false;
 		weather.pct_snowdrift = 0;
 		weather.pct_snowRunoff = 0;
 		weather.days_in_runavg = 0;
 		this.nFileItemsRead=0;
+		tail=0;
+		SW_Markov.setPpt_events(0);
+		this.firsttime = true;
 	}
 	
 	public void onSetDefault(Path ProjectDirectory) {
 		this.verified = false;
 		this.read = true;
+		this.firsttime = true;
+		this.weth_found = false;
 		weather.use_markov = false;
 		weather.use_snow = true;
 		weather.pct_snowdrift = 0;
@@ -170,6 +192,8 @@ public class SW_WEATHER {
 		weather.yr.setFirst(1982);
 		weather.yr.setLast(1990);//model endyear
 		this.nFileItemsRead=nFileItems;
+		tail=0;
+		SW_Markov.setPpt_events(0);
 	}
 
 	public boolean onVerify(int ModelStartYear) {
@@ -244,6 +268,7 @@ public class SW_WEATHER {
 				case 5:
 					try{
 						weather.days_in_runavg = Integer.parseInt(values[0]);
+						weather.runavg_list = new double[weather.days_in_runavg];
 					} catch(NumberFormatException e) {
 						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Days in Runavg : Could not convert string to integer." + e.getMessage());
 					}
@@ -297,5 +322,144 @@ public class SW_WEATHER {
 
 	public WEATHER getWeather() {
 		return this.weather;
+	}
+	public void SW_WTH_clear_runavg_list() {
+		weather.runavg_list = null;
+	}
+	public void SW_WTH_init() {
+		/* =================================================== */
+		/* nothing to initialize */
+		/* this is a stub to make all objects more consistent */
+	}
+	public void SW_WTH_new_year() {
+		SW_WEATHER_2DAYS wn = weather.now;
+		int year = SW_Model.getYear();
+		int Today = Defines.Today;
+		
+		_clear_runavg();
+		weather.yrsum.onClear();
+		
+		if(year < weather.yr.getFirst()) {
+			weth_found=false;
+		} else {
+			weth_found = hist.setCurrentYear(year);
+		}
+		
+		if(!weth_found && !weather.use_markov) {
+			LogFileIn f = LogFileIn.getInstance();
+			f.LogError(LogMode.FATAL, String.format("Markov Simulator turned off and weather file found not for year %d",year));
+		}
+		/* setup today's weather because it's used as a default
+		 * value when weather for the first day is missing.
+		 * Notice that temps of 0. are reasonable for January
+		 * (doy=1) and are below the critical temps for freezing
+		 * and with ppt=0 there's nothing to freeze.
+		 */
+		if (!weth_found && firsttime) {
+			wn.temp_max[Today] = wn.temp_min[Today] = wn.ppt[Today] = wn.rain[Today] = wn.snow[Today] = wn.snowmelt[Today] = wn.snowloss[Today] = wn.gsppt = 0.;
+
+			weather.snowRunoff = weather.surfaceRunoff = weather.soil_inf = 0.;
+		}
+
+		firsttime = false;
+	}
+	public void SW_WTH_end_day() {
+		_update_yesterday();
+	}
+	public void SW_WTH_new_day() {
+		/* =================================================== */
+		/* guarantees that today's weather will not be invalid
+		 * via _todays_weth()
+		 *
+		 *  20-Jul-2002 -- added growing season computation to
+		 *                 facilitate the steppe/soilwat interface.
+		 *  06-Dec-2002 -- modified the seasonal computation to
+		 *                 account for n-s hemispheres.
+		 *	16-Sep-2009 -- (drs) scaling factors were only applied to Tmin and Tmax
+		 *					but not to Taverage -> corrected
+		 *	09-Oct-2009	-- (drs) commented out snow adjustement, because call moved to SW_Flow.c
+		 * 	20091015 (drs) ppt is divided into rain and snow
+		 */
+		int Today=Defines.Today;
+		int Yesterday = Defines.Yesterday;
+		
+		SW_WEATHER_2DAYS wn = weather.now;
+		double tmpmax=0, tmpmin=0, ppt=0;
+		int month = SW_Model.getMonth();
+
+		/* get the plain unscaled values */
+		int doy = SW_Model.getDOY()-1;
+		if(!weth_found) {
+			ppt = wn.ppt[Yesterday]; /* reqd for markov */
+			SW_Markov.set_MaxMinRain(tmpmax, tmpmin, ppt);
+			SW_Markov.SW_MKV_today(doy);
+			ppt = SW_Markov.get_MaxMinRain().rain;
+			tmpmax = SW_Markov.get_MaxMinRain().tmax;
+			tmpmin = SW_Markov.get_MaxMinRain().tmin;
+		} else {
+			tmpmax = (Double.compare(hist.get_temp_max(doy), WTH_MISSING)!=0) ? hist.get_temp_max(doy) : wn.temp_max[Yesterday];
+			tmpmin = (Double.compare(hist.get_temp_min(doy), WTH_MISSING)!=0) ? hist.get_temp_min(doy) : wn.temp_min[Yesterday];
+			ppt =  (Double.compare(hist.get_ppt(doy), WTH_MISSING)!=0) ? hist.get_ppt(doy) : 0.;
+		}
+
+		/* scale the weather according to monthly factors */
+		wn.temp_max[Today] = tmpmax + weather.scale_temp_max[month];
+		wn.temp_min[Today] = tmpmin + weather.scale_temp_min[month];
+		wn.ppt_actual[Today] = ppt;
+
+		wn.temp_avg[Today] = (wn.temp_max[Today] + wn.temp_min[Today]) / 2.;
+		wn.temp_run_avg[Today] = _runavg_temp(wn.temp_avg[Today]);
+
+		ppt *= weather.scale_precip[month];
+
+		wn.ppt[Today] = wn.rain[Today] = ppt;
+		wn.snowmelt[Today] = wn.snowloss[Today] = wn.snow[Today] = 0.;
+		weather.snowRunoff = weather.surfaceRunoff = weather.soil_inf = 0.;
+
+		if (weather.use_snow) {
+			SW_SoilWater.SW_SWC_adjust_snow(wn);
+		}
+	}
+	
+	private void _clear_runavg() {
+		for(int i=0; i<weather.days_in_runavg; i++) {
+			weather.runavg_list[i] = 0;
+		}
+	}
+	private double _runavg_temp(double avg) {
+		int cnt=0, numdays;
+		double sum = 0.;
+		
+		weather.runavg_list[tail] = avg;
+		numdays = (SW_Model.getDOY() < weather.days_in_runavg) ? SW_Model.getDOY() : weather.days_in_runavg;
+		
+		for(int i=0; i<numdays; i++) {
+			if(Double.compare(weather.runavg_list[i], WTH_MISSING) != 0)
+				sum+=weather.runavg_list[i];
+			cnt++;
+		}
+		tail = (tail<(weather.days_in_runavg - 1)) ? tail+1 : 0;
+		return ((cnt>0) ? sum/cnt : WTH_MISSING);
+	}
+	private void _update_yesterday() {
+		int Today=Defines.Today;
+		int Yesterday = Defines.Yesterday;
+		SW_WEATHER_2DAYS wn = weather.now;
+		
+		wn.temp_max[Yesterday] = wn.temp_max[Today];
+		wn.temp_min[Yesterday] = wn.temp_min[Today];
+		wn.temp_avg[Yesterday] = wn.temp_avg[Today];
+		wn.temp_run_avg[Yesterday] = wn.temp_run_avg[Today];
+
+		wn.ppt_actual[Yesterday] = wn.ppt_actual[Today];
+		wn.ppt[Yesterday] = wn.ppt[Today];
+		wn.snow[Yesterday] = wn.snow[Today];
+		wn.rain[Yesterday] = wn.rain[Today];
+		wn.snowmelt[Yesterday] = wn.snowmelt[Today];
+		wn.snowloss[Yesterday] = wn.snowloss[Today];
+	}
+
+	public SW_WEATHER_2DAYS getNow() {
+		return weather.now;
 	}
 }

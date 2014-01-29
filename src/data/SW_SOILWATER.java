@@ -157,9 +157,30 @@ public class SW_SOILWATER {
 		this.data = false;
 	}
 	
+	public void onVerify() {
+		// gets the soil temperatures from where they are read in the SW_Site struct for use later
+		// SW_Site.c must call it's read function before this, or it won't work
+		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
+			soilwat.sTemp[i] = SW_Soils.getLayer(i).sTemp;
+		}
+		soilwat.yr.equals(SW_Model.getEndYear());
+	}
+	
+	public void onReadHist(Path WeatherHistoryFolder) {
+		//We only read the sw hist if hist_use is set and
+		//only grab the years set in setup file.
+		if(soilwat.hist_use)
+			try {
+				if(SW_Model.getStartYear() >= soilwat.yr.getFirst())
+					hist.onRead(WeatherHistoryFolder, soilwat.filePrefix, SW_Model.getStartYear(), SW_Model.getEndYear());
+				else
+					hist.onRead(WeatherHistoryFolder, soilwat.filePrefix, soilwat.yr.getFirst(), SW_Model.getEndYear());
+			} catch (IOException e) {
+				LogFileIn f = LogFileIn.getInstance();
+			}
+	}
 	public void onRead(Path swcSetupIn) throws IOException {
 		int nitems=4, lineno=0;
-		//TODO: copy over soil temp from soils to soilwat stemp
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(swcSetupIn, StandardCharsets.UTF_8);
 		
