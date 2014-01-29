@@ -1538,7 +1538,6 @@ public class SW_FLOW {
 		double biolive;
 		double biodead;
 		double fbst;
-		double petday;
 		double swp_shift;
 		double swp_shape;
 		double swp_inflec;
@@ -1550,11 +1549,18 @@ public class SW_FLOW {
 		double shade_yinflex;
 		double shade_range;
 		
+		
+		SW_Site.transp.xinflec, SW_Site.transp.slope, SW_Site.transp.yinflec, SW_Site.transp.range, SW_VegProd.grass.shade_scale, SW_VegProd.grass.shade_deadmax,
+		SW_VegProd.grass.tr_shade_effects.xinflec, SW_VegProd.grass.tr_shade_effects.slope, SW_VegProd.grass.tr_shade_effects.yinflec,
+		SW_VegProd.grass.tr_shade_effects.range
+		
 		switch (type) {
 		case "grass":
-			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
-			fbse = p.soil_evap_grass;
-			Es_param_limit = SW_VegProd.getEsParamLimit().grasses;
+			swpavg = p.swpot_avg_grass;
+			biolive = SW_VegProd.getDailyValues().grass.biolive_daily[doy];
+			biodead = SW_VegProd.getDailyValues().grass.biodead_daily[doy];
+			fbst = p.transp_grass;
+			
 			break;
 		case "shrub":
 			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
@@ -1592,7 +1598,7 @@ public class SW_FLOW {
 				shadeaf = 1.0;
 			}
 
-			bstrate = watrate(swpavg, petday, swp_shift, swp_shape, swp_inflec, swp_range) * shadeaf * petday * fbst;
+			bstrate = watrate(swpavg, SW_Soilwat.pet, swp_shift, swp_shape, swp_inflec, swp_range) * shadeaf * SW_Soilwat.pet * fbst;
 		}
 	}
 
