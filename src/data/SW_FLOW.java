@@ -360,10 +360,7 @@ public class SW_FLOW {
 
 			p.swpot_avg_tree = transp_weighted_avg("tree",doy);
 
-			pot_transp(&p.transp_rate_tree, p.swpot_avg_tree, SW_VegProd.tree.biolive_daily[doy], SW_VegProd.tree.biodead_daily[doy], p.transp_tree, SW_Soilwat.pet,
-					SW_Site.transp.xinflec, SW_Site.transp.slope, SW_Site.transp.yinflec, SW_Site.transp.range, SW_VegProd.tree.shade_scale, SW_VegProd.tree.shade_deadmax,
-					SW_VegProd.tree.tr_shade_effects.xinflec, SW_VegProd.tree.tr_shade_effects.slope, SW_VegProd.tree.tr_shade_effects.yinflec,
-					SW_VegProd.tree.tr_shade_effects.range);
+			p.transp_rate_tree = pot_transp("tree", doy);
 			p.transp_rate_tree *= p.snowdepth_scale_tree * SW_VegProd.getVegetationComposition().trees;
 		} else {
 			p.soil_evap_rate_tree = 0.;
@@ -372,7 +369,7 @@ public class SW_FLOW {
 
 		/* Shrub transpiration & bare-soil evaporation rates */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) { /* shrubs present AND shrubs not fully covered in snow */
-			shrub_EsT_partitioning(&p.soil_evap_shrub, &p.transp_shrub, SW_VegProd.shrub.lai_live_daily[doy], SW_VegProd.shrub.EsTpartitioning_param);
+			shrub_EsT_partitioning(doy);
 
 			if (Defines.EQ(SW_Soilwat.getSoilWat().snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_shrub = pot_soil_evap("shrub", doy);
@@ -383,10 +380,7 @@ public class SW_FLOW {
 
 			p.swpot_avg_shrub = transp_weighted_avg("shrub", doy);
 
-			pot_transp(&p.transp_rate_shrub, p.swpot_avg_shrub, SW_VegProd.shrub.biolive_daily[doy], SW_VegProd.shrub.biodead_daily[doy], p.transp_shrub, SW_Soilwat.pet,
-					SW_Site.transp.xinflec, SW_Site.transp.slope, SW_Site.transp.yinflec, SW_Site.transp.range, SW_VegProd.shrub.shade_scale, SW_VegProd.shrub.shade_deadmax,
-					SW_VegProd.shrub.tr_shade_effects.xinflec, SW_VegProd.shrub.tr_shade_effects.slope, SW_VegProd.shrub.tr_shade_effects.yinflec,
-					SW_VegProd.shrub.tr_shade_effects.range);
+			p.transp_rate_shrub = pot_transp("shrub",doy);
 			p.transp_rate_shrub *= p.snowdepth_scale_shrub * SW_VegProd.getVegetationComposition().shrubs;
 
 		} else {
@@ -396,7 +390,7 @@ public class SW_FLOW {
 
 		/* Forb transpiration & bare-soil evaporation rates */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) { /* forbs present AND forbs not fully covered in snow */
-			forb_EsT_partitioning(&p.soil_evap_forb, &p.transp_forb, SW_VegProd.forb.lai_live_daily[doy], SW_VegProd.forb.EsTpartitioning_param);
+			forb_EsT_partitioning(doy);
 
 			if (Defines.EQ(SW_Soilwat.getSoilWat().snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_forb = pot_soil_evap("forb", doy);
@@ -407,10 +401,7 @@ public class SW_FLOW {
 
 			p.swpot_avg_forb = transp_weighted_avg("forb", doy);
 
-			pot_transp(&p.transp_rate_forb, p.swpot_avg_forb, SW_VegProd.forb.biolive_daily[doy], SW_VegProd.forb.biodead_daily[doy], p.transp_forb, SW_Soilwat.pet,
-					SW_Site.transp.xinflec, SW_Site.transp.slope, SW_Site.transp.yinflec, SW_Site.transp.range, SW_VegProd.forb.shade_scale, SW_VegProd.forb.shade_deadmax,
-					SW_VegProd.forb.tr_shade_effects.xinflec, SW_VegProd.forb.tr_shade_effects.slope, SW_VegProd.forb.tr_shade_effects.yinflec,
-					SW_VegProd.forb.tr_shade_effects.range);
+			p.transp_rate_forb = pot_transp("forb", doy);
 			p.transp_rate_forb *= p.snowdepth_scale_forb * SW_VegProd.getVegetationComposition().forbs;
 
 		} else {
@@ -420,7 +411,7 @@ public class SW_FLOW {
 
 		/* Grass transpiration & bare-soil evaporation rates */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) { /* grasses present AND grasses not fully covered in snow */
-			grass_EsT_partitioning(&p.soil_evap_grass, &p.transp_grass, SW_VegProd.grass.lai_live_daily[doy], SW_VegProd.grass.EsTpartitioning_param);
+			grass_EsT_partitioning(doy);
 
 			if (Defines.EQ(SW_Soilwat.getSoilWat().snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_grass = pot_soil_evap("grass", doy);
@@ -431,10 +422,7 @@ public class SW_FLOW {
 
 			p.swpot_avg_grass = transp_weighted_avg("grass", doy);
 
-			pot_transp(&p.transp_rate_grass, p.swpot_avg_grass, SW_VegProd.grass.biolive_daily[doy], SW_VegProd.grass.biodead_daily[doy], p.transp_grass, SW_Soilwat.pet,
-					SW_Site.transp.xinflec, SW_Site.transp.slope, SW_Site.transp.yinflec, SW_Site.transp.range, SW_VegProd.grass.shade_scale, SW_VegProd.grass.shade_deadmax,
-					SW_VegProd.grass.tr_shade_effects.xinflec, SW_VegProd.grass.tr_shade_effects.slope, SW_VegProd.grass.tr_shade_effects.yinflec,
-					SW_VegProd.grass.tr_shade_effects.range);
+			p.transp_rate_grass = pot_transp("grass", doy);
 			p.transp_rate_grass *= p.snowdepth_scale_grass * SW_VegProd.getVegetationComposition().grasses;
 		} else {
 			p.soil_evap_rate_grass = 0.;
@@ -455,8 +443,8 @@ public class SW_FLOW {
 				+ p.surface_evap_standingWater_rate + p.soil_evap_rate_tree + p.transp_rate_tree + p.soil_evap_rate_forb + p.transp_rate_forb + p.soil_evap_rate_shrub + p.transp_rate_shrub
 				+ p.soil_evap_rate_grass + p.transp_rate_grass + p.soil_evap_rate_bs;
 
-		if (Defines.GT(p.rate_help, SW_Soilwat.pet)) {
-			p.rate_help = SW_Soilwat.pet / p.rate_help;
+		if (Defines.GT(p.rate_help, SW_Soilwat.getSoilWat().pet)) {
+			p.rate_help = SW_Soilwat.getSoilWat().pet / p.rate_help;
 
 			p.surface_evap_tree_rate *= p.rate_help;
 			p.surface_evap_forb_rate *= p.rate_help;
@@ -476,137 +464,126 @@ public class SW_FLOW {
 		}
 
 		/* Start adding components to AET */
-		SW_Soilwat.aet = 0.; /* init aet for the day */
-		SW_Soilwat.aet += p.snow_evap_rate;
+		SW_Soilwat.getSoilWat().aet = 0.; /* init aet for the day */
+		SW_Soilwat.getSoilWat().aet += p.snow_evap_rate;
 
 		/* Evaporation of intercepted and surface water */
-		evap_fromSurface(&tree_h2o_qum[Today], &p.surface_evap_tree_rate, &SW_Soilwat.aet);
-		evap_fromSurface(&shrub_h2o_qum[Today], &p.surface_evap_shrub_rate, &SW_Soilwat.aet);
-		evap_fromSurface(&forb_h2o_qum[Today], &p.surface_evap_forb_rate, &SW_Soilwat.aet);
-		evap_fromSurface(&grass_h2o_qum[Today], &p.surface_evap_grass_rate, &SW_Soilwat.aet);
-		evap_fromSurface(&litter_h2o_qum[Today], &p.surface_evap_litter_rate, &SW_Soilwat.aet);
-		evap_fromSurface(&standingWater[Today], &p.surface_evap_standingWater_rate, &SW_Soilwat.aet);
-
-		SW_Soilwat.tree_evap = p.surface_evap_tree_rate;
-		SW_Soilwat.shrub_evap = p.surface_evap_shrub_rate;
-		SW_Soilwat.forb_evap = p.surface_evap_forb_rate;
-		SW_Soilwat.grass_evap = p.surface_evap_grass_rate;
-		SW_Soilwat.litter_evap = p.surface_evap_litter_rate;
-		SW_Soilwat.surfaceWater_evap = p.surface_evap_standingWater_rate;
+		evap_fromSurface();
+		
+		SW_Soilwat.getSoilWat().tree_evap = p.surface_evap_tree_rate;
+		SW_Soilwat.getSoilWat().shrub_evap = p.surface_evap_shrub_rate;
+		SW_Soilwat.getSoilWat().forb_evap = p.surface_evap_forb_rate;
+		SW_Soilwat.getSoilWat().grass_evap = p.surface_evap_grass_rate;
+		SW_Soilwat.getSoilWat().litter_evap = p.surface_evap_litter_rate;
+		SW_Soilwat.getSoilWat().surfaceWater_evap = p.surface_evap_standingWater_rate;
 
 		/* bare-soil evaporation */
-		if (Defines.GT(SW_VegProd.fractionBareGround, 0.) && Defines.EQ(SW_Soilwat.getSoilWat().snowpack[Today], 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().bareGround, 0.) && Defines.EQ(SW_Soilwat.getSoilWat().snowpack[Today], 0.)) {
 			/* remove bare-soil evap from swv */
-			remove_from_soil(lyrSWCBulk, lyrEvap_BareGround, &SW_Soilwat.aet, SW_Site.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_bs, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_BareGround, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_bs, lyrSWCBulk_HalfWiltpts);
 		} else {
 			/* Set daily array to zero, no evaporation */
-			LyrIndex i;
-			for (i = 0; i < SW_Site.n_evap_lyrs;)
+			for (int i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
 				lyrEvap_BareGround[i++] = 0.;
 		}
 
 		/* Tree transpiration and bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrSWCBulk, lyrEvap_Tree, &SW_Soilwat.aet, SW_Site.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_tree, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Tree, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_tree, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrSWCBulk, lyrTransp_Tree, &SW_Soilwat.aet, SW_Site.n_transp_lyrs_tree, lyrTranspCo_Tree, p.transp_rate_tree, lyrSWCBulk_atSWPcrit_Tree);
+			remove_from_soil(lyrTransp_Tree, SW_Soils.getLayersInfo().n_transp_lyrs_tree, lyrTranspCo_Tree, p.transp_rate_tree, lyrSWCBulk_atSWPcrit_Tree);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
-			LyrIndex i;
-			for (i = 0; i < SW_Site.n_evap_lyrs;)
+			for (int i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
 				lyrEvap_Tree[i++] = 0.;
-			for (i = 0; i < SW_Site.n_transp_lyrs_tree;)
+			for (int i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_tree;)
 				lyrTransp_Tree[i++] = 0.;
 		}
 
 		/* Shrub transpiration and bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrSWCBulk, lyrEvap_Shrub, &SW_Soilwat.aet, SW_Site.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_shrub, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Shrub, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_shrub, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrSWCBulk, lyrTransp_Shrub, &SW_Soilwat.aet, SW_Site.n_transp_lyrs_shrub, lyrTranspCo_Shrub, p.transp_rate_shrub, lyrSWCBulk_atSWPcrit_Shrub);
+			remove_from_soil(lyrTransp_Shrub, SW_Soils.getLayersInfo().n_transp_lyrs_shrub, lyrTranspCo_Shrub, p.transp_rate_shrub, lyrSWCBulk_atSWPcrit_Shrub);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
-			LyrIndex i;
-			for (i = 0; i < SW_Site.n_evap_lyrs;)
+			for (int i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
 				lyrEvap_Shrub[i++] = 0.;
-			for (i = 0; i < SW_Site.n_transp_lyrs_shrub;)
+			for (int i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_shrub;)
 				lyrTransp_Shrub[i++] = 0.;
 		}
 
 		/* Forb transpiration and bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrSWCBulk, lyrEvap_Forb, &SW_Soilwat.aet, SW_Site.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_forb, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Forb, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_forb, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrSWCBulk, lyrTransp_Forb, &SW_Soilwat.aet, SW_Site.n_transp_lyrs_forb, lyrTranspCo_Forb, p.transp_rate_forb, lyrSWCBulk_atSWPcrit_Forb);
+			remove_from_soil(lyrTransp_Forb, SW_Soils.getLayersInfo().n_transp_lyrs_forb, lyrTranspCo_Forb, p.transp_rate_forb, lyrSWCBulk_atSWPcrit_Forb);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
-			LyrIndex i;
-			for (i = 0; i < SW_Site.n_evap_lyrs;)
+			int i;
+			for (i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
 				lyrEvap_Forb[i++] = 0.;
-			for (i = 0; i < SW_Site.n_transp_lyrs_forb;)
+			for (i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_forb;)
 				lyrTransp_Forb[i++] = 0.;
 		}
 
 		/* Grass transpiration & bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrSWCBulk, lyrEvap_Grass, &SW_Soilwat.aet, SW_Site.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_grass, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Grass, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_grass, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrSWCBulk, lyrTransp_Grass, &SW_Soilwat.aet, SW_Site.n_transp_lyrs_grass, lyrTranspCo_Grass, p.transp_rate_grass, lyrSWCBulk_atSWPcrit_Grass);
+			remove_from_soil(lyrTransp_Grass, SW_Soils.getLayersInfo().n_transp_lyrs_grass, lyrTranspCo_Grass, p.transp_rate_grass, lyrSWCBulk_atSWPcrit_Grass);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
-			LyrIndex i;
-			for (i = 0; i < SW_Site.n_evap_lyrs;)
+			int i;
+			for (i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
 				lyrEvap_Grass[i++] = 0.;
-			for (i = 0; i < SW_Site.n_transp_lyrs_grass;)
+			for (i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_grass;)
 				lyrTransp_Grass[i++] = 0.;
 		}
 
 		/* Hydraulic redistribution */
-		if (SW_VegProd.grass.flagHydraulicRedistribution && Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(SW_VegProd.grass.biolive_daily[doy], 0.)) {
-			hydraulic_redistribution(lyrSWCBulk, lyrSWCBulk_Wiltpts, lyrTranspCo_Grass, lyrHydRed_Grass, SW_Site.n_layers, SW_VegProd.grass.maxCondroot,
-					SW_VegProd.grass.swpMatric50, SW_VegProd.grass.shapeCond, SW_VegProd.getVegetationComposition().grasses);
+		if (SW_VegProd.getHydraulicRedistribution().grasses.flag && Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(SW_VegProd.getDailyValues().grass.biolive_daily[doy], 0.)) {
+			hydraulic_redistribution(lyrTranspCo_Grass, lyrHydRed_Grass, SW_VegProd.getHydraulicRedistribution().grasses.maxCondRoot, SW_VegProd.getHydraulicRedistribution().grasses.swp50,
+					SW_VegProd.getHydraulicRedistribution().grasses.shapeCond, SW_VegProd.getVegetationComposition().grasses);
 		}
-		if (SW_VegProd.forb.flagHydraulicRedistribution && Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(SW_VegProd.forb.biolive_daily[doy], 0.)) {
-			hydraulic_redistribution(lyrSWCBulk, lyrSWCBulk_Wiltpts, lyrTranspCo_Forb, lyrHydRed_Forb, SW_Site.n_layers, SW_VegProd.forb.maxCondroot, SW_VegProd.forb.swpMatric50,
-					SW_VegProd.forb.shapeCond, SW_VegProd.getVegetationComposition().forbs);
+		if (SW_VegProd.getHydraulicRedistribution().forbs.flag && Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(SW_VegProd.getDailyValues().forb.biolive_daily[doy], 0.)) {
+			hydraulic_redistribution(lyrTranspCo_Forb, lyrHydRed_Forb, SW_VegProd.getHydraulicRedistribution().forbs.maxCondRoot, SW_VegProd.getHydraulicRedistribution().forbs.swp50,
+					SW_VegProd.getHydraulicRedistribution().forbs.shapeCond, SW_VegProd.getVegetationComposition().forbs);
 		}
-		if (SW_VegProd.shrub.flagHydraulicRedistribution && Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(SW_VegProd.shrub.biolive_daily[doy], 0.)) {
-			hydraulic_redistribution(lyrSWCBulk, lyrSWCBulk_Wiltpts, lyrTranspCo_Shrub, lyrHydRed_Shrub, SW_Site.n_layers, SW_VegProd.shrub.maxCondroot,
-					SW_VegProd.shrub.swpMatric50, SW_VegProd.shrub.shapeCond, SW_VegProd.getVegetationComposition().shrubs);
+		if (SW_VegProd.getHydraulicRedistribution().shrubs.flag && Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(SW_VegProd.getDailyValues().shrub.biolive_daily[doy], 0.)) {
+			hydraulic_redistribution(lyrTranspCo_Shrub, lyrHydRed_Shrub, SW_VegProd.getHydraulicRedistribution().shrubs.maxCondRoot, SW_VegProd.getHydraulicRedistribution().shrubs.swp50,
+					SW_VegProd.getHydraulicRedistribution().shrubs.shapeCond, SW_VegProd.getVegetationComposition().shrubs);
 		}
-		if (SW_VegProd.tree.flagHydraulicRedistribution && Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(SW_VegProd.tree.biolive_daily[doy], 0.)) {
-			hydraulic_redistribution(lyrSWCBulk, lyrSWCBulk_Wiltpts, lyrTranspCo_Tree, lyrHydRed_Tree, SW_Site.n_layers, SW_VegProd.tree.maxCondroot, SW_VegProd.tree.swpMatric50,
-					SW_VegProd.tree.shapeCond, SW_VegProd.getVegetationComposition().trees);
+		if (SW_VegProd.getHydraulicRedistribution().trees.flag && Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(SW_VegProd.getDailyValues().tree.biolive_daily[doy], 0.)) {
+			hydraulic_redistribution(lyrTranspCo_Tree, lyrHydRed_Tree, SW_VegProd.getHydraulicRedistribution().trees.maxCondRoot, SW_VegProd.getHydraulicRedistribution().trees.swp50,
+					SW_VegProd.getHydraulicRedistribution().trees.shapeCond, SW_VegProd.getVegetationComposition().trees);
 		}
 
 		/* Calculate percolation for unsaturated soil water conditions. */
 		/* 01/06/2011	(drs) call to infiltrate_water_low() has to be the last swc affecting calculation */
 
-		infiltrate_water_low(lyrSWCBulk, lyrDrain, &drainout, SW_Site.n_layers, SW_Site.slow_drain_coeff, SLOW_DRAIN_DEPTH, lyrSWCBulk_FieldCaps, lyrWidths, lyrSWCBulk_Mins,
-				lyrSWCBulk_Saturated, lyrImpermeability, &standingWater[Today]);
+		infiltrate_water_low();
 
-		SW_Soilwat.surfaceWater = standingWater[Today];
+		SW_Soilwat.getSoilWat().surfaceWater = standingWater[Today];
 
 		/* Soil Temperature starts here */
 
 		double biomass; // computing the standing crop biomass real quickly to condense the call to soil_temperature
-		biomass = SW_VegProd.grass.biomass_daily[doy] * SW_VegProd.getVegetationComposition().grasses + SW_VegProd.shrub.biomass_daily[doy] * SW_VegProd.getVegetationComposition().shrubs
-				+ SW_VegProd.forb.biomass_daily[doy] * SW_VegProd.getVegetationComposition().forbs + SW_VegProd.tree.biolive_daily[doy] * SW_VegProd.getVegetationComposition().trees; // changed to exclude tree biomass, bMatric/c it was breaking the soil_temperature function
+		biomass = SW_VegProd.getDailyValues().grass.biomass_daily[doy] * SW_VegProd.getVegetationComposition().grasses + SW_VegProd.getDailyValues().shrub.biomass_daily[doy] * SW_VegProd.getVegetationComposition().shrubs
+				+ SW_VegProd.getDailyValues().forb.biomass_daily[doy] * SW_VegProd.getVegetationComposition().forbs + SW_VegProd.getDailyValues().tree.biolive_daily[doy] * SW_VegProd.getVegetationComposition().trees; // changed to exclude tree biomass, bMatric/c it was breaking the soil_temperature function
 
 				// soil_temperature function computes the soil temp for each layer and stores it in lyrsTemp
 				// doesn't affect SWC at all, but needs it for the calculation, so therefore the temperature is the last calculation done
-		if (SW_Site.use_soil_temp)
-			soil_temperature(SW_Weather.getNow().temp_avg[Today], SW_Soilwat.pet, SW_Soilwat.aet, biomass, lyrSWCBulk, lyrbDensity, lyrWidths, lyroldsTemp, lyrsTemp, SW_Site.n_layers,
-					lyrSWCBulk_FieldCaps, lyrSWCBulk_Wiltpts, SW_Site.bmLimiter, SW_Site.t1Param1, SW_Site.t1Param2, SW_Site.t1Param3, SW_Site.csParam1, SW_Site.csParam2,
-					SW_Site.shParam, SW_Soilwat.getSoilWat().snowpack[Today], SW_Site.meanAirTemp /*SW_Weather.hist.temp_year_avg*/, SW_Site.stDeltaX, SW_Site.stMaxDepth, SW_Site.stNRGR);
+		if (SW_Site.getSoilTemperature().use_soil_temp)
+			soil_temperature(biomass);
 
 		/* Soil Temperature ends here */
 
@@ -1224,10 +1201,10 @@ public class SW_FLOW {
 		 swp_avg - weighted average of soilwater potential and transpiration
 		 coefficients
 		 **********************************************************************/
-		double swp_avg;
-		int n_layers;
-		int[] tr_regions;
-		double[] tr_coeff;
+		double swp_avg=0;
+		int n_layers=0;
+		int[] tr_regions = lyrTrRegions_Grass;
+		double[] tr_coeff = lyrTranspCo_Grass;
 		
 		switch (type) {
 		case "grass":
@@ -1395,32 +1372,27 @@ public class SW_FLOW {
 		 watrate   - calculate evaporation rate.
 		 swpotentl - compute soilwater potential
 		 **********************************************************************/
-		int bserate;
-		double totagb;
-		double fbse;
-		double Es_param_limit;
+		double totagb=0;
+		double fbse=0;
+		double Es_param_limit=0;
 		
 		switch (type) {
 		case "grass":
-			bserate=0;
 			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
 			fbse = p.soil_evap_grass;
 			Es_param_limit = SW_VegProd.getEsParamLimit().grasses;
 			break;
 		case "shrub":
-			bserate=1;
 			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
 			fbse = p.soil_evap_shrub;
 			Es_param_limit = SW_VegProd.getEsParamLimit().shrubs;
 			break;
 		case "tree":
-			bserate=2;
 			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
 			fbse = p.soil_evap_tree;
 			Es_param_limit = SW_VegProd.getEsParamLimit().trees;
 			break;
 		case "forb":
-			bserate=3;
 			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
 			fbse = p.soil_evap_forb;
 			Es_param_limit = SW_VegProd.getEsParamLimit().forbs;
@@ -1534,25 +1506,16 @@ public class SW_FLOW {
 		 watrate - compute transpiration rate.
 		 tanfunc - tangent function
 		 **********************************************************************/
-		double swpavg;
-		double biolive;
-		double biodead;
-		double fbst;
-		double swp_shift;
-		double swp_shape;
-		double swp_inflec;
-		double swp_range;
-		double shade_scale;
-		double shade_deadmax;
-		double shade_xinflex;
-		double shade_slope;
-		double shade_yinflex;
-		double shade_range;
-		
-		
-		SW_Site.transp.xinflec, SW_Site.transp.slope, SW_Site.transp.yinflec, SW_Site.transp.range, SW_VegProd.grass.shade_scale, SW_VegProd.grass.shade_deadmax,
-		SW_VegProd.grass.tr_shade_effects.xinflec, SW_VegProd.grass.tr_shade_effects.slope, SW_VegProd.grass.tr_shade_effects.yinflec,
-		SW_VegProd.grass.tr_shade_effects.range
+		double swpavg=0;
+		double biolive=0;
+		double biodead=0;
+		double fbst=0;
+		double shade_scale=0;
+		double shade_deadmax=0;
+		double shade_xinflex=0;
+		double shade_slope=0;
+		double shade_yinflex=0;
+		double shade_range=0;
 		
 		switch (type) {
 		case "grass":
@@ -1560,22 +1523,48 @@ public class SW_FLOW {
 			biolive = SW_VegProd.getDailyValues().grass.biolive_daily[doy];
 			biodead = SW_VegProd.getDailyValues().grass.biodead_daily[doy];
 			fbst = p.transp_grass;
-			
+			shade_scale = SW_VegProd.getShade().grasses.shadeScale;
+			shade_deadmax = SW_VegProd.getShade().grasses.shadeMaximalDeadBiomass;
+			shade_xinflex = SW_VegProd.getShade().grasses.xinflec;
+			shade_slope = SW_VegProd.getShade().grasses.slope;
+			shade_yinflex = SW_VegProd.getShade().grasses.yinflec;
+			shade_range = SW_VegProd.getShade().grasses.range;
 			break;
 		case "shrub":
-			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
-			fbse = p.soil_evap_shrub;
-			Es_param_limit = SW_VegProd.getEsParamLimit().shrubs;
+			swpavg = p.swpot_avg_shrub;
+			biolive = SW_VegProd.getDailyValues().shrub.biolive_daily[doy];
+			biodead = SW_VegProd.getDailyValues().shrub.biodead_daily[doy];
+			fbst = p.transp_shrub;
+			shade_scale = SW_VegProd.getShade().shrubs.shadeScale;
+			shade_deadmax = SW_VegProd.getShade().shrubs.shadeMaximalDeadBiomass;
+			shade_xinflex = SW_VegProd.getShade().shrubs.xinflec;
+			shade_slope = SW_VegProd.getShade().shrubs.slope;
+			shade_yinflex = SW_VegProd.getShade().shrubs.yinflec;
+			shade_range = SW_VegProd.getShade().shrubs.range;
 			break;
 		case "tree":
-			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
-			fbse = p.soil_evap_tree;
-			Es_param_limit = SW_VegProd.getEsParamLimit().trees;
+			swpavg = p.swpot_avg_tree;
+			biolive = SW_VegProd.getDailyValues().tree.biolive_daily[doy];
+			biodead = SW_VegProd.getDailyValues().tree.biodead_daily[doy];
+			fbst = p.transp_tree;
+			shade_scale = SW_VegProd.getShade().trees.shadeScale;
+			shade_deadmax = SW_VegProd.getShade().trees.shadeMaximalDeadBiomass;
+			shade_xinflex = SW_VegProd.getShade().trees.xinflec;
+			shade_slope = SW_VegProd.getShade().trees.slope;
+			shade_yinflex = SW_VegProd.getShade().trees.yinflec;
+			shade_range = SW_VegProd.getShade().trees.range;
 			break;
 		case "forb":
-			totagb = SW_VegProd.getDailyValues().grass.total_agb_daily[doy];
-			fbse = p.soil_evap_forb;
-			Es_param_limit = SW_VegProd.getEsParamLimit().forbs;
+			swpavg = p.swpot_avg_forb;
+			biolive = SW_VegProd.getDailyValues().forb.biolive_daily[doy];
+			biodead = SW_VegProd.getDailyValues().forb.biodead_daily[doy];
+			fbst = p.transp_forb;
+			shade_scale = SW_VegProd.getShade().forbs.shadeScale;
+			shade_deadmax = SW_VegProd.getShade().forbs.shadeMaximalDeadBiomass;
+			shade_xinflex = SW_VegProd.getShade().forbs.xinflec;
+			shade_slope = SW_VegProd.getShade().forbs.slope;
+			shade_yinflex = SW_VegProd.getShade().forbs.yinflec;
+			shade_range = SW_VegProd.getShade().forbs.range;
 			break;
 		default:
 			LogFileIn f = LogFileIn.getInstance();
@@ -1586,7 +1575,7 @@ public class SW_FLOW {
 		double par1, par2, shadeaf;
 
 		if (Defines.LE(biolive, 0.)) {
-			bstrate = 0.;
+			return 0.;
 
 		} else {
 			if (Defines.GE(biodead, shade_deadmax)) {
@@ -1598,7 +1587,7 @@ public class SW_FLOW {
 				shadeaf = 1.0;
 			}
 
-			bstrate = watrate(swpavg, SW_Soilwat.pet, swp_shift, swp_shape, swp_inflec, swp_range) * shadeaf * SW_Soilwat.pet * fbst;
+			return watrate(swpavg, SW_Soilwat.getSoilWat().pet, SW_Site.getTranspiration().xinflec, SW_Site.getTranspiration().slope, SW_Site.getTranspiration().yinflec, SW_Site.getTranspiration().range) * shadeaf * SW_Soilwat.getSoilWat().pet * fbst;
 		}
 	}
 
@@ -1648,32 +1637,69 @@ public class SW_FLOW {
 
 	}
 
-	private void evap_fromSurface(double water_pool, double evap_rate, double aet) {
+	private void evap_fromSurface() {
 		/**********************************************************************
 		 PURPOSE: Evaporate water from surface water pool, i.e., intercepted water (tree, shrub, grass, litter) or standingWater
-		 call seperately for each pool
+		 call once for all pools
 
 		 INPUTS:
-		 water_pool	- pool of surface water to evaporate from
-		 evap_rate	- potential evaporation from this pool
 
-		 OUTPUTS:
+		 OUTPUTS: (changes)
 		 water_pool	- pool of surface water minus evaporated water
 		 evap_rate	- actual evaporation from this pool
 		 aet			- aet + evaporated water
 		 **********************************************************************/
-
-		if (Defines.GT(*water_pool, *evap_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
-			*water_pool -= *evap_rate;
-			*aet += *evap_rate;
+		if (Defines.GT(tree_h2o_qum[Defines.Today], p.surface_evap_tree_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
+			tree_h2o_qum[Defines.Today] -= p.surface_evap_tree_rate;
+			SW_Soilwat.getSoilWat().aet += p.surface_evap_tree_rate;
 		} else { /* potential rate is larger than available water -> entire pool is evaporated */
-			*evap_rate = *water_pool;
-			*aet += *water_pool;
-			*water_pool = 0.;
+			p.surface_evap_tree_rate = tree_h2o_qum[Defines.Today];
+			SW_Soilwat.getSoilWat().aet += tree_h2o_qum[Defines.Today];
+			tree_h2o_qum[Defines.Today] = 0.;
+		}
+		if (Defines.GT(shrub_h2o_qum[Defines.Today], p.surface_evap_shrub_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
+			shrub_h2o_qum[Defines.Today] -= p.surface_evap_shrub_rate;
+			SW_Soilwat.getSoilWat().aet += p.surface_evap_shrub_rate;
+		} else { /* potential rate is larger than available water -> entire pool is evaporated */
+			p.surface_evap_shrub_rate = shrub_h2o_qum[Defines.Today];
+			SW_Soilwat.getSoilWat().aet += shrub_h2o_qum[Defines.Today];
+			shrub_h2o_qum[Defines.Today] = 0.;
+		}
+		if (Defines.GT(forb_h2o_qum[Defines.Today], p.surface_evap_forb_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
+			forb_h2o_qum[Defines.Today] -= p.surface_evap_forb_rate;
+			SW_Soilwat.getSoilWat().aet += p.surface_evap_forb_rate;
+		} else { /* potential rate is larger than available water -> entire pool is evaporated */
+			p.surface_evap_forb_rate = forb_h2o_qum[Defines.Today];
+			SW_Soilwat.getSoilWat().aet += forb_h2o_qum[Defines.Today];
+			forb_h2o_qum[Defines.Today] = 0.;
+		}
+		if (Defines.GT(grass_h2o_qum[Defines.Today], p.surface_evap_grass_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
+			grass_h2o_qum[Defines.Today] -= p.surface_evap_grass_rate;
+			SW_Soilwat.getSoilWat().aet += p.surface_evap_grass_rate;
+		} else { /* potential rate is larger than available water -> entire pool is evaporated */
+			p.surface_evap_grass_rate = grass_h2o_qum[Defines.Today];
+			SW_Soilwat.getSoilWat().aet += grass_h2o_qum[Defines.Today];
+			grass_h2o_qum[Defines.Today] = 0.;
+		}
+		if (Defines.GT(litter_h2o_qum[Defines.Today], p.surface_evap_litter_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
+			litter_h2o_qum[Defines.Today] -= p.surface_evap_litter_rate;
+			SW_Soilwat.getSoilWat().aet += p.surface_evap_litter_rate;
+		} else { /* potential rate is larger than available water -> entire pool is evaporated */
+			p.surface_evap_litter_rate = litter_h2o_qum[Defines.Today];
+			SW_Soilwat.getSoilWat().aet += litter_h2o_qum[Defines.Today];
+			litter_h2o_qum[Defines.Today] = 0.;
+		}
+		if (Defines.GT(standingWater[Defines.Today], p.surface_evap_standingWater_rate)) { /* potential rate is smaller than available water -> entire potential is evaporated */
+			standingWater[Defines.Today] -= p.surface_evap_standingWater_rate;
+			SW_Soilwat.getSoilWat().aet += p.surface_evap_standingWater_rate;
+		} else { /* potential rate is larger than available water -> entire pool is evaporated */
+			p.surface_evap_standingWater_rate = standingWater[Defines.Today];
+			SW_Soilwat.getSoilWat().aet += standingWater[Defines.Today];
+			standingWater[Defines.Today] = 0.;
 		}
 	}
 
-	private void remove_from_soil(double[] swc[], double[] qty[], double aet, int nlyrs, double[] coeff, double rate, double[] swcmin) {
+	private void remove_from_soil(double[] qty, int nlyrs, double[] coeff, double rate, double[] swcmin) {
 		/**********************************************************************
 		 PURPOSE: Remove water from the soil.  This replaces earlier versions'
 		 call to separate functions for evaporation and transpiration
@@ -1704,32 +1730,30 @@ public class SW_FLOW {
 		 swpotentl - compute soilwater potential of the layer.
 		 **********************************************************************/
 
-		unsigned int i;
-		double swpfrac[MAX_LAYERS], sumswp = 0.0, swc_avail, q;
-
-		ST_RGR_VALUES *st = &stValues;
+		int i;
+		double[] swpfrac = new double[Defines.MAX_LAYERS];
+		double sumswp = 0.0, swc_avail, q;
 
 		for (i = 0; i < nlyrs; i++) {
-			swpfrac[i] = coeff[i] / SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, swc[i], i);
+			swpfrac[i] = coeff[i] / SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
 			sumswp += swpfrac[i];
 		}
 
-		if (ZRO(sumswp))
+		if (Defines.isZero(sumswp))
 			return;
 
 		for (i = 0; i < nlyrs; i++) {
-			if (st->lyrFrozen[i] == 0) {
+			if (stValues.lyrFrozen[i] == 0) {
 				q = (swpfrac[i] / sumswp) * rate;
-				swc_avail = Math.max(0., swc[i] - swcmin[i]);
+				swc_avail = Math.max(0., lyrSWCBulk[i] - swcmin[i]);
 				qty[i] = Math.min( q, swc_avail);
-				swc[i] -= qty[i];
-				*aet += qty[i];
+				lyrSWCBulk[i] -= qty[i];
+				SW_Soilwat.getSoilWat().aet += qty[i];
 			}
 		}
 	}
 
-	private void infiltrate_water_low(double[] swc, double[] drain, double drainout, int nlyrs, double sdrainpar, double sdraindpth, double[] swcfc, double[] width,
-			double[] swcmin, double[] swcsat, double[] impermeability, double standingWater) {
+	private void infiltrate_water_low() {
 		/**********************************************************************
 		 PURPOSE:Calculate soilwater drainage for low soil water conditions
 		 See Equation 2.9 in ELM doc.
@@ -1764,47 +1788,47 @@ public class SW_FLOW {
 		 drain - drainage from each soil water layer
 		 drainout - added low drainout (to already calculated high drainout)
 		 **********************************************************************/
-
-		unsigned int i;
+		int nlyrs = SW_Soils.getLayersInfo().n_layers;	
+		
+		int i;
 		int j;
-		double drainlw = 0.0, swc_avail, drainpot, d[nlyrs], push;
-
-		ST_RGR_VALUES *st = &stValues;
+		double drainlw = 0.0, swc_avail, drainpot, push;
+		double[] d = new double[nlyrs];
 
 		for (i = 0; i < nlyrs; i++) {
-			if (st->lyrFrozen[i] == 0 && st->lyrFrozen[i + 1] == 0) {
+			if (stValues.lyrFrozen[i] == 0 && stValues.lyrFrozen[i + 1] == 0) {
 				/* calculate potential unsaturated percolation */
-				if (LE(swc[i], swcmin[i])) { /* in original code was !GT(swc[i], swcwp[i]) equivalent to LE(swc[i], swcwp[i]), but then water is drained to swcmin nevertheless - maybe should be LE(swc[i], swcmin[i]) */
+				if (Defines.LE(lyrSWCBulk[i], lyrSWCBulk_Mins[i])) { /* in original code was !GT(swc[i], swcwp[i]) equivalent to LE(swc[i], swcwp[i]), but then water is drained to swcmin nevertheless - maybe should be LE(swc[i], swcmin[i]) */
 					d[i] = 0.;
 				} else {
-					swc_avail = Math.max(0., swc[i] - swcmin[i]);
-					drainpot = Defines.GT(swc[i], swcfc[i]) ? sdrainpar : sdrainpar * Math.exp((swc[i] - swcfc[i]) * sdraindpth / width[i]);
-					d[i] = (1. - impermeability[i]) * Math.min(swc_avail, drainpot);
+					swc_avail = Math.max(0., lyrSWCBulk[i] - lyrSWCBulk_Mins[i]);
+					drainpot = Defines.GT(lyrSWCBulk[i], lyrSWCBulk_FieldCaps[i]) ? SW_Site.getDrainage().slow_drain_coeff : SW_Site.getDrainage().slow_drain_coeff * Math.exp((lyrSWCBulk[i] - lyrSWCBulk_FieldCaps[i]) * Defines.SLOW_DRAIN_DEPTH / lyrWidths[i]);
+					d[i] = (1. - lyrImpermeability[i]) * Math.min(swc_avail, drainpot);
 				}
-				drain[i] += d[i];
+				lyrDrain[i] += d[i];
 
 				if (i < nlyrs - 1) { /* percolate up to next-to-last layer */
-					swc[i + 1] += d[i];
-					swc[i] -= d[i];
+					lyrSWCBulk[i + 1] += d[i];
+					lyrSWCBulk[i] -= d[i];
 				} else { /* percolate last layer */
 					drainlw = Math.max( d[i], 0.0);
-					(*drainout) += drainlw;
-					swc[i] -= drainlw;
+					drainout += drainlw;
+					lyrSWCBulk[i] -= drainlw;
 				}
 			}
 		}
 
 		/* adjust (i.e., push water upwards) if water content of a layer is now above saturated water content */
 		for (j = nlyrs; j >= 0; j--) {
-			if (st->lyrFrozen[i] == 0) {
-				if (Defines.GT(swc[j], swcsat[j])) {
-					push = swc[j] - swcsat[j];
-					swc[j] -= push;
+			if (stValues.lyrFrozen[i] == 0) {
+				if (Defines.GT(lyrSWCBulk[j], lyrSWCBulk_Saturated[j])) {
+					push = lyrSWCBulk[j] - lyrSWCBulk_Saturated[j];
+					lyrSWCBulk[j] -= push;
 					if (j > 0) {
-						drain[j - 1] -= push;
-						swc[j - 1] += push;
+						lyrDrain[j - 1] -= push;
+						lyrSWCBulk[j - 1] += push;
 					} else {
-						(*standingWater) += push;
+						standingWater[Defines.Today] += push;
 					}
 				}
 			}
@@ -1812,7 +1836,7 @@ public class SW_FLOW {
 
 	}
 
-	private void hydraulic_redistribution(double[] swc, double[] swcwp, double[] lyrRootCo, double[] hydred, int nlyrs, double maxCondroot, double swp50, double shapeCond,
+	private void hydraulic_redistribution(double[] lyrRootCo, double[] hydred, double maxCondroot, double swp50, double shapeCond,
 			double scale) {
 		/**********************************************************************
 		 PURPOSE:Calculate hydraulic redistribution according to Ryel, Ryel R, Caldwell, Caldwell M, Yoder, Yoder C, Or, Or D, Leffler, Leffler A. 2002. Hydraulic redistribution in a stand of Artemisia tridentata: evaluation of benefits to transpiration assessed with a simulation model. Oecologia 130: 173-184.
@@ -1836,19 +1860,18 @@ public class SW_FLOW {
 		 hydred - hydraulic redistribtion for each soil water layer (cm/day/layer)
 
 		 **********************************************************************/
-
-		unsigned int i, j;
-		double swp[nlyrs], swpwp[nlyrs], relCondroot[nlyrs], hydredmat[nlyrs][nlyrs], Rx, swa, hydred_sum;
+		int nlyrs = SW_Soils.getLayersInfo().n_layers;
+		int i, j;
+		double[] swp = new double[nlyrs], swpwp = new double[nlyrs], relCondroot = new double[nlyrs];
+		double[][] hydredmat = new double[nlyrs][nlyrs];
+		double Rx, swa, hydred_sum;
 
 		hydred[0] = 0.; /* no hydred in top layer */
 
-		ST_RGR_VALUES *st = &stValues;
-
 		for (i = 0; i < nlyrs; i++) {
-			swp[i] = SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, swc[i], i);
-			relCondroot[i] = Math.min( 1., Math.max(0., 1./(1. + powe(swp[i]/swp50, shapeCond) ) ) );
-			swpwp[i] = SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, swcwp[i], i);
-
+			swp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
+			relCondroot[i] = Math.min( 1., Math.max(0., 1./(1. + Math.pow(swp[i]/swp50, shapeCond) ) ) );
+			swpwp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk_Wiltpts[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
 			hydredmat[0][i] = hydredmat[i][0] = 0.; /* no hydred in top layer */
 		}
 
@@ -1858,8 +1881,7 @@ public class SW_FLOW {
 			for (j = i + 1; j < nlyrs; j++) {
 
 				if (Defines.LT(swp[i], swpwp[i]) || Defines.LT(swp[j], swpwp[j])) { /* hydred occurs only if source layer's swp is above wilting point */
-
-					if (Defines.GT(swc[i], swc[j])) {
+					if (Defines.GT(lyrSWCBulk[i], lyrSWCBulk[j])) {
 						Rx = lyrRootCo[i];
 					} else {
 						Rx = lyrRootCo[j];
@@ -1879,7 +1901,7 @@ public class SW_FLOW {
 				hydred_sum += hydredmat[i][j];
 			}
 
-			swa = Math.max( 0., swc[i] - swcwp[i] );
+			swa = Math.max( 0., lyrSWCBulk[i] - lyrSWCBulk_Wiltpts[i] );
 			if (Defines.LT(hydred_sum, 0.) && Defines.GT( -hydred_sum, swa)) {
 				for (j = 0; j < nlyrs; j++) {
 					hydredmat[i][j] *= (swa / -hydred_sum);
@@ -1889,11 +1911,11 @@ public class SW_FLOW {
 		}
 
 		for (i = 0; i < nlyrs; i++) {
-			if (st->lyrFrozen[i] == 0) {
+			if (stValues.lyrFrozen[i] == 0) {
 				for (j = 0; j < nlyrs; j++) {
 					hydred[i] += hydredmat[i][j] * scale;
 				}
-				swc[i] += hydred[i];
+				lyrSWCBulk[i] += hydred[i];
 			}
 		}
 
@@ -1910,7 +1932,7 @@ public class SW_FLOW {
 	 *OUTPUT: none, but places the regression values in stValues struct for use in the soil_temperature function later
 	 */
 	
-	private void soil_temperature_init(double[] bDensity, double[] width, double[] oldsTemp, int nlyrs, double[] fc, double[] wp, double deltaX, double theMaxDepth, double meanAirTemp, unsigned int nRgr) {
+	private void soil_temperature_init(double[] bDensity, double[] width, double[] oldsTemp, int nlyrs, double[] fc, double[] wp, double deltaX, double theMaxDepth, double meanAirTemp, int nRgr) {
 		// local vars
 		int i, j, k, x1 = 1, x2 = 1, equal = 1;
 		double acc = 0.0;
@@ -1922,14 +1944,14 @@ public class SW_FLOW {
 
 		for (i = 0; i < nlyrs; i++) {
 			acc += width[i];
-			st->depths[i] = acc;
+			stValues.depths[i] = acc;
 		}
 
 		for (i = 0; i < nRgr + 1; i++)
-			*(st->depthsR + i) = ((deltaX * i) + deltaX);
+			*(stValues.depthsR + i) = ((deltaX * i) + deltaX);
 
 		// if there's less then 2 lyrs of soil, or the max layer depth < 30 cm the function quits (& prints out an error message) so it doesn't blow up later...
-		if ((nlyrs < 2) || Defines.LT(st->depths[nlyrs - 1], deltaX + deltaX)) {
+		if ((nlyrs < 2) || Defines.LT(stValues.depths[nlyrs - 1], deltaX + deltaX)) {
 			if (!soil_temp_error) { // if the error hasn't been reported yet... print an error to the stderr and one to the logfile
 				// fprintf(stderr, "\nSOIL_TEMP FUNCTION ERROR: (there needs to be >= 2 soil layers, with a maximum combined depth of >= %5.2f cm)... soil temperature will NOT be calculated\n", (deltaX + deltaX));
 				fprintf(logfp,
@@ -1943,32 +1965,32 @@ public class SW_FLOW {
 		acc = deltaX;
 		k = j = 0;
 		// linear regression time complexity of this should be something like O(k * nlyrs).  might be able to do it faster... but would also be a lot more code & would require a rewrite (shouldn't matter anyways, because this function is only called once)
-		while (LE(acc, st->depths[nlyrs - 1])) {
-			st_getBounds(x1P, x2P, equalP, nlyrs, acc, st->depths);
+		while (LE(acc, stValues.depths[nlyrs - 1])) {
+			st_getBounds(x1P, x2P, equalP, nlyrs, acc, stValues.depths);
 
 			i = -1;
 			if (x1 == i) { // sets the values to the first layer of soils values, since theres nothing else that can be done... fc * wp must be scaled appropriately
-				st->fcR[k] = (fc[0] / width[0]) * deltaX; // all the division and multiplication is to make sure that the regressions are scaled appropriately, since the widths of the layers & the layers of the regressions, may not be the same
-				st->wpR[k] = (wp[0] / width[0]) * deltaX;
-				// st->oldsTempR[k] = regression(0.0, st->depths[0], T1, oldsTemp[0], acc); // regression using the temp at the top of the soil, commented out b/c it's giving worse results
-				st->oldsTempR[k] = oldsTemp[0]; // no scaling is necessary with temperature & bulk density
-				st->bDensityR[k] = bDensity[0];
+				stValues.fcR[k] = (fc[0] / width[0]) * deltaX; // all the division and multiplication is to make sure that the regressions are scaled appropriately, since the widths of the layers & the layers of the regressions, may not be the same
+				stValues.wpR[k] = (wp[0] / width[0]) * deltaX;
+				// stValues.oldsTempR[k] = regression(0.0, stValues.depths[0], T1, oldsTemp[0], acc); // regression using the temp at the top of the soil, commented out b/c it's giving worse results
+				stValues.oldsTempR[k] = oldsTemp[0]; // no scaling is necessary with temperature & bulk density
+				stValues.bDensityR[k] = bDensity[0];
 			} else if ((x1 == x2) || (equal != 0)) { // sets the values to the layers values, since x1 and x2 are the same, no regression is necessary
-				st->fcR[k] = (fc[x1] / width[x1]) * deltaX;
-				st->wpR[k] = (wp[x1] / width[x1]) * deltaX;
-				st->oldsTempR[k] = oldsTemp[x1];
-				st->bDensityR[k] = bDensity[x1];
+				stValues.fcR[k] = (fc[x1] / width[x1]) * deltaX;
+				stValues.wpR[k] = (wp[x1] / width[x1]) * deltaX;
+				stValues.oldsTempR[k] = oldsTemp[x1];
+				stValues.bDensityR[k] = bDensity[x1];
 			} else { // double regression( double x1, double x2, double y1, double y2, double deltaX ), located in generic.c
-				st->fcR[k] = regression(st->depths[x1], st->depths[x2], (fc[x1] / width[x1]) * deltaX, (fc[x2] / width[x2]) * deltaX, acc);
-				st->wpR[k] = regression(st->depths[x1], st->depths[x2], (wp[x1] / width[x1]) * deltaX, (wp[x2] / width[x2]) * deltaX, acc);
-				st->oldsTempR[k] = regression(st->depths[x1], st->depths[x2], oldsTemp[x1], oldsTemp[x2], acc);
-				st->bDensityR[k] = regression(st->depths[x1], st->depths[x2], bDensity[x1], bDensity[x2], acc);
+				stValues.fcR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], (fc[x1] / width[x1]) * deltaX, (fc[x2] / width[x2]) * deltaX, acc);
+				stValues.wpR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], (wp[x1] / width[x1]) * deltaX, (wp[x2] / width[x2]) * deltaX, acc);
+				stValues.oldsTempR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], oldsTemp[x1], oldsTemp[x2], acc);
+				stValues.bDensityR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], bDensity[x1], bDensity[x2], acc);
 			}
 
 			if (equal != 0)
 				x2 = x1;
-			st->x1BoundsR[k] = x1;
-			st->x2BoundsR[k] = x2;
+			stValues.x1BoundsR[k] = x1;
+			stValues.x2BoundsR[k] = x2;
 
 			k++;
 			acc += deltaX;
@@ -1979,9 +2001,9 @@ public class SW_FLOW {
 		// to fill the rest of the regression values, simply use the last two values since there is no more actual data to go off of
 		// if k is < 2 this code will blow up... but that should never happen since the function quits if there isn't enough soil data earlier
 		/*for( i=k; i < nRgr; i++) {
-		 st->wpR[i] = regression(st->depthsR[i - 2], st->depthsR[i - 1], st->wpR[i - 2], st->wpR[i - 1], st->depthsR[i]);
-		 st->fcR[i] = regression(st->depthsR[i - 2], st->depthsR[i - 1], st->fcR[i - 2], st->fcR[i - 1], st->depthsR[i]);
-		 st->bDensityR[i] = regression(st->depthsR[i - 2], st->depthsR[i - 1], st->bDensityR[i - 2], st->bDensityR[i - 1], st->depthsR[i]);
+		 stValues.wpR[i] = regression(stValues.depthsR[i - 2], stValues.depthsR[i - 1], stValues.wpR[i - 2], stValues.wpR[i - 1], stValues.depthsR[i]);
+		 stValues.fcR[i] = regression(stValues.depthsR[i - 2], stValues.depthsR[i - 1], stValues.fcR[i - 2], stValues.fcR[i - 1], stValues.depthsR[i]);
+		 stValues.bDensityR[i] = regression(stValues.depthsR[i - 2], stValues.depthsR[i - 1], stValues.bDensityR[i - 2], stValues.bDensityR[i - 1], stValues.depthsR[i]);
 		 }
 
 		 // getting the average for a regression...
@@ -1996,35 +2018,35 @@ public class SW_FLOW {
 
 		 // if the values are too small, we reset them to the average for the regression... it's a safeguard
 		 for( i=k; i < nRgr; i++ ) {
-		 if(LT(st->wpR[i], 1))
-		 st->wpR[i] = wpAverage;
-		 if(LT(st->fcR[i], 2))
-		 st->fcR[i] = fcAverage;
-		 st->bDensityR[i] = bDensityAverage; // just set the bulk density to the average, it seems to be a better approximation...
+		 if(LT(stValues.wpR[i], 1))
+		 stValues.wpR[i] = wpAverage;
+		 if(LT(stValues.fcR[i], 2))
+		 stValues.fcR[i] = fcAverage;
+		 stValues.bDensityR[i] = bDensityAverage; // just set the bulk density to the average, it seems to be a better approximation...
 		 }*/
 
 		// just use the last soil layers values...
 		for (i = k; i < nRgr; i++) {
-			st->wpR[i] = deltaX * (wp[nlyrs - 1] / width[nlyrs - 1]);
-			st->fcR[i] = deltaX * (fc[nlyrs - 1] / width[nlyrs - 1]);
-			st->bDensityR[i] = bDensity[nlyrs - 1];
+			stValues.wpR[i] = deltaX * (wp[nlyrs - 1] / width[nlyrs - 1]);
+			stValues.fcR[i] = deltaX * (fc[nlyrs - 1] / width[nlyrs - 1]);
+			stValues.bDensityR[i] = bDensity[nlyrs - 1];
 		}
 
 		if (k < nRgr) //was k < 11
-			st->oldsTempR[k] = regression(st->depths[nlyrs - 1], theMaxDepth, oldsTemp[nlyrs - 1], meanAirTemp, st->depthsR[k]); // to give a slightly better temp approximation
+			stValues.oldsTempR[k] = Defines.regression(stValues.depths[nlyrs - 1], theMaxDepth, oldsTemp[nlyrs - 1], meanAirTemp, stValues.depthsR[k]); // to give a slightly better temp approximation
 		for (i = k + 1; i < nRgr; i++) {
-			st->oldsTempR[i] = regression(st->depthsR[i - 1], theMaxDepth, st->oldsTempR[i - 1], meanAirTemp, st->depthsR[i]); // we do temperature differently, since we already have the temperature for the last layer of soil
+			stValues.oldsTempR[i] = Defines.regression(stValues.depthsR[i - 1], theMaxDepth, stValues.oldsTempR[i - 1], meanAirTemp, stValues.depthsR[i]); // we do temperature differently, since we already have the temperature for the last layer of soil
 		}
 
-		st->oldsTempR[nRgr] = meanAirTemp; // the soil temp at the last layer of the regression is equal to the meanAirTemp, this is constant so it's the same for yesterdays temp & todays temp
+		stValues.oldsTempR[nRgr] = meanAirTemp; // the soil temp at the last layer of the regression is equal to the meanAirTemp, this is constant so it's the same for yesterdays temp & todays temp
 
 		// getting all the xBounds values for later use in the soil_temperature function...
 		for (i = 0; i < nlyrs; i++) {
-			st_getBounds(x1P, x2P, equalP, nRgr + 1, st->depths[i], st->depthsR);
+			st_getBounds(x1P, x2P, equalP, nRgr + 1, stValues.depths[i], stValues.depthsR);
 			if (equal != 0)
 				x2 = x1;
-			st->x1Bounds[i] = x1;
-			st->x2Bounds[i] = x2;
+			stValues.x1Bounds[i] = x1;
+			stValues.x2Bounds[i] = x2;
 		}
 	}
 
@@ -2072,11 +2094,40 @@ public class SW_FLOW {
 	 sTemp - soil layer temperatures in celsius
 	*/
 
-	private void soil_temperature(double airTemp, double pet, double aet, double biomass, double[] swc, double[] bDensity, double[] width, double[] oldsTemp, double[] sTemp,
-			int nlyrs, double[] fc, double[] wp, double bmLimiter, double t1Param1, double t1Param2, double t1Param3, double csParam1, double csParam2, double shParam,
-			double snowpack, double meanAirTemp, double deltaX, double theMaxDepth, int nRgr) {
-		unsigned int i, j, k, x1 = 1, x2 = 1, toDebug = 0;
-		double T1, cs, sh, sm, pe, deltaT, deltaTemp, tc, fH2O, fp, part1, part2, acc, swcR[nRgr], sTempR[nRgr + 1], sFusionPool[nlyrs], maxLyrDepth;
+	private void soil_temperature(double biomass) {
+		
+		
+		double airTemp = SW_Weather.getNow().temp_avg[Defines.Today];
+		double pet = SW_Soilwat.getSoilWat().pet;
+		double aet = SW_Soilwat.getSoilWat().aet;
+		double[] swc = lyrSWCBulk;
+		double[] bDensity = lyrbDensity;
+		double[] width = lyrWidths;
+		double[] oldsTemp = lyroldsTemp;
+		double[] sTemp = lyrsTemp;
+		int nlyrs = SW_Soils.getLayersInfo().n_layers;
+		double[] fc = lyrSWCBulk_FieldCaps;
+		double[] wp = lyrSWCBulk_Wiltpts;
+		double bmLimiter = SW_Site.getSoilTemperature().bmLimiter;
+		double t1Param1 = SW_Site.getSoilTemperature().t1Param1;
+		double t1Param2 = SW_Site.getSoilTemperature().t1Param2;
+		double t1Param3 = SW_Site.getSoilTemperature().t1Param3;
+		double csParam1 = SW_Site.getSoilTemperature().csParam1;
+		double csParam2 = SW_Site.getSoilTemperature().csParam2;
+		double shParam = SW_Site.getSoilTemperature().shParam;
+		double snowpack = SW_Soilwat.getSoilWat().snowpack[Defines.Today];
+		double meanAirTemp = SW_Site.getSoilTemperature().meanAirTemp;
+		double deltaX = SW_Site.getSoilTemperature().stDeltaX;
+		double theMaxDepth = SW_Site.getSoilTemperature().stMaxDepth;
+		int nRgr = SW_Site.get_stNRGR();
+		
+		LogFileIn f = LogFileIn.getInstance();
+		boolean toDebug = false;
+		int i, j, k, x1 = 1, x2 = 1; 
+		double T1, cs, sh, sm, pe, deltaT, deltaTemp, tc, fH2O, fp, part1, part2, acc, maxLyrDepth;
+		double[] swcR = new double[nRgr], sTempR = new double[nRgr + 1], sFusionPool = new double[nlyrs];
+		
+		
 		/* local variables explained: 
 
 		 toDebug - 1 to print out debug messages & then exit the program after completing the function, 0 to not.  default is 0.
@@ -2097,30 +2148,28 @@ public class SW_FLOW {
 		 swcR[], sTempR[] - anything with a R at the end of the variable name stands for the regression of that array
 		 */
 
-		ST_RGR_VALUES *st = &stValues; // just for convenience, so I don't have to type as much
-
 		deltaT = 86400.0; // the # of seconds in a day... (24 hrs * 60 mins/hr * 60 sec/min = 86400 seconds)
 		tc = 0.02; 		// this correction value is given by Eitzinger 2000
 		fp = -1.00;		// this freezing point value was also used in Eitzinger 2000
 		fH2O = 80;		// this fusion enegry was also given in Eitzinger 2000
 
 		// calculating T1, the average daily air temperature at the top of the soil
-		if (LE(biomass, bmLimiter)) { // bmLimiter = 300
+		if (Defines.LE(biomass, bmLimiter)) { // bmLimiter = 300
 			T1 = airTemp + (t1Param1 * pet * (1. - ((aet / pet) * (1. - (biomass / bmLimiter))))); // t1Param1 = 15; math is correct
 			if (toDebug)
-				printf("\nT1 = %5.4f + (%5.4f * %5.4f * (1 - ((%5.4f / %5.4f) * (1 - (%5.4f / %5.4f))) ) )", airTemp, t1Param1, pet, aet, pet, biomass, bmLimiter);	
+				f.LogError(LogMode.NOTE, String.format("\nT1 = %5.4f + (%5.4f * %5.4f * (1 - ((%5.4f / %5.4f) * (1 - (%5.4f / %5.4f))) ) )", airTemp, t1Param1, pet, aet, pet, biomass, bmLimiter));	
 		} else {
 			T1 = airTemp + ((t1Param2 * (biomass - bmLimiter)) / t1Param3); // t1Param2 = -4, t1Param3 = 600; math is correct
 			if (toDebug)
-				printf("\nT1 = %5.4f + ((%5.4f * (%5.4f - %5.4f)) / %5.4f)", airTemp, t1Param2, biomass, bmLimiter, t1Param3);
+				f.LogError(LogMode.NOTE, String.format("\nT1 = %5.4f + ((%5.4f * (%5.4f - %5.4f)) / %5.4f)", airTemp, t1Param2, biomass, bmLimiter, t1Param3));
 		}
 
 		if (toDebug)
-			printf("\nAirTemp : %5.4f pet : %5.4f aet : %5.4f biomass : %5.4f bmLimiter : %5.4f", airTemp, pet, aet, biomass, bmLimiter);
+			f.LogError(LogMode.NOTE, String.format("\nAirTemp : %5.4f pet : %5.4f aet : %5.4f biomass : %5.4f bmLimiter : %5.4f", airTemp, pet, aet, biomass, bmLimiter));
 		if (Defines.GT(snowpack, 0.0)) { // if there is snow on the ground, then T1 is simply set to -2
 			T1 = -2.0;
 			if (toDebug)
-				printf("\nThere is snow on the ground, T1 set to -2\n");
+				f.LogError(LogMode.NOTE, String.format("\nThere is snow on the ground, T1 set to -2\n"));
 		}
 
 		if (!soil_temp_init)
@@ -2128,36 +2177,36 @@ public class SW_FLOW {
 
 		if (!fusion_pool_init) {
 			for (i = 0; i < nlyrs; i++) {
-				st->oldsFusionPool[i] = 0.00;	// sets the inital fusion pool to zero
-				if (LE(oldsTemp[i],fp))		// determines if the current layer is frozen or not
-					st->lyrFrozen[i] = 1;
+				stValues.oldsFusionPool[i] = 0.00;	// sets the inital fusion pool to zero
+				if (Defines.LE(oldsTemp[i],fp))		// determines if the current layer is frozen or not
+					stValues.lyrFrozen[i] = 1;
 				else
-					st->lyrFrozen[i] = 0;
+					stValues.lyrFrozen[i] = 0;
 			}
-			fusion_pool_init = 1;
+			fusion_pool_init = true;
 		}
 
 		if (soil_temp_error) // if there is an error found in the soil_temperature_init function, return so that the function doesn't blow up later
 			return;
 
-		maxLyrDepth = st->depths[nlyrs - 1];
+		maxLyrDepth = stValues.depths[nlyrs - 1];
 
 		k = 0; // k keeps track of which layer of the regression we are on...
 		acc = deltaX;
 		if (toDebug)
-			printf("\nT1 : %5.4f meanAirTemp : %5.4f \nnlyrs : %d maxLyrDepth : %5.4f \n \n", T1, meanAirTemp, nlyrs, maxLyrDepth);
+			f.LogError(LogMode.NOTE, String.format("\nT1 : %5.4f meanAirTemp : %5.4f \nnlyrs : %d maxLyrDepth : %5.4f \n \n", T1, meanAirTemp, nlyrs, maxLyrDepth));
 
 		// linear regression
-		while (LE(acc, maxLyrDepth)) {
+		while (Defines.LE(acc, maxLyrDepth)) {
 
-			x1 = st->x1BoundsR[k];
-			x2 = st->x2BoundsR[k];
+			x1 = stValues.x1BoundsR[k];
+			x2 = stValues.x2BoundsR[k];
 			i = -1;
 			if (toDebug) {
-				if (x1 != i) { // makes sure that we're not sending st->depths[-1] to printf, b/c as it turns out that causes a nasty segmentation fault error...
-					printf("k %d %d - %d depthLow %5.4f acc %5.4f depthHigh %5.4f\n", k, x1, x2, st->depths[x1], acc, st->depths[x2]);
+				if (x1 != i) { // makes sure that we're not sending stValues.depths[-1] to printf, b/c as it turns out that causes a nasty segmentation fault error...
+					f.LogError(LogMode.NOTE, String.format("k %d %d - %d depthLow %5.4f acc %5.4f depthHigh %5.4f\n", k, x1, x2, stValues.depths[x1], acc, stValues.depths[x2]));
 				} else {
-					printf("k %d %d - %d depthLow %5.4f acc %5.4f depthHigh %5.4f\n", k, x1, x2, 0.0, acc, st->depths[x2]);
+					f.LogError(LogMode.NOTE, String.format("k %d %d - %d depthLow %5.4f acc %5.4f depthHigh %5.4f\n", k, x1, x2, 0.0, acc, stValues.depths[x2]));
 				}
 			}
 
@@ -2167,7 +2216,7 @@ public class SW_FLOW {
 				swcR[k] = (swc[x1] / width[x1]) * deltaX;
 			} else { // double regression( double x1, double x2, double y1, double y2, double deltaX ), located in generic.c
 				part1 = (x2 != i) ? ((swc[x2] / width[x2]) * deltaX) : ((swc[nlyrs - 1] / width[nlyrs - 1]) * deltaX);
-				swcR[k] = regression(st->depths[x1], (x2 != i) ? st->depths[x2] : st->depths[nlyrs - 1], (swc[x1] / width[x1]) * deltaX, part1, acc);
+				swcR[k] = Defines.regression(stValues.depths[x1], (x2 != i) ? stValues.depths[x2] : stValues.depths[nlyrs - 1], (swc[x1] / width[x1]) * deltaX, part1, acc);
 			}
 
 			k++;
@@ -2178,7 +2227,7 @@ public class SW_FLOW {
 
 		// to fill the rest of the regression values, simply use the last two values since there is no more actual data to go off of
 		/*for( i=k; i < nRgr; i++)
-		 swcR[i] = regression(st->depthsR[i - 2], st->depthsR[i - 1], swcR[i - 2], swcR[i - 1], st->depthsR[i]);
+		 swcR[i] = regression(stValues.depthsR[i - 2], stValues.depthsR[i - 1], swcR[i - 2], swcR[i - 1], stValues.depthsR[i]);
 
 
 		 // getting the average for a regression...
@@ -2197,76 +2246,76 @@ public class SW_FLOW {
 			swcR[i] = deltaX * (swc[nlyrs - 1] / width[nlyrs - 1]);
 
 		if (toDebug)
-			printf("\nregression values: \n");
+			f.LogError(LogMode.NOTE, String.format("\nregression values: \n"));
 		
 		if (toDebug)
 			for (i = 0; i < nRgr; i++)
-				printf("k %d swcR %5.4f fcR %5.4f wpR %5.4f oldsTempR %5.4f bDensityR %5.4f \n", i, swcR[i], st->fcR[i], st->wpR[i], st->oldsTempR[i], st->bDensityR[i]);
+				f.LogError(LogMode.NOTE, String.format("k %d swcR %5.4f fcR %5.4f wpR %5.4f oldsTempR %5.4f bDensityR %5.4f \n", i, swcR[i], stValues.fcR[i], stValues.wpR[i], stValues.oldsTempR[i], stValues.bDensityR[i]));
 		if (toDebug)
-			printf("\nlayer values: \n");
+			f.LogError(LogMode.NOTE, String.format("\nlayer values: \n"));
 		if (toDebug)
 			for (i = 0; i < nlyrs; i++)
-				printf("i %d width %5.4f depth %5.4f swc %5.4f fc %5.4f wp %5.4f oldsTemp %5.4f bDensity %5.4f \n", i, width[i], st->depths[i], swc[i], fc[i], wp[i], oldsTemp[i],
-						bDensity[i]);
+				f.LogError(LogMode.NOTE, String.format("i %d width %5.4f depth %5.4f swc %5.4f fc %5.4f wp %5.4f oldsTemp %5.4f bDensity %5.4f \n", i, width[i], stValues.depths[i], swc[i], fc[i], wp[i], oldsTemp[i],
+						bDensity[i]));
 
 		// FINALLY done with the regressions!!! this is where we calculate the temperature for each soil layer of the regression
 		if (toDebug)
-			printf("\n");
+			f.LogError(LogMode.NOTE, String.format("\n"));
 
 		for (i = 0; i < nRgr; i++) { // goes to nRgr, because the soil temp of the last regression layer (nRgr) is the meanAirTemp
 
 			// first we must calculate cs & sh (& subsequently sm & pe), for use later
 			sm = swcR[i];
-			pe = (sm - st->wpR[i]) / (st->fcR[i] - st->wpR[i]);
+			pe = (sm - stValues.wpR[i]) / (stValues.fcR[i] - stValues.wpR[i]);
 			cs = csParam1 + (pe * csParam2); // csParam1 = 0.0007, csParam2 = 0.0003
 			sh = sm + (shParam * (1. - sm)); // shParam = 0.18
 
 			if (toDebug)
-				printf("k %d cs %5.4f sh %5.4f\n", i, cs, sh);
+				f.LogError(LogMode.NOTE, String.format("k %d cs %5.4f sh %5.4f\n", i, cs, sh));
 
 			// breaking the equation down into parts to make it easier for me to process
-			part1 = cs / (sh * st->bDensityR[i]);
+			part1 = cs / (sh * stValues.bDensityR[i]);
 
 			if (i > 0) { // handles all layers except the first soil layer
-				part2 = (sTempR[i - 1] - (2 * st->oldsTempR[i]) + st->oldsTempR[i + 1]) / squared(deltaX);
+				part2 = (sTempR[i - 1] - (2 * stValues.oldsTempR[i]) + stValues.oldsTempR[i + 1]) / Math.pow(deltaX,2.);
 			} else { // handles the first soil layer, since it needs the temp of the top of the soil
-				part2 = (T1 - (2 * st->oldsTempR[0]) + st->oldsTempR[1]) / squared(deltaX);
+				part2 = (T1 - (2 * stValues.oldsTempR[0]) + stValues.oldsTempR[1]) / Math.pow(deltaX, 2.);
 			}
 
-			sTempR[i] = ((part1 * part2) * deltaT) + st->oldsTempR[i];
+			sTempR[i] = ((part1 * part2) * deltaT) + stValues.oldsTempR[i];
 		}
 		sTempR[nRgr] = meanAirTemp; // again... the last layer of the regression is set to the constant meanAirTemp
 
 		// MORE REGRESSIONS! to change sTempR into sTemp for outputting correctly
 		if (toDebug)
-			printf("\n");
+			f.LogError(LogMode.NOTE, String.format("\n"));
 		
 		j = -1; // have to do this to avoid signed / unsigned comparison warning.  it's a pain really but have to do since the program was all written using unsigned ints (which can be no negative value except for -1) for some reason.  keep in mind that -1 is the largest possible value that an unsigned int can be according to c (ie -1 > 100 is a true statement if they're both unsigned ints b/c -1 is converted to UINT_MAX), very confusing.
 		for (i = 0; i < nlyrs; i++) {
-			x1 = st->x1Bounds[i];
-			x2 = st->x2Bounds[i];
+			x1 = stValues.x1Bounds[i];
+			x2 = stValues.x2Bounds[i];
 
 			if (toDebug)
-				printf("i %d %d - %d depthLow %5.4f acc %5.4f depthHigh %5.4f\n", i, x1, x2, ((x1 + 1) * deltaX), st->depths[i], (x2 != j) ? st->depthsR[x2] : -1.0);
+				f.LogError(LogMode.NOTE, String.format("i %d %d - %d depthLow %5.4f acc %5.4f depthHigh %5.4f\n", i, x1, x2, ((x1 + 1) * deltaX), stValues.depths[i], (x2 != j) ? stValues.depthsR[x2] : -1.0));
 
 			if (x1 == j) { // makes a regression with the temp at the top of the soil & the first soil layer...
-				//sTemp[i] = regression(0.0, deltaX, T1, sTempR[0], st->depths[i]); // commented out, b/c it was actually giving a worse approximation
-				sTemp[i] = regression(deltaX, deltaX + deltaX, sTempR[0], sTempR[1], st->depths[i]);
+				//sTemp[i] = regression(0.0, deltaX, T1, sTempR[0], stValues.depths[i]); // commented out, b/c it was actually giving a worse approximation
+				sTemp[i] = Defines.regression(deltaX, deltaX + deltaX, sTempR[0], sTempR[1], stValues.depths[i]);
 			} else if (x1 == x2) { // sets the values to the layers values, since x1 and x2 are the same, no regression is necessary
 				sTemp[i] = sTempR[x1];
 			} else {
 				if (x2 != j)
-					sTemp[i] = regression(st->depthsR[x1], st->depthsR[x2], sTempR[x1], sTempR[x2], st->depths[i]);
+					sTemp[i] = Defines.regression(stValues.depthsR[x1], stValues.depthsR[x2], sTempR[x1], sTempR[x2], stValues.depths[i]);
 				else
-					sTemp[i] = regression(st->depthsR[x1], (x2 != j) ? st->depthsR[x2] : st->depthsR[nRgr - 1], sTempR[x1], (x2 != j) ? sTempR[x2] : sTempR[nRgr - 1],
-							st->depths[i]);
+					sTemp[i] = Defines.regression(stValues.depthsR[x1], (x2 != j) ? stValues.depthsR[x2] : stValues.depthsR[nRgr - 1], sTempR[x1], (x2 != j) ? sTempR[x2] : sTempR[nRgr - 1],
+							stValues.depths[i]);
 			}
 		}
 
 		for (i = 0; i < nlyrs; i++)	// now that you have calculated the new temperatures can determine whether the soil layers should be frozen or not.
 				{
 			j = 0;
-			while (st->lyrFrozen[j] == 1) //do this to determine the i-th non frozen layer, to use in the fusion pool calculation
+			while (stValues.lyrFrozen[j] == 1) //do this to determine the i-th non frozen layer, to use in the fusion pool calculation
 			{
 				j++;
 			}
@@ -2275,70 +2324,70 @@ public class SW_FLOW {
 			deltaTemp = sTemp[i] - oldsTemp[i];	// determine how much the temperature of the soil layer changed
 					sm = swc[j];
 					sh = sm + (shParam * (1. - sm));
-					sFusionPool[i] = ((fH2O*(swc[i]/width[i]))/sh)*tc*(deltaTemp/abs(deltaTemp));// calculate the fusion pool of the current soil layer, or how much temperature change must happen to freeze/thaw a soil layer
+					sFusionPool[i] = ((fH2O*(swc[i]/width[i]))/sh)*tc*(deltaTemp/Math.abs(deltaTemp));// calculate the fusion pool of the current soil layer, or how much temperature change must happen to freeze/thaw a soil layer
 
 					if( Defines.EQ(oldsTemp[i], fp) )// if the temperature of the soil layer is at the freezing point, then we need to use the old fusion pool value with the newly calculated one
-					if( (Defines.LT(sFusionPool[i],0.00) && Defines.GT(st->oldsFusionPool[i],0.00)) || (Defines.GT(sFusionPool[i],0.00) && Defines.LT(st->oldsFusionPool[i],0.00)) )// here is just a condition to make sure that you weren't trying to freeze a layer, got half way through, and then the next day, start to thaw that layer. More for sign issues
-					sFusionPool[i] += st->oldsFusionPool[i];// if you have partially froze and now want to thaw, you need to take the newly calculated pool and add the old one. Since the signs should be different in this case, the new fusion pool should become a smaller value
+					if( (Defines.LT(sFusionPool[i],0.00) && Defines.GT(stValues.oldsFusionPool[i],0.00)) || (Defines.GT(sFusionPool[i],0.00) && Defines.LT(stValues.oldsFusionPool[i],0.00)) )// here is just a condition to make sure that you weren't trying to freeze a layer, got half way through, and then the next day, start to thaw that layer. More for sign issues
+					sFusionPool[i] += stValues.oldsFusionPool[i];// if you have partially froze and now want to thaw, you need to take the newly calculated pool and add the old one. Since the signs should be different in this case, the new fusion pool should become a smaller value
 					else
-					sFusionPool[i] = st->oldsFusionPool[i];// if you are still freezing/thawing from the day before, you can just use the old fusion pool
+					sFusionPool[i] = stValues.oldsFusionPool[i];// if you are still freezing/thawing from the day before, you can just use the old fusion pool
 					else
 					{
 						deltaTemp -= (fp - oldsTemp[i]);// if you aren't at the freezing point initially, then you need to adjust the deltaTemp to not account for the temperature getting to the freezing point, since you just want to determine how much past the freezing poin you get, if you do get past.
 					}
 
-					if( Defines.LT( abs(deltaTemp), abs(sFusionPool[i])) ) // in this case, you don't have enough change in temperature to freeze/thaw the current layer fully
+					if( Defines.LT( Math.abs(deltaTemp), Math.abs(sFusionPool[i])) ) // in this case, you don't have enough change in temperature to freeze/thaw the current layer fully
 					{
 						sFusionPool[i] -= deltaTemp; // adjust the fusion pool by the change in temperature
 						sTemp[i] = fp;// set the new temperature to the freezing point
-						st->lyrFrozen[i] = 1;// set the layer as frozen. For this I used that if the temperature was equal to the freezing point, the soil was at least partially frozen, so just used it as a frozen layer for simplicity
+						stValues.lyrFrozen[i] = 1;// set the layer as frozen. For this I used that if the temperature was equal to the freezing point, the soil was at least partially frozen, so just used it as a frozen layer for simplicity
 					}
-					else if( Defines.GT( abs(deltaTemp), abs(sFusionPool[i])) ) // in this case you had more temperature change then the fusion pool
+					else if( Defines.GT( Math.abs(deltaTemp), Math.abs(sFusionPool[i])) ) // in this case you had more temperature change then the fusion pool
 					{
 						deltaTemp -= sFusionPool[i];	// adjust the deltaTemp by the total fusion pool to find out how much more you can change the temperature by
 						sFusionPool[i] = 0.00;// fusion pool is now zero
 						sTemp[i] = fp + deltaTemp;// adjust the temperature by the freezing point plus the deltaTemp, signs will work out so that freezing will lower temperature
-						if ( LE(sTemp[i], fp) )// now determine whether the soil layer is frozen based on the new temperature, as mentioned above, the freezing point counts as a frozen layer, even though it is partially frozen
-						st->lyrFrozen[i]=1;
+						if ( Defines.LE(sTemp[i], fp) )// now determine whether the soil layer is frozen based on the new temperature, as mentioned above, the freezing point counts as a frozen layer, even though it is partially frozen
+						stValues.lyrFrozen[i]=1;
 						else
-						st->lyrFrozen[i]=0;
+						stValues.lyrFrozen[i]=0;
 					}
 					else							// in this case the deltaTemp and fusion pool were equal, so the soil layer should be just barely frozen/thawed
 					{
 						sFusionPool[i] = 0.00;		// fusion pool is now zero
-						sTemp[i] = fp + (deltaTemp/abs(deltaTemp));// adjust the temperature by the freezing pool plus the (deltaTemp/abs(deltaTemp)) which should pull out the sign of the deltaTemp. i.e. if deltaTemp is negative, should get a -1.
-						st->lyrFrozen[i] = 1 - st->lyrFrozen[i];// determine if the layer is frozen now. It should be the opposite of what it was going into this scenario, so 1 minus the current value should return the opposite, i.e. if layer is frozen lyrFrozen = 1, so lyrFrozen = 1 -1 = 0, which means not frozen.
+						sTemp[i] = fp + (deltaTemp/Math.abs(deltaTemp));// adjust the temperature by the freezing pool plus the (deltaTemp/abs(deltaTemp)) which should pull out the sign of the deltaTemp. i.e. if deltaTemp is negative, should get a -1.
+						stValues.lyrFrozen[i] = 1 - stValues.lyrFrozen[i];// determine if the layer is frozen now. It should be the opposite of what it was going into this scenario, so 1 minus the current value should return the opposite, i.e. if layer is frozen lyrFrozen = 1, so lyrFrozen = 1 -1 = 0, which means not frozen.
 					}
 
-					soil_temp_init = 0;
+					soil_temp_init = false;
 				}
 				else
 				sFusionPool[i] = 0.00;		//if your temperatures don't match any of those conditions, just set the fusion pool to zero and don't change the temperature at all
 			}
 
 		if (toDebug)
-			printf("\nregression temp values: \n");
+			f.LogError(LogMode.NOTE, String.format("\nregression temp values: \n"));
 
 		if (toDebug)
 			for (i = 0; i < nRgr + 1; i++)
-				printf("k %d oldsTempR %5.4f sTempR %5.4f depth %5.4f \n", i, *(st->oldsTempR + i), sTempR[i], ((i + 1) * deltaX)); // *(oldsTempR + i) is equivalent to writing oldsTempR[i]
+				f.LogError(LogMode.NOTE, String.format("k %d oldsTempR %5.4f sTempR %5.4f depth %5.4f \n", i, stValues.oldsTempR[i], sTempR[i], ((i + 1) * deltaX)) ); // *(oldsTempR + i) is equivalent to writing oldsTempR[i]
 
 		if (toDebug)
-			printf("\nlayer temp values: \n");
+			f.LogError(LogMode.NOTE, String.format("\nlayer temp values: \n"));
 
 		if (toDebug)
 			for (i = 0; i < nlyrs; i++)
-				printf("i %d oldTemp %5.4f sTemp %5.4f depth %5.4f  \n", i, oldsTemp[i], sTemp[i], st->depths[i]);
+				f.LogError(LogMode.NOTE, String.format("i %d oldTemp %5.4f sTemp %5.4f depth %5.4f  \n", i, oldsTemp[i], sTemp[i], stValues.depths[i]));
 
 		// updating the values of yesterdays temperature regression for the next time the function is called...
 		// also added fusion pool to this update so that we can store old fusion pool for the cases where we might need that value
 		for (i = 0; i < nRgr + 1; i++) {
-			st->oldsTempR[i] = sTempR[i];
-			st->oldsFusionPool[i] = sFusionPool[i];
+			stValues.oldsTempR[i] = sTempR[i];
+			stValues.oldsFusionPool[i] = sFusionPool[i];
 		}
 
 		if (toDebug) {
-			exit(0); // terminates the program, make sure to take this out later
+			f.LogError(LogMode.FATAL, "EXIT. PRINT DEBUG ON IN SOIL TEMP"); // terminates the program, make sure to take this out later
 		}
 	}
 	

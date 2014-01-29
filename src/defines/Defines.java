@@ -33,6 +33,17 @@ public final class Defines {
 	               eOUT,  /* output */
 	               eNONE /* none */
 	}
+	
+	/**************************************************************************************************************************************
+	 PURPOSE: Calculate a linear regression between two points, for use in soil_temperature function
+
+	 HISTORY:
+	 05/25/2012 (DLM) initial coding
+	 **************************************************************************************************************************************/
+	public static double regression(double x1, double x2, double y1, double y2, double deltaX) {
+		return y1 + (((y2 - y1) / (x2 - x1)) * (deltaX - x1));
+	}
+	
 	public static boolean LE(double d1, double d2) {
 		if(Double.compare(d1, d2) <= 0)
 			return true;

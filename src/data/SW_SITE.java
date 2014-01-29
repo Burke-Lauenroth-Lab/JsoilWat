@@ -842,4 +842,8 @@ public class SW_SITE {
 		//fflush(logfp);
 
 	}
+	
+	public int get_stNRGR() {
+		return this.stNRGR;
+	}
 }

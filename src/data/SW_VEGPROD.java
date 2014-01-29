@@ -144,7 +144,7 @@ public class SW_VEGPROD {
 		}
 	}
 	public class Shade {
-		private class Params {
+		public class Params {
 			public double shadeScale;
 			public double shadeMaximalDeadBiomass;
 			public double xinflec;
@@ -173,7 +173,7 @@ public class SW_VEGPROD {
 		}
 	}
 	public class HydraulicRedistribution {
-		private class Params {
+		public class Params {
 			public boolean flag;
 			public double maxCondRoot;
 			public double swp50;
