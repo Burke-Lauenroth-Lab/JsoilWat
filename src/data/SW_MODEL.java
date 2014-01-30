@@ -251,6 +251,19 @@ public class SW_MODEL {
 		return this.firstdoy;
 	}
 	
+	public int getLastdoy() {
+		return this.lastdoy;
+	}
+	
+	public boolean get_newweek() {
+		return this.newweek;
+	}
+	public boolean get_newmonth() {
+		return this.newmonth;
+	}
+	public boolean get_newyear() {
+		return this.newyear;
+	}
 	
 	public int getYear() {
 		return this.year;

@@ -2,11 +2,9 @@ package data;
 
 import input.LogFileIn;
 import input.LogFileIn.LogMode;
-import times.Times;
-import times.Times.TwoDays;
 import data.SW_SOILWATER.SOILWAT;
 import defines.Defines;
-import defines.Defines;
+
 
 public class SW_FLOW {
 	
@@ -95,7 +93,7 @@ public class SW_FLOW {
 			lyrEvap_Forb, lyrEvap_Tree, lyrEvap_Shrub, lyrEvap_Grass, lyrEvapCo, lyrSWCBulk_FieldCaps,
 			lyrWidths, lyrSWCBulk_Wiltpts, lyrSWCBulk_HalfWiltpts, lyrSWCBulk_Mins, lyrSWCBulk_atSWPcrit_Forb,
 			lyrSWCBulk_atSWPcrit_Tree, lyrSWCBulk_atSWPcrit_Shrub, lyrSWCBulk_atSWPcrit_Grass, lyrpsisMatric,
-			lyrthetasMatric, lyrBetasMatric, lyrBetaInvMatric, lyrSumTrCo, lyrHydRed_Forb,
+			lyrthetasMatric, lyrBetasMatric, lyrBetaInvMatric, /*lyrSumTrCo,*/ lyrHydRed_Forb,
 			lyrHydRed_Tree, lyrHydRed_Shrub, lyrHydRed_Grass, lyrImpermeability, lyrSWCBulk_Saturated,
 			lyroldsTemp, lyrsTemp, lyrbDensity;
 	
@@ -167,7 +165,7 @@ public class SW_FLOW {
 		lyrthetasMatric=new double[Defines.MAX_LAYERS];
 		lyrBetasMatric=new double[Defines.MAX_LAYERS];
 		lyrBetaInvMatric=new double[Defines.MAX_LAYERS];
-		lyrSumTrCo=new double[Defines.MAX_TRANSP_REGIONS+1];
+		//lyrSumTrCo=new double[Defines.MAX_TRANSP_REGIONS+1];
 		lyrHydRed_Forb=new double[Defines.MAX_LAYERS];
 		lyrHydRed_Tree=new double[Defines.MAX_LAYERS];
 		lyrHydRed_Shrub=new double[Defines.MAX_LAYERS];
@@ -1932,15 +1930,30 @@ public class SW_FLOW {
 	 *OUTPUT: none, but places the regression values in stValues struct for use in the soil_temperature function later
 	 */
 	
-	private void soil_temperature_init(double[] bDensity, double[] width, double[] oldsTemp, int nlyrs, double[] fc, double[] wp, double deltaX, double theMaxDepth, double meanAirTemp, int nRgr) {
+	private void soil_temperature_init() {
+		
+		double[] bDensity = lyrbDensity;
+		double[] width = lyrWidths;
+		double[] oldsTemp = lyroldsTemp;
+		int nlyrs = SW_Soils.getLayersInfo().n_layers;
+		double[] fc = lyrSWCBulk_FieldCaps;
+		double[] wp = lyrSWCBulk_Wiltpts;
+		double deltaX = SW_Site.getSoilTemperature().stDeltaX;
+		double theMaxDepth = SW_Site.getSoilTemperature().stMaxDepth;
+		double meanAirTemp = SW_Site.getSoilTemperature().meanAirTemp;
+		int nRgr = SW_Site.get_stNRGR();
+		
+		LogFileIn f = LogFileIn.getInstance();
 		// local vars
-		int i, j, k, x1 = 1, x2 = 1, equal = 1;
+		int i, k;
+		int[] equal_x1_x2 = new int[3];
+		equal_x1_x2[0] = 1;
+		equal_x1_x2[1] = 1;
+		equal_x1_x2[2] = 1;
+	
 		double acc = 0.0;
-		// pointers
-		int *x1P = &x1, *x2P = &x2, *equalP = &equal;
-		ST_RGR_VALUES *st = &stValues; // just for convenience, so I don't have to type as much
 
-		soil_temp_init = 1; // make this value 1 to make sure that this function isn't called more than once... (b/c it doesn't need to be)
+		soil_temp_init = true; // make this value 1 to make sure that this function isn't called more than once... (b/c it doesn't need to be)
 
 		for (i = 0; i < nlyrs; i++) {
 			acc += width[i];
@@ -1948,49 +1961,46 @@ public class SW_FLOW {
 		}
 
 		for (i = 0; i < nRgr + 1; i++)
-			*(stValues.depthsR + i) = ((deltaX * i) + deltaX);
+			stValues.depthsR[i] = ((deltaX * i) + deltaX);
 
 		// if there's less then 2 lyrs of soil, or the max layer depth < 30 cm the function quits (& prints out an error message) so it doesn't blow up later...
 		if ((nlyrs < 2) || Defines.LT(stValues.depths[nlyrs - 1], deltaX + deltaX)) {
 			if (!soil_temp_error) { // if the error hasn't been reported yet... print an error to the stderr and one to the logfile
-				// fprintf(stderr, "\nSOIL_TEMP FUNCTION ERROR: (there needs to be >= 2 soil layers, with a maximum combined depth of >= %5.2f cm)... soil temperature will NOT be calculated\n", (deltaX + deltaX));
-				fprintf(logfp,
-						"\nSOIL_TEMP FUNCTION ERROR: (there needs to be >= 2 soil layers, with a maximum combined depth of >= %5.2f cm)... soil temperature will NOT be calculated\n",
-						(deltaX + deltaX));
-				soil_temp_error = 1;
+				f.LogError(LogMode.NOTE, String.format("\nSOIL_TEMP FUNCTION ERROR: (there needs to be >= 2 soil layers, with a maximum combined depth of >= %5.2f cm)... soil temperature will NOT be calculated\n", (deltaX + deltaX)) );
+				soil_temp_error = true;
 			}
 			return; // exits the function
 		}
 
 		acc = deltaX;
-		k = j = 0;
+		k = 0;
 		// linear regression time complexity of this should be something like O(k * nlyrs).  might be able to do it faster... but would also be a lot more code & would require a rewrite (shouldn't matter anyways, because this function is only called once)
-		while (LE(acc, stValues.depths[nlyrs - 1])) {
-			st_getBounds(x1P, x2P, equalP, nlyrs, acc, stValues.depths);
+		while (Defines.LE(acc, stValues.depths[nlyrs - 1])) {
+			Defines.st_getBounds(equal_x1_x2, nlyrs, acc, stValues.depths);
 
 			i = -1;
-			if (x1 == i) { // sets the values to the first layer of soils values, since theres nothing else that can be done... fc * wp must be scaled appropriately
+			if (equal_x1_x2[1] == i) { // sets the values to the first layer of soils values, since theres nothing else that can be done... fc * wp must be scaled appropriately
 				stValues.fcR[k] = (fc[0] / width[0]) * deltaX; // all the division and multiplication is to make sure that the regressions are scaled appropriately, since the widths of the layers & the layers of the regressions, may not be the same
 				stValues.wpR[k] = (wp[0] / width[0]) * deltaX;
 				// stValues.oldsTempR[k] = regression(0.0, stValues.depths[0], T1, oldsTemp[0], acc); // regression using the temp at the top of the soil, commented out b/c it's giving worse results
 				stValues.oldsTempR[k] = oldsTemp[0]; // no scaling is necessary with temperature & bulk density
 				stValues.bDensityR[k] = bDensity[0];
-			} else if ((x1 == x2) || (equal != 0)) { // sets the values to the layers values, since x1 and x2 are the same, no regression is necessary
-				stValues.fcR[k] = (fc[x1] / width[x1]) * deltaX;
-				stValues.wpR[k] = (wp[x1] / width[x1]) * deltaX;
-				stValues.oldsTempR[k] = oldsTemp[x1];
-				stValues.bDensityR[k] = bDensity[x1];
-			} else { // double regression( double x1, double x2, double y1, double y2, double deltaX ), located in generic.c
-				stValues.fcR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], (fc[x1] / width[x1]) * deltaX, (fc[x2] / width[x2]) * deltaX, acc);
-				stValues.wpR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], (wp[x1] / width[x1]) * deltaX, (wp[x2] / width[x2]) * deltaX, acc);
-				stValues.oldsTempR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], oldsTemp[x1], oldsTemp[x2], acc);
-				stValues.bDensityR[k] = Defines.regression(stValues.depths[x1], stValues.depths[x2], bDensity[x1], bDensity[x2], acc);
+			} else if ((equal_x1_x2[1] == equal_x1_x2[2]) || (equal_x1_x2[0] != 0)) { // sets the values to the layers values, since x1 and x2 are the same, no regression is necessary
+				stValues.fcR[k] = (fc[equal_x1_x2[1]] / width[equal_x1_x2[1]]) * deltaX;
+				stValues.wpR[k] = (wp[equal_x1_x2[1]] / width[equal_x1_x2[1]]) * deltaX;
+				stValues.oldsTempR[k] = oldsTemp[equal_x1_x2[1]];
+				stValues.bDensityR[k] = bDensity[equal_x1_x2[1]];
+			} else { // double regression( double equal_x1_x2[1], double x2, double y1, double y2, double deltaX ), located in generic.c
+				stValues.fcR[k] = Defines.regression(stValues.depths[equal_x1_x2[1]], stValues.depths[equal_x1_x2[2]], (fc[equal_x1_x2[1]] / width[equal_x1_x2[1]]) * deltaX, (fc[equal_x1_x2[2]] / width[equal_x1_x2[2]]) * deltaX, acc);
+				stValues.wpR[k] = Defines.regression(stValues.depths[equal_x1_x2[1]], stValues.depths[equal_x1_x2[2]], (wp[equal_x1_x2[1]] / width[equal_x1_x2[1]]) * deltaX, (wp[equal_x1_x2[2]] / width[equal_x1_x2[2]]) * deltaX, acc);
+				stValues.oldsTempR[k] = Defines.regression(stValues.depths[equal_x1_x2[1]], stValues.depths[equal_x1_x2[2]], oldsTemp[equal_x1_x2[1]], oldsTemp[equal_x1_x2[2]], acc);
+				stValues.bDensityR[k] = Defines.regression(stValues.depths[equal_x1_x2[1]], stValues.depths[equal_x1_x2[2]], bDensity[equal_x1_x2[1]], bDensity[equal_x1_x2[2]], acc);
 			}
 
-			if (equal != 0)
-				x2 = x1;
-			stValues.x1BoundsR[k] = x1;
-			stValues.x2BoundsR[k] = x2;
+			if (equal_x1_x2[0] != 0)
+				equal_x1_x2[2] = equal_x1_x2[1];
+			stValues.x1BoundsR[k] = equal_x1_x2[1];
+			stValues.x2BoundsR[k] = equal_x1_x2[2];
 
 			k++;
 			acc += deltaX;
@@ -2038,15 +2048,15 @@ public class SW_FLOW {
 			stValues.oldsTempR[i] = Defines.regression(stValues.depthsR[i - 1], theMaxDepth, stValues.oldsTempR[i - 1], meanAirTemp, stValues.depthsR[i]); // we do temperature differently, since we already have the temperature for the last layer of soil
 		}
 
-		stValues.oldsTempR[nRgr] = meanAirTemp; // the soil temp at the last layer of the regression is equal to the meanAirTemp, this is constant so it's the same for yesterdays temp & todays temp
+		stValues.oldsTempR[nRgr] = meanAirTemp; // the soil temp at the last layer of the regression is equal_x1_x2[0] to the meanAirTemp, this is constant so it's the same for yesterdays temp & todays temp
 
 		// getting all the xBounds values for later use in the soil_temperature function...
 		for (i = 0; i < nlyrs; i++) {
-			st_getBounds(x1P, x2P, equalP, nRgr + 1, stValues.depths[i], stValues.depthsR);
-			if (equal != 0)
-				x2 = x1;
-			stValues.x1Bounds[i] = x1;
-			stValues.x2Bounds[i] = x2;
+			Defines.st_getBounds(equal_x1_x2, nRgr + 1, stValues.depths[i], stValues.depthsR);
+			if (equal_x1_x2[0] != 0)
+				equal_x1_x2[2] = equal_x1_x2[1];
+			stValues.x1Bounds[i] = equal_x1_x2[1];
+			stValues.x2Bounds[i] = equal_x1_x2[2];
 		}
 	}
 
@@ -2096,7 +2106,6 @@ public class SW_FLOW {
 
 	private void soil_temperature(double biomass) {
 		
-		
 		double airTemp = SW_Weather.getNow().temp_avg[Defines.Today];
 		double pet = SW_Soilwat.getSoilWat().pet;
 		double aet = SW_Soilwat.getSoilWat().aet;
@@ -2118,7 +2127,6 @@ public class SW_FLOW {
 		double snowpack = SW_Soilwat.getSoilWat().snowpack[Defines.Today];
 		double meanAirTemp = SW_Site.getSoilTemperature().meanAirTemp;
 		double deltaX = SW_Site.getSoilTemperature().stDeltaX;
-		double theMaxDepth = SW_Site.getSoilTemperature().stMaxDepth;
 		int nRgr = SW_Site.get_stNRGR();
 		
 		LogFileIn f = LogFileIn.getInstance();
@@ -2173,7 +2181,7 @@ public class SW_FLOW {
 		}
 
 		if (!soil_temp_init)
-			soil_temperature_init(bDensity, width, oldsTemp, nlyrs, fc, wp, deltaX, theMaxDepth, meanAirTemp, nRgr);
+			soil_temperature_init();
 
 		if (!fusion_pool_init) {
 			for (i = 0; i < nlyrs; i++) {

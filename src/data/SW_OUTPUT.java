@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import times.Times;
 import defines.Defines;
+import defines.Defines.ObjType;
 
 public class SW_OUTPUT {
 
@@ -58,11 +60,34 @@ public class SW_OUTPUT {
 		private final int index;
 		private final String name;
 		private final Defines.ObjType object;
-		public static final String[] comment = {"/* NO KEY */",
-			
-			"/* max., min, average temperature (C) */",
-			"/* total precip = sum(rain, snow), rain, snow-fall, snowmelt, and snowloss (cm)     */"
-		};
+		public static final String[] comment = {"/* */",
+		"/* max., min, average temperature (C) */",
+		"/* total precip = sum(rain, snow), rain, snow-fall, snowmelt, and snowloss (cm) */",
+		"/* water to infiltrate in top soil layer (cm), runoff (cm); (not-intercepted rain)+(snowmelt-runoff) */",
+		"/* runoff (cm): total runoff, runoff from ponded water, runoff from snowmelt */",
+		"/* */",
+		"/* bulk volumetric soilwater (cm / layer) */",
+		"/* matric volumetric soilwater (cm / layer) */",
+		"/* bulk soilwater content (cm / cm layer); swc.l1(today) = swc.l1(yesterday)+inf_soil-lyrdrain.l1-transp.l1-evap_soil.l1; swc.li(today) = swc.li(yesterday)+lyrdrain.l(i-1)-lyrdrain.li-transp.li-evap_soil.li; swc.llast(today) = swc.llast(yesterday)+lyrdrain.l(last-1)-deepswc-transp.llast-evap_soil.llast */",
+		"/* bulk available soil water (cm/layer) = swc - wilting point */",
+		"/* matric available soil water (cm/layer) = swc - wilting point */",
+		"/* matric soilwater potential (-bars) */",
+		"/* surface water (cm) */",
+		"/* transpiration from each soil layer (cm): total, trees, shrubs, forbs, grasses */",
+		"/* bare-soil evaporation from each soil layer (cm) */",
+		"/* evaporation (cm): total, trees, shrubs, forbs, grasses, litter, surface water */",
+		"/* intercepted rain (cm): total, trees, shrubs, forbs, grasses, and litter (cm) */",
+		"/* water percolated from each layer (cm) */",
+		"/* hydraulic redistribution from each layer (cm): total, trees, shrubs, forbs, grasses */",
+		"/* */",
+		"/* actual evapotr. (cm) */",
+		"/* potential evaptr (cm) */",
+		"/* days above swc_wet */",
+		"/* snowpack water equivalent (cm), snowdepth (cm); since snowpack is already summed, use avg - sum sums the sums = nonsense */",
+		"/* deep drainage into lowest layer (cm) */",
+		"/* soil temperature from each soil layer (in celsius) */",
+		"/* */",
+		"/* yearly establishment results */"};
 		
 		private OutKey(int index, String name, Defines.ObjType type) {
 			this.index = index;
@@ -108,7 +133,20 @@ public class SW_OUTPUT {
 			}
 			throw new IllegalArgumentException();
 		}
-		
+		public static OutPeriod fromInteger(int x) {
+			switch (x) {
+			case 0:
+				return SW_DAY;
+			case 1:
+				return SW_WEEK;
+			case 2:
+				return SW_MONTH;
+			case 3:
+				return SW_YEAR;
+			default:
+				return null;
+			}
+		}
 		private OutPeriod(int index, String name) {
 			this.index = index;
 			this.name = name;
@@ -206,12 +244,13 @@ public class SW_OUTPUT {
 	private boolean tOffset;
 	
 	private SW_SITE SW_Site;
+	private SW_SOILS SW_Soils;
 	private SW_SOILWATER SW_Soilwat;
 	private SW_MODEL SW_Model;
 	private SW_WEATHER SW_Weather;
 	private SW_VEGESTAB SW_VegEstab;
 	
-	public SW_OUTPUT(SW_SITE site, SW_SOILWATER soilwat, SW_MODEL model, SW_WEATHER weather, SW_VEGESTAB estab) {
+	public SW_OUTPUT(SW_SITE site, SW_SOILS soils, SW_SOILWATER soilwat, SW_MODEL model, SW_WEATHER weather, SW_VEGESTAB estab) {
 		this.SW_Output = new SW_OUT[SW_OUTNKEYS];
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			this.SW_Output[i] = new SW_OUT();
@@ -228,14 +267,16 @@ public class SW_OUTPUT {
 		SW_Model = model;
 		SW_Weather = weather;
 		SW_VegEstab = estab;
+		SW_Soils = soils;
 		
+		bFlush = false;
+		tOffset = true;
 	}
 	
 	public void onRead(Path OutputSetupIn, Path OutputDirectory, boolean deepdrain) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(OutputSetupIn, StandardCharsets.UTF_8);
-		 
-		int first=0;
+		
 		useTimeStep = false;
 		OutKey k = OutKey.eSW_NoKey;
 		
@@ -281,7 +322,6 @@ public class SW_OUTPUT {
 				/* Check validity of output key */
 				if(k==OutKey.eSW_Estab) {
 					SW_Output[k.idx()].sumtype = OutSum.eSW_Sum;
-					first=1;
 					SW_Output[k.idx()].period = OutPeriod.SW_YEAR;
 					SW_Output[k.idx()].last = 366;
 				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
@@ -436,6 +476,317 @@ public class SW_OUTPUT {
 		}
 	}
 	
+	public void SW_OUT_new_year() {
+		for(int k=0; k < SW_OUTNKEYS; k++) {
+			if(!SW_Output[k].use)
+				continue;
+			if(SW_Output[k].first_orig <= SW_Model.getFirstdoy())
+				SW_Output[k].first = SW_Model.getFirstdoy();
+			else
+				SW_Output[k].first = SW_Output[k].first_orig;
+			if (SW_Output[k].last_orig >= SW_Model.getLastdoy())
+				SW_Output[k].last = SW_Model.getLastdoy();
+			else
+				SW_Output[k].last = SW_Output[k].last_orig;
+		}
+	}
+	
+	public void SW_OUT_sum_today(Defines.ObjType otyp) {
+		/* =================================================== */
+		/* adds today's output values to week, month and year
+		 * accumulators and puts today's values in yesterday's
+		 * registers. This is different from the Weather.c approach
+		 * which updates Yesterday's registers during the _new_day()
+		 * function. It's more logical to update yesterday just
+		 * prior to today's calculations, but there's no logical
+		 * need to perform _new_day() on the soilwater.
+		 */
+		SW_SOILWATER.SOILWAT s = SW_Soilwat.getSoilWat();
+		SW_WEATHER.WEATHER w = SW_Weather.getWeather();
+		
+		/* do this every day (kinda expensive but more general than before)*/
+		switch (otyp) {
+		case eSWC:
+			s.dysum.onClear();
+			break;
+		case eWTH:
+			s.dysum.onClear();
+			break;
+		case eVES:
+			return;
+		default:
+			LogFileIn f = LogFileIn.getInstance();
+			f.LogError(LogMode.FATAL, "Invalid object type in SW_OUT_sum_today().");
+			break;
+		}
+		
+		/* the rest only get done if new period */
+		if(SW_Model.get_newweek() || this.bFlush) {
+			average_for(otyp, OutPeriod.SW_WEEK);
+			switch(otyp) {
+			case eSWC:
+				s.wksum.onClear();
+				break;
+			case eWTH:
+				s.wksum.onClear();
+				break;
+			default:
+				break;
+			}
+		}
+		
+		if(SW_Model.get_newmonth() || this.bFlush) {
+			average_for(otyp, OutPeriod.SW_MONTH);
+			switch(otyp) {
+			case eSWC:
+				s.mosum.onClear();
+				break;
+			case eWTH:
+				s.mosum.onClear();
+				break;
+			default:
+				break;
+			}
+		}
+		
+		if(SW_Model.get_newyear() || this.bFlush) {
+			average_for(otyp, OutPeriod.SW_YEAR);
+			switch(otyp) {
+			case eSWC:
+				s.mosum.onClear();
+				break;
+			case eWTH:
+				s.mosum.onClear();
+				break;
+			default:
+				break;
+			}
+		}
+		
+		if(!bFlush) {
+			for (OutPeriod pd : OutPeriod.values()) {
+				collect_sums(otyp, pd);
+			}
+		}
+	}
+
+	public void SW_OUT_write_today() {
+		/* --------------------------------------------------- */
+		/* all output values must have been summed, averaged or
+		 * otherwise completed before this is called [now done
+		 * by SW_*_sum_*<daily|yearly>()] prior.
+		 * This subroutine organizes only the calling loop and
+		 * sending the string to output.
+		 * Each output quantity must have a print function
+		 * defined and linked to SW_Output.pfunc (currently all
+		 * starting with 'get_').  Those funcs return a properly
+		 * formatted string to be output via the module variable
+		 * 'outstr'. Furthermore, those funcs must know their
+		 * own time period.  This version of the program only
+		 * prints one period for each quantity.
+		 *
+		 * The t value tests whether the current model time is
+		 * outside the output time range requested by the user.
+		 * Recall that times are based at 0 rather than 1 for
+		 * array indexing purposes but the user request is in
+		 * natural numbers, so we add one before testing.
+		 */
+		/* 10-May-02 (cwb) Added conditional to interface with STEPPE.
+		 *           We want no output if running from STEPPE.
+		 */
+		int t = 0xffff;
+		boolean writeit;
+		int i;
+
+		for(int k=0; k < SW_OUTNKEYS; k++) {
+			for (i = 0; i < numPeriods; i++) { /* will run through this loop for as many periods are being used */
+				if (!SW_Output[k].use)
+					continue;
+				if (timeSteps[k][i] < 4) {
+					writeit = true;
+					SW_Output[k].period = OutPeriod.fromInteger(timeSteps[k][i]); /* set the desired period based on the iteration */
+					switch (SW_Output[k].period) {
+					case SW_DAY:
+						t = SW_Model.getDOY();
+						break;
+					case SW_WEEK:
+						writeit = (SW_Model.get_newweek() || bFlush);
+						t = (SW_Model.getWeek() + 1) - (tOffset?1:0);
+						break;
+					case SW_MONTH:
+						writeit = (SW_Model.get_newmonth() || bFlush);
+						t = (SW_Model.getMonth() + 1) - (tOffset?1:0);
+						break;
+					case SW_YEAR:
+						writeit = (SW_Model.get_newyear() || bFlush);
+						t = SW_Output[k].first; /* always output this period */
+						break;
+					default:
+						LogFileIn f = LogFileIn.getInstance();
+						f.LogError(LogMode.FATAL, "Invalid period in SW_OUT_write_today().");
+					}
+					if (!writeit || t < SW_Output[k].first || t > SW_Output[k].last)
+						continue;
+
+					switch (SW_Output[k].mykey) {
+					case eSW_Temp:
+						get_temp();
+						break;
+					case eSW_Precip:
+						get_precip();
+						break;
+					case eSW_VWCBulk:
+						get_vwcBulk();
+						break;
+					case eSW_VWCMatric:
+						get_vwcMatric();
+						break;
+					case eSW_SWCBulk:
+						get_swcBulk();
+						break;
+					case eSW_SWPMatric:
+						get_swpMatric();
+						break;
+					case eSW_SWABulk:
+						get_swaBulk();
+						break;
+					case eSW_SWAMatric:
+						get_swaMatric();
+						break;
+					case eSW_SurfaceWater:
+						get_surfaceWater();
+						break;
+					case eSW_Runoff:
+						get_runoff();
+						break;
+					case eSW_Transp:
+						get_transp();
+						break;
+					case eSW_EvapSoil:
+						get_evapSoil();
+						break;
+					case eSW_EvapSurface:
+						get_evapSurface();
+						break;
+					case eSW_Interception:
+						get_interception();
+						break;
+					case eSW_SoilInf:
+						get_soilinf();
+						break;
+					case eSW_LyrDrain:
+						get_lyrdrain();
+						break;
+					case eSW_HydRed:
+						get_hydred();
+						break;
+					case eSW_AET:
+						get_aet();
+						break;
+					case eSW_PET:
+						get_pet();
+						break;
+					case eSW_WetDays:
+						get_wetdays();
+						break;
+					case eSW_SnowPack:
+						get_snowpack();
+						break;
+					case eSW_DeepSWC:
+						get_deepswc();
+						break;
+					case eSW_SoilTemp:
+						get_soiltemp();
+						break;
+					case eSW_Estab:
+						get_estab();
+						break;
+					default:
+						get_none();
+						break;
+
+					}
+				}
+			}
+		}
+		
+	}
+	
+	private void get_none() {
+		
+	}
+	private void get_estab() {
+		
+	}
+	private void get_temp() {
+		
+	}
+	private void get_precip() {
+		
+	}
+	private void get_vwcBulk() {
+		
+	}
+	private void get_vwcMatric() {
+		
+	}
+	private void get_swcBulk() {
+		
+	}
+	private void get_swpMatric() {
+		
+	}
+	private void get_swaBulk() {
+		
+	}
+	private void get_swaMatric() {
+		
+	}
+	private void get_surfaceWater() {
+		
+	}
+	private void get_runoff() {
+		
+	}
+	private void get_transp() {
+		
+	}
+	private void get_evapSoil() {
+		
+	}
+	private void get_evapSurface() {
+		
+	}
+	private void get_interception() {
+		
+	}
+	private void get_soilinf() {
+		
+	}
+	private void get_lyrdrain() {
+		
+	}
+	private void get_hydred() {
+		
+	}
+	private void get_aet() {
+		
+	}
+	private void get_pet() {
+		
+	}
+	private void get_wetdays() {
+		
+	}
+	private void get_snowpack() {
+		
+	}
+	private void get_deepswc() {
+		
+	}
+	private void get_soiltemp() {
+		
+	}
 	private void sumof_ves(OutKey k) {
 		/* --------------------------------------------------- */
 		/* k is always eSW_Estab, and this only gets called yearly */
@@ -585,5 +936,128 @@ public class SW_OUTPUT {
 //			break;
 //		}
 	
+	}
+
+	private void average_for(ObjType otyp, OutPeriod pd) {
+		
+	}
+	private void collect_sums(ObjType otyp, OutPeriod pd) {
+		
+	}
+	private void _echo_outputs() {
+		
+	}
+	private int get_nColumns(OutKey k) {
+		int i=0;
+		switch (k) {
+		case eSW_NoKey:
+			break;
+		case eSW_AllWthr:
+			break;
+		case eSW_Temp:
+			i+=3;
+			break;
+		case eSW_Precip:
+			i+=5;
+			break;
+		case eSW_SoilInf:
+			i+=1;
+			break;
+		case eSW_Runoff:
+			i+=3;
+			break;
+		case eSW_AllH2O:
+			break;
+		case eSW_VWCBulk:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_VWCMatric:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_SWCBulk:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_SWABulk:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_SWAMatric:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_SWPMatric:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_SurfaceWater:
+			i+=1;
+			break;
+		case eSW_Transp:
+			i+=SW_Soils.getLayersInfo().n_layers*5;
+			break;
+		case eSW_EvapSoil:
+			i+=SW_Soils.getLayersInfo().n_evap_lyrs;
+			break;
+		case eSW_EvapSurface:
+			i+=7;
+			break;
+		case eSW_Interception:
+			i+=6;
+			break;
+		case eSW_LyrDrain:
+			i+=SW_Soils.getLayersInfo().n_layers-1;
+			break;
+		case eSW_HydRed:
+			i+=SW_Soils.getLayersInfo().n_layers*5;
+			break;
+		case eSW_ET:
+			break;
+		case eSW_AET:
+			i+=1;
+			break;
+		case eSW_PET:
+			i+=1;
+			break;
+		case eSW_WetDays:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_SnowPack:
+			i+=2;
+			break;
+		case eSW_DeepSWC:
+			i+=1;
+			break;
+		case eSW_SoilTemp:
+			i+=SW_Soils.getLayersInfo().n_layers;
+			break;
+		case eSW_AllVeg:
+			break;
+		case eSW_Estab:
+			i+=SW_VegEstab.count();
+			break;
+		case eSW_LastKey:
+			break;
+		default:
+			break;
+		}
+		return i;
+	}
+	private int get_nRows(OutPeriod pd) {
+		int tYears = (SW_Model.getEndYear() - SW_Model.getStartYear() + 1);
+		int n=0;
+		switch (pd) {
+		case SW_DAY:
+			for(int i=SW_Model.getStartYear(); i<=SW_Model.getEndYear(); i++)
+				n+=Times.Time_get_lastdoy_y(i);
+			break;
+		case SW_WEEK:
+			n = tYears * 53 * this.ti
+			break;
+		case SW_MONTH:
+			break;
+		case SW_YEAR:
+			break;
+
+		default:
+			break;
+		}
+		return n;
 	}
 }

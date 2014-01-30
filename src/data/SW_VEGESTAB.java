@@ -380,4 +380,8 @@ public class SW_VEGESTAB {
 	private void _echo_inits() {
 		
 	}
+	
+	public int count() {
+		return this.count();
+	}
 }
