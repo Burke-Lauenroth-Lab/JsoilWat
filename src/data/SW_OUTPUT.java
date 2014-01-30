@@ -190,6 +190,7 @@ public class SW_OUTPUT {
 		private OutKey mykey;
 		private Defines.ObjType myobj;
 		private OutPeriod period;
+		private boolean[] usePeriods;
 		private OutSum sumtype;
 		private String filename_prefix;
 		private boolean use;
@@ -197,6 +198,16 @@ public class SW_OUTPUT {
 			first_orig, last_orig;
 		private int yr_row, mo_row, wk_row, dy_row;
 		private Path file_dy, file_wk, file_mo, file_yr;
+		
+		public SW_OUT() {
+			this.usePeriods = new boolean[numPeriods];
+			for(int i=0; i<numPeriods; i++)
+				this.usePeriods[i] = false;
+		}
+		
+		public boolean get_PeriodUse(OutPeriod pd) {
+			return usePeriods[pd.idx()];
+		}
 		
 		private final String[] comments = {"/* */",
 			"/* max., min, average temperature (C) */",
@@ -258,7 +269,9 @@ public class SW_OUTPUT {
 		timeSteps = new int[SW_OUTNKEYS][4];
 		numPeriod = 0;
 		useTimeStep = false;
-		timeStep = new int[4];
+		timeStep = new int[numPeriods];
+		for(int i=0; i<numPeriods; i++)
+			timeStep[i] = 4;//not used default
 		bFlush = false;
 		tOffset = true;
 		
@@ -291,6 +304,9 @@ public class SW_OUTPUT {
 						timeStep[i-1] = OutPeriod.getEnum(values[i].toUpperCase()).idx();
 						numPeriod++;
 					}
+					for(int i=0; i<SW_OUTNKEYS; i++)//Go through the OUTs set the use Period flags
+						for(int j=0; j<numPeriods; j++)
+							SW_Output[i].usePeriods[timeStep[j]] = true;
 					useTimeStep=true;
 					continue;
 				} else {
@@ -311,6 +327,7 @@ public class SW_OUTPUT {
 					k = OutKey.getEnum(values[0]);
 					for(int i=0; i< numPeriods; i++) {
 						if(i<1 && !useTimeStep) {
+							SW_Output[k.idx()].usePeriods[OutPeriod.getEnum(values[2]).idx()] = true;
 							timeSteps[k.idx()][i] = OutPeriod.getEnum(values[2]).idx();
 						} else if(i<numPeriod && useTimeStep) {
 							timeSteps[k.idx()][i] = timeStep[i];
@@ -1039,23 +1056,27 @@ public class SW_OUTPUT {
 		}
 		return i;
 	}
-	private int get_nRows(OutPeriod pd) {
+	private int get_nRows(OutKey k, OutPeriod pd) {
 		int tYears = (SW_Model.getEndYear() - SW_Model.getStartYear() + 1);
 		int n=0;
+		
 		switch (pd) {
 		case SW_DAY:
 			for(int i=SW_Model.getStartYear(); i<=SW_Model.getEndYear(); i++)
 				n+=Times.Time_get_lastdoy_y(i);
+			n*=(SW_Output[k.idx()].get_PeriodUse(pd)?1:0);
 			break;
 		case SW_WEEK:
-			n = tYears * 53 * this.ti
+			n = tYears * 53 * (SW_Output[k.idx()].get_PeriodUse(pd)?1:0);
 			break;
 		case SW_MONTH:
+			n = tYears * 12 * (SW_Output[k.idx()].get_PeriodUse(pd)?1:0);
 			break;
 		case SW_YEAR:
+			n = tYears * (SW_Output[k.idx()].get_PeriodUse(pd)?1:0);
 			break;
-
 		default:
+			n=0;
 			break;
 		}
 		return n;
