@@ -129,6 +129,62 @@ public class SW_WEATHER {
 			yravg.onClear();
 			now.onClear();
 		}
+		public double[] getTempRow(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.temp_max, dysum.temp_min, dysum.temp_avg};
+			case SW_WEEK:
+				return new double[] {wkavg.temp_max, wkavg.temp_min, wkavg.temp_avg};
+			case SW_MONTH:
+				return new double[] {moavg.temp_max, moavg.temp_min, moavg.temp_avg};
+			case SW_YEAR:
+				return new double[] {yravg.temp_max, yravg.temp_min, yravg.temp_avg};
+			default:
+				return null;
+			}
+		}
+		public double[] getPrecipRow(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.ppt, dysum.rain, dysum.snow, dysum.snowmelt, dysum.snowloss};
+			case SW_WEEK:
+				return new double[] {wkavg.ppt, wkavg.rain, wkavg.snow, wkavg.snowmelt, wkavg.snowloss};
+			case SW_MONTH:
+				return new double[] {moavg.ppt, moavg.rain, moavg.snow, moavg.snowmelt, moavg.snowloss};
+			case SW_YEAR:
+				return new double[] {yravg.ppt, yravg.rain, yravg.snow, yravg.snowmelt, yravg.snowloss};
+			default:
+				return null;
+			}
+		}
+		public double[] getRunoffRow(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.surfaceRunoff, dysum.snowRunoff};
+			case SW_WEEK:
+				return new double[] {wkavg.surfaceRunoff, wkavg.snowRunoff};
+			case SW_MONTH:
+				return new double[] {moavg.surfaceRunoff, moavg.snowRunoff};
+			case SW_YEAR:
+				return new double[] {yravg.surfaceRunoff, yravg.snowRunoff};
+			default:
+				return null;
+			}
+		}
+		public double[] getSoilinf(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.soil_inf};
+			case SW_WEEK:
+				return new double[] {wkavg.soil_inf};
+			case SW_MONTH:
+				return new double[] {moavg.soil_inf};
+			case SW_YEAR:
+				return new double[] {yravg.soil_inf};
+			default:
+				return null;
+			}
+		}
 	}
 	
 	private int tail;

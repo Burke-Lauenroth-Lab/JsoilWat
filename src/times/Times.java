@@ -12,7 +12,38 @@ public final class Times {
 		Yesterday, Today
 	}
 	public static enum Months {
-		Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, NoMonth
+		Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, NoMonth;
+		
+		public static Months fromInteger(int x) {
+			switch (x) {
+			case 0:
+				return Jan;
+			case 1:
+				return Feb;
+			case 2:
+				return Mar;
+			case 3:
+				return Apr;
+			case 4:
+				return May;
+			case 5:
+				return Jun;
+			case 6:
+				return Jul;
+			case 7:
+				return Aug;
+			case 8:
+				return Sep;
+			case 9:
+				return Oct;
+			case 10:
+				return Nov;
+			case 11:
+				return Dec;
+			default:
+				return NoMonth;
+			}
+		}
 	}
 	public static final int DAYFIRST_NORTH = 1;
 	public static final int DAYLAST_NORTH = 366;

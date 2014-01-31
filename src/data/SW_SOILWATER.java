@@ -128,6 +128,448 @@ public class SW_SOILWATER {
 			moavg.onClear();
 			yravg.onClear();
 		}
+		public double[] get_vwcBulkRow(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.vwcBulk[i]/SW_Soils.getWidths()[i];
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.vwcBulk[i]/SW_Soils.getWidths()[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.vwcBulk[i]/SW_Soils.getWidths()[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.vwcBulk[i]/SW_Soils.getWidths()[i];
+					break;
+				}			
+			}
+			return tmp;
+		}
+		public double[] get_vwcMatricRow(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double convert=0;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				convert = 1. / (1. - SW_Soils.getLayer(i).fractionVolBulk_gravel) / SW_Soils.getWidths()[i];
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.vwcMatric[i]*convert;
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.vwcMatric[i]*convert;
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.vwcMatric[i]*convert;
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.vwcMatric[i]*convert;
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_swcBulkRow(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.swcBulk[i];
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.swcBulk[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.swcBulk[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.swcBulk[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_swpMatricRow(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, dysum.swpMatric[i], SW_Soils.getWidths()[i],
+							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
+					break;
+				case SW_WEEK:
+					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, wkavg.swpMatric[i], SW_Soils.getWidths()[i],
+							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
+					break;
+				case SW_MONTH:
+					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, moavg.swpMatric[i], SW_Soils.getWidths()[i],
+							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
+					break;
+				case SW_YEAR:
+					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, yravg.swpMatric[i], SW_Soils.getWidths()[i],
+							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_swaBulkRow(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.swaBulk[i];
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.swaBulk[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.swaBulk[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.swaBulk[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_swaMatricRow(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double convert=0;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				convert = 1. / (1. - SW_Soils.getLayer(i).fractionVolBulk_gravel);
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.swaMatric[i]*convert;
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.swaMatric[i]*convert;
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.swaMatric[i]*convert;
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.swaMatric[i]*convert;
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_surfaceWater(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.surfaceWater};
+			case SW_WEEK:
+				return new double[] {wkavg.surfaceWater};
+			case SW_MONTH:
+				return new double[] {moavg.surfaceWater};
+			case SW_YEAR:
+				return new double[] {yravg.surfaceWater};
+			default:
+				return null;
+			}
+		}
+		public double[] get_transp(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr*5];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i+(nlyr*0)] = dysum.transp_total[i];
+					tmp[i+(nlyr*1)] = dysum.transp_tree[i];
+					tmp[i+(nlyr*2)] = dysum.transp_shrub[i];
+					tmp[i+(nlyr*3)] = dysum.transp_forb[i];
+					tmp[i+(nlyr*4)] = dysum.transp_grass[i];
+					break;
+				case SW_WEEK:
+					tmp[i+(nlyr*0)] = wkavg.transp_total[i];
+					tmp[i+(nlyr*1)] = wkavg.transp_tree[i];
+					tmp[i+(nlyr*2)] = wkavg.transp_shrub[i];
+					tmp[i+(nlyr*3)] = wkavg.transp_forb[i];
+					tmp[i+(nlyr*4)] = wkavg.transp_grass[i];
+					break;
+				case SW_MONTH:
+					tmp[i+(nlyr*0)] = moavg.transp_total[i];
+					tmp[i+(nlyr*1)] = moavg.transp_tree[i];
+					tmp[i+(nlyr*2)] = moavg.transp_shrub[i];
+					tmp[i+(nlyr*3)] = moavg.transp_forb[i];
+					tmp[i+(nlyr*4)] = moavg.transp_grass[i];
+					break;
+				case SW_YEAR:
+					tmp[i+(nlyr*0)] = yravg.transp_total[i];
+					tmp[i+(nlyr*1)] = yravg.transp_tree[i];
+					tmp[i+(nlyr*2)] = yravg.transp_shrub[i];
+					tmp[i+(nlyr*3)] = yravg.transp_forb[i];
+					tmp[i+(nlyr*4)] = yravg.transp_grass[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_evapSoil(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_evap_lyrs;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.evap[i];
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.evap[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.evap[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.evap[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_evapSurface(SW_OUTPUT.OutPeriod pd) {
+			double[] tmp = new double[7];
+			switch (pd) {
+			case SW_DAY:
+				tmp[0] = dysum.total_evap;
+				tmp[1] = dysum.tree_evap;
+				tmp[2] = dysum.forb_evap;
+				tmp[3] = dysum.shrub_evap;
+				tmp[4] = dysum.grass_evap;
+				tmp[5] = dysum.litter_evap;
+				tmp[6] = dysum.surfaceWater_evap;
+				break;
+			case SW_WEEK:
+				tmp[0] = wkavg.total_evap;
+				tmp[1] = wkavg.tree_evap;
+				tmp[2] = wkavg.forb_evap;
+				tmp[3] = wkavg.shrub_evap;
+				tmp[4] = wkavg.grass_evap;
+				tmp[5] = wkavg.litter_evap;
+				tmp[6] = wkavg.surfaceWater_evap;
+				break;
+			case SW_MONTH:
+				tmp[0] = moavg.total_evap;
+				tmp[1] = moavg.tree_evap;
+				tmp[2] = moavg.forb_evap;
+				tmp[3] = moavg.shrub_evap;
+				tmp[4] = moavg.grass_evap;
+				tmp[5] = moavg.litter_evap;
+				tmp[6] = moavg.surfaceWater_evap;
+				break;
+			case SW_YEAR:
+				tmp[0] = yravg.total_evap;
+				tmp[1] = yravg.tree_evap;
+				tmp[2] = yravg.forb_evap;
+				tmp[3] = yravg.shrub_evap;
+				tmp[4] = yravg.grass_evap;
+				tmp[5] = yravg.litter_evap;
+				tmp[6] = yravg.surfaceWater_evap;
+				break;
+			}
+			return tmp;
+		}
+		public double[] get_interception(SW_OUTPUT.OutPeriod pd) {
+			double[] tmp = new double[6];
+			switch (pd) {
+			case SW_DAY:
+				tmp[0] = dysum.total_int;
+				tmp[1] = dysum.tree_int;
+				tmp[2] = dysum.forb_int;
+				tmp[3] = dysum.shrub_int;
+				tmp[4] = dysum.grass_int;
+				tmp[5] = dysum.litter_int;
+				break;
+			case SW_WEEK:
+				tmp[0] = wkavg.total_int;
+				tmp[1] = wkavg.tree_int;
+				tmp[2] = wkavg.forb_int;
+				tmp[3] = wkavg.shrub_int;
+				tmp[4] = wkavg.grass_int;
+				tmp[5] = wkavg.litter_int;
+				break;
+			case SW_MONTH:
+				tmp[0] = moavg.total_int;
+				tmp[1] = moavg.tree_int;
+				tmp[2] = moavg.forb_int;
+				tmp[3] = moavg.shrub_int;
+				tmp[4] = moavg.grass_int;
+				tmp[5] = moavg.litter_int;
+				break;
+			case SW_YEAR:
+				tmp[0] = yravg.total_int;
+				tmp[1] = yravg.tree_int;
+				tmp[2] = yravg.forb_int;
+				tmp[3] = yravg.shrub_int;
+				tmp[4] = yravg.grass_int;
+				tmp[5] = yravg.litter_int;
+				break;
+			}
+			return tmp;
+		}
+		public double[] get_lyrdrain(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers-1;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.lyrdrain[i];
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.lyrdrain[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.lyrdrain[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.lyrdrain[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_hydred(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr*5];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i+(nlyr*0)] = dysum.hydred_total[i];
+					tmp[i+(nlyr*1)] = dysum.hydred_tree[i];
+					tmp[i+(nlyr*2)] = dysum.hydred_shrub[i];
+					tmp[i+(nlyr*3)] = dysum.hydred_forb[i];
+					tmp[i+(nlyr*4)] = dysum.hydred_grass[i];
+					break;
+				case SW_WEEK:
+					tmp[i+(nlyr*0)] = wkavg.hydred_total[i];
+					tmp[i+(nlyr*1)] = wkavg.hydred_tree[i];
+					tmp[i+(nlyr*2)] = wkavg.hydred_shrub[i];
+					tmp[i+(nlyr*3)] = wkavg.hydred_forb[i];
+					tmp[i+(nlyr*4)] = wkavg.hydred_grass[i];
+					break;
+				case SW_MONTH:
+					tmp[i+(nlyr*0)] = moavg.hydred_total[i];
+					tmp[i+(nlyr*1)] = moavg.hydred_tree[i];
+					tmp[i+(nlyr*2)] = moavg.hydred_shrub[i];
+					tmp[i+(nlyr*3)] = moavg.hydred_forb[i];
+					tmp[i+(nlyr*4)] = moavg.hydred_grass[i];
+					break;
+				case SW_YEAR:
+					tmp[i+(nlyr*0)] = yravg.hydred_total[i];
+					tmp[i+(nlyr*1)] = yravg.hydred_tree[i];
+					tmp[i+(nlyr*2)] = yravg.hydred_shrub[i];
+					tmp[i+(nlyr*3)] = yravg.hydred_forb[i];
+					tmp[i+(nlyr*4)] = yravg.hydred_grass[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_aet(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.aet};
+			case SW_WEEK:
+				return new double[] {wkavg.aet};
+			case SW_MONTH:
+				return new double[] {moavg.aet};
+			case SW_YEAR:
+				return new double[] {yravg.aet};
+			default:
+				return null;
+			}
+		}
+		public double[] get_pet(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.pet};
+			case SW_WEEK:
+				return new double[] {wkavg.pet};
+			case SW_MONTH:
+				return new double[] {moavg.pet};
+			case SW_YEAR:
+				return new double[] {yravg.pet};
+			default:
+				return null;
+			}
+		}
+		public double[] get_wetdays(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = is_wet[i]?1.:0.;
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.wetdays[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.wetdays[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.wetdays[i];
+					break;
+				}
+			}
+			return tmp;
+		}
+		public double[] get_snowpack(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.snowpack, dysum.snowdepth};
+			case SW_WEEK:
+				return new double[] {wkavg.snowpack, wkavg.snowdepth};
+			case SW_MONTH:
+				return new double[] {moavg.snowpack, moavg.snowdepth};
+			case SW_YEAR:
+				return new double[] {yravg.snowpack, yravg.snowdepth};
+			default:
+				return null;
+			}
+		}
+		public double[] get_deepswc(SW_OUTPUT.OutPeriod pd) {
+			switch (pd) {
+			case SW_DAY:
+				return new double[] {dysum.deep};
+			case SW_WEEK:
+				return new double[] {wkavg.deep};
+			case SW_MONTH:
+				return new double[] {moavg.deep};
+			case SW_YEAR:
+				return new double[] {yravg.deep};
+			default:
+				return null;
+			}
+		}
+		public double[] get_soiltemp(SW_OUTPUT.OutPeriod pd) {
+			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			double[] tmp = new double[nlyr];
+			for(int i=0; i<nlyr; i++) {
+				switch (pd) {
+				case SW_DAY:
+					tmp[i] = dysum.sTemp[i];
+					break;
+				case SW_WEEK:
+					tmp[i] = wkavg.sTemp[i];
+					break;
+				case SW_MONTH:
+					tmp[i] = moavg.sTemp[i];
+					break;
+				case SW_YEAR:
+					tmp[i] = yravg.sTemp[i];
+					break;
+				}
+			}
+			return tmp;
+		}
 	}
 	
 	private SOILWAT soilwat;
@@ -177,6 +619,7 @@ public class SW_SOILWATER {
 					hist.onRead(WeatherHistoryFolder, soilwat.filePrefix, soilwat.yr.getFirst(), SW_Model.getEndYear());
 			} catch (IOException e) {
 				LogFileIn f = LogFileIn.getInstance();
+				f.LogError(LogMode.ERROR, "SwcSetupIn onReadHist : Problem.");
 			}
 	}
 	public void onRead(Path swcSetupIn) throws IOException {

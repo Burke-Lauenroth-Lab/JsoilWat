@@ -34,7 +34,7 @@ public class SW_MODEL {
 	
 	private int _prevweek, /* check for new week */
 	_prevmonth, /* check for new month */
-	_prevyear, /* check for new year */
+	//_prevyear, /* check for new year */
 	_notime = 0xffff; /* init value for _prev* */
 	
 	private final int nLineStartYear=3, nLineEndYear=4, nLineFDOFY=5, nLineEDOEY=6;
@@ -87,7 +87,7 @@ public class SW_MODEL {
 	}
 	
 	public void SW_MDL_new_year() {
-		_prevweek=_prevmonth=_prevyear=_notime;
+		_prevweek=_prevmonth/*=_prevyear*/=_notime;
 		int year = this.year;
 		Times.Time_new_year(year);
 		this.firstdoy = (year == this.year) ? this.startstart : 1;

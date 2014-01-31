@@ -40,7 +40,7 @@ public class SW_SOILS {
 		sTemp; /* initial soil temperature for each soil layer */
 		
 		public int my_transp_rgn_forb, my_transp_rgn_tree, my_transp_rgn_shrub, my_transp_rgn_grass; /* which transp zones from Site am I in? */
-	
+		
 		public String toString() {
 			return String.format("%7.3f %10.3f      %-12.3f %7.3f %13.3f %13.3f %12.3f %12.3f %8.3f %8.3f %9.3f %11.3f", this.depth, this.soilMatric_density, this.fractionVolBulk_gravel,
 					this.evap_coeff, this.transp_coeff_grass, this.transp_coeff_shrub, this.transp_coeff_tree, this.transp_coeff_forb, this.fractionWeightMatric_sand,
@@ -61,9 +61,9 @@ public class SW_SOILS {
 		deep_lyr; /* index of deep drainage layer if deepdrain, 0 otherwise */
 	}
 	
-	
 	private SW_LAYER_INFO[] layers;
 	private LayersInfo layersInfo;
+	private double[] widths;
 	private boolean EchoInits;
 	private boolean data;
 	private boolean deepdrainSet;
@@ -80,6 +80,7 @@ public class SW_SOILS {
 		layersInfo.n_evap_lyrs=0;
 		layersInfo.n_transp_lyrs_forb=layersInfo.n_transp_lyrs_grass=layersInfo.n_transp_lyrs_shrub=layersInfo.n_transp_lyrs_tree=0;
 		layersInfo.deep_lyr = 0;
+		widths = null;
 		this.EchoInits = EchoInits;
 	}
 	
@@ -91,6 +92,7 @@ public class SW_SOILS {
 		layersInfo.n_transp_lyrs_forb=layersInfo.n_transp_lyrs_grass=layersInfo.n_transp_lyrs_shrub=layersInfo.n_transp_lyrs_tree=0;
 		layersInfo.deep_lyr=0;
 		this.deepdrainSet = false;
+		widths = null;
 		for(int i=0; i<Defines.MAX_LAYERS;  i++)
 			this.layers[i].onClear();
 	}
@@ -124,6 +126,8 @@ public class SW_SOILS {
 		}
 		if(fail)
 			f.LogError(LogFileIn.LogMode.ERROR, message);
+		
+		widths = getLayerWidths();
 		
 		if(EchoInits)
 			_echo_inputs("");
@@ -291,6 +295,17 @@ public class SW_SOILS {
 	}
 	public SW_LAYER_INFO getLayer(int lyr) {
 		return this.layers[lyr];
+	}
+	
+	private double[] getLayerWidths() {
+		double[] widths = new double[layersInfo.n_layers];
+		for(int i=0; i<layersInfo.n_layers; i++)
+			widths[i] = layers[i].width;
+		return widths;
+	}
+	
+	public double[] getWidths() {
+		return this.widths;
 	}
 	
 	private void _echo_inputs(String soilsFile) {
