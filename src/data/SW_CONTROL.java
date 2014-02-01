@@ -57,8 +57,8 @@ public class SW_CONTROL {
 		SW_Site.onVerify() &&
 		SW_Soils.onVerify(SW_Site.getDeepdrain()) &&
 		SW_SoilWater.onVerify() &&
-		SW_Output.onVerify(SW_Site.getDeepdrain());
-		//SW_VegEstab.onVerify();
+		SW_Output.onVerify(SW_Site.getDeepdrain()) &&
+		SW_VegEstab.onVerify();
 	}
 	
 	public void onStartModel() {
