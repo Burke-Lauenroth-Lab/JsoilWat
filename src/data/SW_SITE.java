@@ -109,7 +109,7 @@ public class SW_SITE {
 		}
 		public int getRegion(int ndx) {
 			if(ndx <= this.nTranspRgn)
-				return this.table[ndx-1][1];
+				return this.table[ndx][1];
 			else {
 				return -1;
 			}
@@ -151,7 +151,7 @@ public class SW_SITE {
 	private SW_VEGPROD SW_VegProd;
 	private SW_SOILS SW_Soils;
 	
-	public SW_SITE(SW_VEGPROD SW_VegProd, SW_SOILS SW_Soils, boolean EchoInits) {
+	public SW_SITE(SW_VEGPROD SW_VegProd, SW_SOILS SW_Soils) {
 		this.swc = new SWC();
 		this.model = new Model();
 		this.snow = new Snow();
@@ -164,7 +164,6 @@ public class SW_SITE {
 		this.data = false;
 		this.SW_VegProd = SW_VegProd;
 		this.SW_Soils = SW_Soils;
-		this.EchoInits = EchoInits;
 	}
 	
 	public void onClear() {
@@ -597,7 +596,7 @@ public class SW_SITE {
 		 * and set deep_layer to zero as a flag.
 		 * NOTE: deep_lyr is base0, n_layers is BASE1
 		 */
-		layersInfo.deep_lyr = this.model.flags.deepdrain ? layersInfo.n_layers : 0;
+		layersInfo.deep_lyr = this.model.flags.deepdrain ? --layersInfo.n_layers : 0;
 		for(int s=0; s<layersInfo.n_layers; s++) {
 			SW_SOILS.SW_LAYER_INFO lyr = SW_Soils.getLayer(s);
 			/* sum ev and tr coefficients for later */
@@ -845,5 +844,11 @@ public class SW_SITE {
 	
 	public int get_stNRGR() {
 		return this.stNRGR;
+	}
+	public boolean get_echoinits() {
+		return this.EchoInits;
+	}
+	public void set_echoinits(boolean echo) {
+		this.EchoInits = echo;
 	}
 }

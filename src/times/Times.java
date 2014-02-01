@@ -74,7 +74,7 @@ public final class Times {
 	
 	private static int last_doy;
 	private static int[] monthdays = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	private static int[] days_in_month = new int[MAX_MONTHS], cum_monthdays = new int[MAX_MONTHS + 1];
+	private static int[] days_in_month = new int[]{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }, cum_monthdays = new int[MAX_MONTHS + 1];
 	private static Date _timestamp;
 	private static Calendar _tym; /* "current" time for the code */
 	
@@ -275,10 +275,28 @@ public final class Times {
 	public static boolean isleapyear(int year) {
 		/* =================================================== */
 
-		int yr = (year > 100) ? year : yearto4digit(year);
-		int t = (yr / 100) * 100;
+		 int theYear;
+		 theYear = year;
 
-		return (((yr % 4) == 0) && (((t) != yr) || ((yr % 400) == 0)));
+		 if (theYear < 100) {
+		    if (theYear > 40) {
+		        theYear = theYear + 1900;
+		    } else {
+		        theYear = theYear + 2000;
+		    }
+		 }
+
+		if (theYear % 4 == 0) {
+		    if (theYear % 100 != 0) {
+		        return true;
+		    } else if (theYear % 400 == 0) {
+		        return true;
+		    } else {
+		       return false ;
+		    }
+		  } else {
+		    return false ;
+		  }
 	}
 	public static void interpolate_monthlyValues(double[] monthlyValues, double[] dailyValues) {
 		int doy, mday, month, month2 = Months.NoMonth.ordinal();

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import defines.Defines;
-import times.SW_TIMES;
+import defines.SW_TIMES;
 import times.Times;
 
 public class SwcSetupIn {

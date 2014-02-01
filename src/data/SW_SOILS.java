@@ -68,7 +68,7 @@ public class SW_SOILS {
 	private boolean data;
 	private boolean deepdrainSet;
 	
-	public SW_SOILS(boolean EchoInits) {
+	public SW_SOILS() {
 		this.layersInfo = new LayersInfo();
 		this.layers = new SW_LAYER_INFO[Defines.MAX_LAYERS];
 		for(int i=0; i<Defines.MAX_LAYERS;  i++)
@@ -81,7 +81,6 @@ public class SW_SOILS {
 		layersInfo.n_transp_lyrs_forb=layersInfo.n_transp_lyrs_grass=layersInfo.n_transp_lyrs_shrub=layersInfo.n_transp_lyrs_tree=0;
 		layersInfo.deep_lyr = 0;
 		widths = null;
-		this.EchoInits = EchoInits;
 	}
 	
 	public void onClear() {
@@ -97,40 +96,89 @@ public class SW_SOILS {
 			this.layers[i].onClear();
 	}
 	
-	public void onVerify(boolean siteModelDeepdrain) {
+	public boolean onVerify(boolean siteModelDeepdrain) {
 		boolean fail = false;
 		LogFileIn f = LogFileIn.getInstance();
 		String message = "";
-		
-		if(siteModelDeepdrain && !this.deepdrainSet)
-			setDeepdrain(true);
-		
-		for(int i=0; i<layersInfo.n_layers; i++) {
-			if(this.layers[i].soilMatric_density < 0.0) {
-				fail=true;
-				message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": matricd has to be greater than 0. matricd="+String.valueOf(this.layers[i].soilMatric_density)+"\n";
-			} else if(this.layers[i].fractionVolBulk_gravel < 0.0 || this.layers[i].fractionVolBulk_gravel > 1.0) {
-				fail=true;
-				message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": gravel_content has to be greater than 0 and less than 1. gravel_content="+String.valueOf(this.layers[i].fractionVolBulk_gravel)+"\n";
-			} else if(this.layers[i].fractionWeightMatric_sand < 0.0) {
-				fail=true;
-				message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": %sand has to be greater than 0. %sand="+String.valueOf(this.layers[i].fractionWeightMatric_sand)+"\n";
-			} else if(this.layers[i].fractionWeightMatric_clay < 0.0) {
-				fail=true;
-				message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": %clay has to be greater than 0. %clay="+String.valueOf(this.layers[i].fractionWeightMatric_clay)+"\n";
-			} else if(this.layers[i].impermeability < 0.0) {
-				fail=true;
-				message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": imperm has to be greater than 0. imperm="+String.valueOf(this.layers[i].soilMatric_density)+"\n";
+		if(data) {
+			boolean evap_ok = true, /* mitigate gaps in layers' evap coeffs */
+					transp_ok_forb = true, transp_ok_tree = true, /* same for transpiration coefficients */
+					transp_ok_shrub = true, /* same for transpiration coefficients */
+					transp_ok_grass = true; /* same for transpiration coefficients */
+
+			for(int i=0; i<layersInfo.n_layers; i++) {
+				if(this.layers[i].soilMatric_density < 0.0) {
+					fail=true;
+					message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": matricd has to be greater than 0. matricd="+String.valueOf(this.layers[i].soilMatric_density)+"\n";
+				} else if(this.layers[i].fractionVolBulk_gravel < 0.0 || this.layers[i].fractionVolBulk_gravel > 1.0) {
+					fail=true;
+					message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": gravel_content has to be greater than 0 and less than 1. gravel_content="+String.valueOf(this.layers[i].fractionVolBulk_gravel)+"\n";
+				} else if(this.layers[i].fractionWeightMatric_sand < 0.0) {
+					fail=true;
+					message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": %sand has to be greater than 0. %sand="+String.valueOf(this.layers[i].fractionWeightMatric_sand)+"\n";
+				} else if(this.layers[i].fractionWeightMatric_clay < 0.0) {
+					fail=true;
+					message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": %clay has to be greater than 0. %clay="+String.valueOf(this.layers[i].fractionWeightMatric_clay)+"\n";
+				} else if(this.layers[i].impermeability < 0.0) {
+					fail=true;
+					message += "SoilsIn onVerify : Layer "+String.valueOf(i+1)+": imperm has to be greater than 0. imperm="+String.valueOf(this.layers[i].soilMatric_density)+"\n";
+				}
 			}
+			if(fail)
+				f.LogError(LogFileIn.LogMode.ERROR, message);
+
+			for(int i=0; i<layersInfo.n_layers; i++) {
+				if(evap_ok) {
+					if(this.layers[i].evap_coeff > 0.0)
+						layersInfo.n_evap_lyrs++;
+					else
+						evap_ok=false;
+				}
+				if(transp_ok_forb) {
+					if(this.layers[i].transp_coeff_forb > 0)
+						layersInfo.n_transp_lyrs_forb++;
+					else
+						transp_ok_forb=false;
+				}
+				if(transp_ok_tree) {
+					if(this.layers[i].transp_coeff_tree > 0)
+						layersInfo.n_transp_lyrs_tree++;
+					else
+						transp_ok_tree=false;
+				}
+				if(transp_ok_shrub) {
+					if(this.layers[i].transp_coeff_shrub > 0)
+						layersInfo.n_transp_lyrs_shrub++;
+					else
+						transp_ok_shrub=false;
+				}
+				if(transp_ok_grass) {
+					if(this.layers[i].transp_coeff_grass > 0)
+						layersInfo.n_transp_lyrs_grass++;
+					else
+						transp_ok_grass=false;
+				}
+
+				water_eqn(this.layers[i].fractionVolBulk_gravel, this.layers[i].fractionWeightMatric_sand,
+						this.layers[i].fractionWeightMatric_clay, i);
+
+				this.layers[i].swcBulk_fieldcap = SW_SOILWATER.SW_SWPmatric2VWCBulk(layers[i].fractionVolBulk_gravel, 0.333, layers[i].psisMatric, layers[i].binverseMatric, layers[i].thetasMatric) * this.layers[i].width;
+				this.layers[i].swcBulk_wiltpt = SW_SOILWATER.SW_SWPmatric2VWCBulk(layers[i].fractionVolBulk_gravel, 15, layers[i].psisMatric, layers[i].binverseMatric, layers[i].thetasMatric) * this.layers[i].width;
+
+				calculate_soilBulkDensity(layers[i].soilMatric_density, layers[i].fractionVolBulk_gravel, i);
+			}
+
+			setDeepdrain(siteModelDeepdrain);
 			
+			widths = getLayerWidths();
+
+			if(EchoInits)
+				_echo_inputs("");
+			
+			return true;
+		} else {
+			return false;
 		}
-		if(fail)
-			f.LogError(LogFileIn.LogMode.ERROR, message);
-		
-		widths = getLayerWidths();
-		
-		if(EchoInits)
-			_echo_inputs("");
 	}
 	
 	public void onRead(Path soilsIn) throws IOException {
@@ -139,10 +187,6 @@ public class SW_SOILS {
 		this.data = false;
 		layersInfo.n_layers=0;
 		double dmin=0.0,dmax;
-		boolean evap_ok = true, /* mitigate gaps in layers' evap coeffs */
-				transp_ok_forb = true, transp_ok_tree = true, /* same for transpiration coefficients */
-				transp_ok_shrub = true, /* same for transpiration coefficients */
-				transp_ok_grass = true; /* same for transpiration coefficients */
 		
 		for (String line : lines) {
 			//Skip Comments and empty lines
@@ -177,49 +221,9 @@ public class SW_SOILS {
 				} catch(NumberFormatException e) {
 					f.LogError(LogFileIn.LogMode.ERROR, "Soils onRead : Could not convert string to double. " + e.getMessage());
 				}
-				if(evap_ok) {
-					if(this.layers[layersInfo.n_layers].evap_coeff > 0.0)
-						layersInfo.n_evap_lyrs++;
-					else
-						evap_ok=false;
-				}
-				if(transp_ok_forb) {
-					if(this.layers[layersInfo.n_layers].transp_coeff_forb > 0)
-						layersInfo.n_transp_lyrs_forb++;
-					else
-						transp_ok_forb=false;
-				}
-				if(transp_ok_tree) {
-					if(this.layers[layersInfo.n_layers].transp_coeff_tree > 0)
-						layersInfo.n_transp_lyrs_tree++;
-					else
-						transp_ok_tree=false;
-				}
-				if(transp_ok_shrub) {
-					if(this.layers[layersInfo.n_layers].transp_coeff_shrub > 0)
-						layersInfo.n_transp_lyrs_shrub++;
-					else
-						transp_ok_shrub=false;
-				}
-				if(transp_ok_grass) {
-					if(this.layers[layersInfo.n_layers].transp_coeff_grass > 0)
-						layersInfo.n_transp_lyrs_grass++;
-					else
-						transp_ok_grass=false;
-				}
-				
-				water_eqn(this.layers[layersInfo.n_layers].fractionVolBulk_gravel, this.layers[layersInfo.n_layers].fractionWeightMatric_sand,
-						this.layers[layersInfo.n_layers].fractionWeightMatric_clay, layersInfo.n_layers);
-				
-				this.layers[layersInfo.n_layers].swcBulk_fieldcap = SW_SOILWATER.SW_SWPmatric2VWCBulk(layers[layersInfo.n_layers].fractionVolBulk_gravel, 0.333, layers[layersInfo.n_layers].psisMatric, layers[layersInfo.n_layers].binverseMatric, layers[layersInfo.n_layers].thetasMatric) * this.layers[layersInfo.n_layers].width;
-				this.layers[layersInfo.n_layers].swcBulk_wiltpt = SW_SOILWATER.SW_SWPmatric2VWCBulk(layers[layersInfo.n_layers].fractionVolBulk_gravel, 15, layers[layersInfo.n_layers].psisMatric, layers[layersInfo.n_layers].binverseMatric, layers[layersInfo.n_layers].thetasMatric) * this.layers[layersInfo.n_layers].width;
-				
-				calculate_soilBulkDensity(layers[layersInfo.n_layers].soilMatric_density, layers[layersInfo.n_layers].fractionVolBulk_gravel, layersInfo.n_layers);
-				
 				layersInfo.n_layers++;
 			}
 		}
-		
 		this.data = true;
 	}
 	
@@ -283,6 +287,7 @@ public class SW_SOILS {
 
 		this.layers[n].swcBulk_saturated = this.layers[n].width * (theta33 + thetasMatric33 - 0.097 * sand + 0.043) * (1 - fractionGravel);		
 	}
+	
 	private void calculate_soilBulkDensity(double matricDensity, double fractionGravel, int n) {
 		/* ---------------------------------------------------------------- */
 		/* used to calculate the bulk density from the given matric density */
@@ -290,22 +295,11 @@ public class SW_SOILS {
 		layers[n].soilBulk_density = matricDensity * (1 - fractionGravel) + (fractionGravel * 2.65); /*eqn. 20 from Saxton et al. 2006  to calculate the bulk density of soil */
 	}
 
-	public LayersInfo getLayersInfo() {
-		return layersInfo;
-	}
-	public SW_LAYER_INFO getLayer(int lyr) {
-		return this.layers[lyr];
-	}
-	
 	private double[] getLayerWidths() {
 		double[] widths = new double[layersInfo.n_layers];
 		for(int i=0; i<layersInfo.n_layers; i++)
 			widths[i] = layers[i].width;
 		return widths;
-	}
-	
-	public double[] getWidths() {
-		return this.widths;
 	}
 	
 	private void _echo_inputs(String soilsFile) {
@@ -370,5 +364,21 @@ public class SW_SOILS {
 					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel,  this.layers[i].swcBulk_min, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
 					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel,  this.layers[i].swcBulk_init, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric)));
 		}
+	}
+	
+	public boolean get_echoinits() {
+		return this.EchoInits;
+	}
+	public void set_echoinits(boolean echo) {
+		this.EchoInits = echo;
+	}
+	public LayersInfo getLayersInfo() {
+		return layersInfo;
+	}
+	public SW_LAYER_INFO getLayer(int lyr) {
+		return this.layers[lyr];
+	}
+	public double[] getWidths() {
+		return this.widths;
 	}
 }

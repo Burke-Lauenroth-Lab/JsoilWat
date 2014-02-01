@@ -71,6 +71,7 @@ public class SW_VEGESTAB {
 	
 	private boolean use;//if true use establishment parms and chkestab()
 	private int count; 	//number of species to check
+	private List<Path> tempPath;
 	private List<SW_VEGESTAB_INFO> params; /* dynamic array of parms for each species */
 	private SW_VEGESTAB_OUTPUTS yrsum, /* conforms to the requirements of the output module */
 								yravg; /* note that there's only one period for output */
@@ -82,18 +83,31 @@ public class SW_VEGESTAB {
 	private SW_SOILS SW_Soils;
 	private boolean EchoInits;
 	
-	public SW_VEGESTAB(boolean echoInits, SW_WEATHER SW_Weather, SW_SOILWATER SW_Soilwat, SW_MODEL SW_Model, SW_SOILS SW_Soils) {
+	public SW_VEGESTAB(SW_WEATHER SW_Weather, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_SOILS SW_Soils) {
 		this.use = false;
 		this.count = 0;
 		this.params = new ArrayList<SW_VEGESTAB_INFO>();
+		this.tempPath = new ArrayList<Path>();
 		this.yravg = new SW_VEGESTAB_OUTPUTS();
 		this.yrsum = new SW_VEGESTAB_OUTPUTS();
 		this.data = false;
 		this.SW_Weather = SW_Weather;
-		this.SW_Soilwat = SW_Soilwat;
+		this.SW_Soilwat = SW_SoilWater;
 		this.SW_Model = SW_Model;
 		this.SW_Soils = SW_Soils;
-		this.EchoInits = echoInits;
+	}
+	
+	public boolean onVerify() {
+		if(use) {
+			for(int i=0; i<this.count; i++)
+				_spp_init(i);
+			if(this.params.size() > 0) {
+				this.yrsum.days = new int[this.params.size()];
+			}
+			if(EchoInits)
+				_echo_inits();
+			}
+		return true;
 	}
 	
 	public SW_VEGESTAB_OUTPUTS get_yrsum() {
@@ -107,7 +121,7 @@ public class SW_VEGESTAB {
 		this.yravg.days = null;
 	}
 	
-	public void onNewYear() {
+	public void SW_VES_new_year() {
 		for(int i=0; i<this.count; i++)
 			this.yrsum.days[i] = 0;
 	}
@@ -138,7 +152,8 @@ public class SW_VEGESTAB {
 					}
 					break;
 				default:
-					_read_spp(prjDir.resolve(values[0]), values[0]);
+					tempPath.add(prjDir.resolve(values[0]));
+					//_read_spp(prjDir.resolve(values[0]), values[0]);
 					break;
 				}
 				lineno++;
@@ -147,15 +162,12 @@ public class SW_VEGESTAB {
 		if(lineno == 0) {
 			this.use = false;
 		}
-		for(int i=0; i<this.count; i++)
-			_spp_init(i);
-		if(this.params.size() > 0) {
-			this.yrsum.days = new int[this.params.size()];
-		}
-		this.data = true;
+		if(this.use)
+			for (Path path : tempPath) {
+				_read_spp(path);
+			}
 		
-		if(EchoInits)
-			_echo_inits();
+		this.data = true;
 	}
 	
 	public void onWrite(Path estabIn, Path prjDir) throws IOException {
@@ -183,7 +195,7 @@ public class SW_VEGESTAB {
 		}
 	}
 	
-	private void _read_spp(Path sppFile, String sppFileName) throws IOException {
+	private void _read_spp(Path sppFile) throws IOException {
 		int nitems=15, lineno=0;
 		
 		LogFileIn f = LogFileIn.getInstance();
@@ -192,7 +204,7 @@ public class SW_VEGESTAB {
 		this.params.add(new SW_VEGESTAB_INFO());
 		this.count = this.params.size()-1;
 		SW_VEGESTAB_INFO v = this.params.get(this.count);
-		v.sppFileName = sppFileName;
+		v.sppFileName = sppFile.getFileName().toString();
 		
 		for (String line : lines) {
 			//Skip Comments and empty lines
@@ -570,9 +582,18 @@ public class SW_VEGESTAB {
 	}
 	
 	public int count() {
-		return this.count();
+		return this.count;
 	}
 	public SW_VEGESTAB_INFO get_INFO(int sppnum) {
 		return this.params.get(sppnum);
+	}
+	public boolean get_echoinits() {
+		return this.EchoInits;
+	}
+	public void set_echoinits(boolean echo) {
+		this.EchoInits = echo;
+	}
+	public boolean get_use() {
+		return this.use;
 	}
 }

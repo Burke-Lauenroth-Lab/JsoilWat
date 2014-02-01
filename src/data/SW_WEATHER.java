@@ -42,6 +42,7 @@ public class SW_WEATHER {
 			snow = new double[Defines.TWO_DAYS];
 			snowmelt = new double[Defines.TWO_DAYS];
 			snowloss = new double[Defines.TWO_DAYS];
+			ppt_actual = new double[Defines.TWO_DAYS];
 			gsppt = 0;
 			temp_yr_avg=0;
 		}
@@ -56,6 +57,7 @@ public class SW_WEATHER {
 				snow[i] = 0;
 				snowmelt[i] = 0;
 				snowloss[i] = 0;
+				ppt_actual[i] =0;
 			}
 			gsppt = 0;
 			temp_yr_avg = 0;
@@ -195,29 +197,29 @@ public class SW_WEATHER {
 	private WEATHER weather;
 	private boolean firsttime;
 	private boolean weth_found; /* TRUE=success reading this years weather file */
-	private boolean verified;
-	private boolean read;
+	private boolean data;
 	private int nFileItemsRead;
 	private final int nFileItems=18;
 	
-	public SW_WEATHER(SW_MODEL SW_Model, SW_MARKOV SW_Markov, SW_SOILWATER SW_SoilWater) {
+	public SW_WEATHER(SW_MODEL SW_Model) {
 		this.hist = new SW_WEATHER_HISTORY();
+		this.SW_Markov = new SW_MARKOV();
+		this.weather = new WEATHER();
 		this.nFileItemsRead=0;
-		this.verified = false;
-		this.read = false;
+		this.data = false;
 		this.weth_found = false;
 		this.firsttime = true;
-		this.weather = new WEATHER();
-		this.SW_Markov = SW_Markov;
 		this.SW_Model = SW_Model;
-		this.SW_SoilWater = SW_SoilWater;
 		tail=0;
 		SW_Markov.setPpt_events(0);
 	}
 	
+	public void setSoilWater(SW_SOILWATER SW_SoilWater) {
+		this.SW_SoilWater = SW_SoilWater;
+	}
+	
 	public void onClear() {
-		this.read = false;
-		this.verified = false;
+		this.data = false;
 		this.weth_found = false;
 		hist.onClear();
 		weather.use_markov = false;
@@ -232,8 +234,7 @@ public class SW_WEATHER {
 	}
 	
 	public void onSetDefault(Path ProjectDirectory) {
-		this.verified = false;
-		this.read = true;
+		this.data = true;
 		this.firsttime = true;
 		this.weth_found = false;
 		weather.use_markov = false;
@@ -252,9 +253,11 @@ public class SW_WEATHER {
 		SW_Markov.setPpt_events(0);
 	}
 
-	public boolean onVerify(int ModelStartYear) {
+	public boolean onVerify() {
 		LogFileIn f = LogFileIn.getInstance();
-		if(this.read) {
+		if(this.data) {
+			if(SW_Model.get_HasData())
+				weather.yr.setLast(SW_Model.getEndYear());
 			if(this.nFileItemsRead != nFileItems)
 				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Too few input lines.");
 			if(!weather.yr.totalSet()) {
@@ -263,19 +266,19 @@ public class SW_WEATHER {
 				if(!weather.yr.lastSet())
 					f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Year Last Not Set.");
 			}
-			if(!weather.use_markov && (ModelStartYear < weather.yr.getFirst()))
-				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Model Year ("+String.valueOf(ModelStartYear)+") starts before Weather Files ("+String.valueOf(weather.yr.getFirst())+")"+
+			if(!weather.use_markov && (SW_Model.getStartYear() < weather.yr.getFirst()))
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Model Year ("+String.valueOf(SW_Model.getStartYear())+") starts before Weather Files ("+String.valueOf(weather.yr.getFirst())+")"+
 						" and use_Markov=FALSE.\nPlease synchronize the years or setup the Markov Weather Files.");
-			this.verified = true;
-			return this.verified;
+			return true;
 		} else {
-			f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : No Data.");
-			this.verified = false;
+			f.LogError(LogMode.NOTE, "WeatherIn onVerify : No Data.");
 			return false;
 		}
 	}
-
-	public void onRead(Path WeatherSetupIn) throws IOException {
+	public void onReadHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+		hist.onRead(WeatherHistoryFolder, prefix, weather.yr.getFirst(), SW_Model.getEndYear());
+	}
+	public void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws IOException {
 		this.nFileItemsRead=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(WeatherSetupIn, StandardCharsets.UTF_8);
@@ -345,11 +348,13 @@ public class SW_WEATHER {
 				this.nFileItemsRead++;
 			}
 		}
-		this.read = true;
+		if(weather.use_markov)
+			SW_Markov.onReadMarkov(MarkovProbabilityIn, MarkovCovarianceIn);
+		this.data = true;
 	}
 
 	public void onWrite(Path WeatherSetupIn) throws IOException {
-		if(this.read) {
+		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Weather setup parameters");
 			lines.add("# Location: Chimney Park, WY (41.068° N, 106.1195° W, 2740 m elevation)");
@@ -398,6 +403,7 @@ public class SW_WEATHER {
 		if(year < weather.yr.getFirst()) {
 			weth_found=false;
 		} else {
+			_clear_hist_weather();
 			weth_found = hist.setCurrentYear(year);
 		}
 		
@@ -513,6 +519,16 @@ public class SW_WEATHER {
 		wn.rain[Yesterday] = wn.rain[Today];
 		wn.snowmelt[Yesterday] = wn.snowmelt[Today];
 		wn.snowloss[Yesterday] = wn.snowloss[Today];
+	}
+	
+	private void _clear_hist_weather() {
+		weather.dysum.onClear();
+		weather.wksum.onClear();
+		weather.mosum.onClear();
+		weather.yrsum.onClear();
+		weather.wkavg.onClear();
+		weather.moavg.onClear();
+		weather.yravg.onClear();
 	}
 
 	public SW_WEATHER_2DAYS getNow() {

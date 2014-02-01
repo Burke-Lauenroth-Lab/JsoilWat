@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import data.SW_SOILWATER;
 import defines.Defines;
 
 public class SoilsIn {
@@ -194,8 +195,8 @@ public class SoilsIn {
 				water_eqn(this.layers[this.n_layers].fractionVolBulk_gravel, this.layers[this.n_layers].fractionWeightMatric_sand,
 						this.layers[this.n_layers].fractionWeightMatric_clay, this.n_layers);
 				
-				this.layers[this.n_layers].swcBulk_fieldcap = Defines.SW_SWPmatric2VWCBulk(layers[n_layers].fractionVolBulk_gravel, 0.333, layers[n_layers].psisMatric, layers[n_layers].binverseMatric, layers[n_layers].thetasMatric) * this.layers[this.n_layers].width;
-				this.layers[this.n_layers].swcBulk_wiltpt = Defines.SW_SWPmatric2VWCBulk(this.layers[this.n_layers].fractionVolBulk_gravel, 15, layers[n_layers].psisMatric, layers[n_layers].binverseMatric, layers[n_layers].thetasMatric) * this.layers[this.n_layers].width;
+				this.layers[this.n_layers].swcBulk_fieldcap = SW_SOILWATER.SW_SWPmatric2VWCBulk(layers[n_layers].fractionVolBulk_gravel, 0.333, layers[n_layers].psisMatric, layers[n_layers].binverseMatric, layers[n_layers].thetasMatric) * this.layers[this.n_layers].width;
+				this.layers[this.n_layers].swcBulk_wiltpt = SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[this.n_layers].fractionVolBulk_gravel, 15, layers[n_layers].psisMatric, layers[n_layers].binverseMatric, layers[n_layers].thetasMatric) * this.layers[this.n_layers].width;
 				
 				calculate_soilBulkDensity(layers[n_layers].soilMatric_density, layers[n_layers].fractionVolBulk_gravel, n_layers);
 				

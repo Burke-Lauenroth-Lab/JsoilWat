@@ -45,6 +45,8 @@ public class LogFileIn {
 	}
 	
 	public void LogError(LogMode mode, String Message) {
+		if(pLogFile == null)
+			pLogFile= Paths.get("");
 		Path path = Paths.get(pLogFile.toString());
 		String output = "";
 		setbLogged(true);
@@ -63,7 +65,7 @@ public class LogFileIn {
 			if(this.ready())
 				Files.write(path, lines, StandardCharsets.UTF_8);
 			else
-				System.out.println(lines.get(0)+"\n");
+				System.out.println(lines.get(lines.size()-1)+"\n");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("SYSTEM: Cannot write to File fLogFile in LogError()\n");

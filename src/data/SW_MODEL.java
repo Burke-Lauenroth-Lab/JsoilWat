@@ -278,4 +278,20 @@ public class SW_MODEL {
 		return this.doy;
 	}
 	
+	public void setYear(int year) {
+		this.year = year;
+	}
+	public void setMonth(int month) {
+		this.month = month;
+	}
+	public void setWeek(int week) {
+		this.week = week;
+	}
+	public void setDOY(int doy) {
+		this.doy = doy;
+	}
+	
+	public boolean get_HasData() {
+		return this.data;
+	}
 }

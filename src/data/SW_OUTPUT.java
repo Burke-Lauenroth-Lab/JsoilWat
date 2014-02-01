@@ -24,7 +24,7 @@ public class SW_OUTPUT {
 	/* implemented, but are retained for some tiny measure of backward */
 	/* compatibility */
 	public enum OutKey {
-		eSW_NoKey (-1, "",Defines.ObjType.eNONE),
+		eSW_NoKey (-1, "NOKEY",Defines.ObjType.eNONE),
 		eSW_AllWthr (0, "WTHR",Defines.ObjType.eWTH), /* includes all weather vars */
 		eSW_Temp (1, "TEMP",Defines.ObjType.eWTH),
 		eSW_Precip (2, "PRECIP",Defines.ObjType.eWTH),
@@ -241,6 +241,7 @@ public class SW_OUTPUT {
 		private Path file_dy, file_wk, file_mo, file_yr;
 		
 		public SW_OUT() {
+			this.use = false;
 			this.usePeriods = new boolean[numPeriods];
 			for(int i=0; i<numPeriods; i++)
 				this.usePeriods[i] = false;
@@ -349,7 +350,7 @@ public class SW_OUTPUT {
 							for(int j=0; j<dy_data.length; j++) {
 								line="";
 								for(int k=0; k<dy_data[j].length; k++) {
-									line+=String.format("%7d", dy_data[j][k]);
+									line+=String.format("%7f", dy_data[j][k]);
 									if(k!=(dy_data[j].length-1))
 										line+=sep;
 								}
@@ -362,7 +363,7 @@ public class SW_OUTPUT {
 							for(int j=0; j<wk_data.length; j++) {
 								line="";
 								for(int k=0; k<wk_data[j].length; k++) {
-									line+=String.format("%7d", wk_data[j][k]);
+									line+=String.format("%7f", wk_data[j][k]);
 									if(k!=(wk_data[j].length-1))
 										line+=sep;
 								}
@@ -375,7 +376,7 @@ public class SW_OUTPUT {
 							for(int j=0; j<mo_data.length; j++) {
 								line="";
 								for(int k=0; k<mo_data[j].length; k++) {
-									line+=String.format("%7d", mo_data[j][k]);
+									line+=String.format("%7f", mo_data[j][k]);
 									if(k!=(mo_data[j].length-1))
 										line+=sep;
 								}
@@ -388,7 +389,7 @@ public class SW_OUTPUT {
 							for(int j=0; j<yr_data.length; j++) {
 								line="";
 								for(int k=0; k<yr_data[j].length; k++) {
-									line+=String.format("%7d", yr_data[j][k]);
+									line+=String.format("%7f", yr_data[j][k]);
 									if(k!=(yr_data[j].length-1))
 										line+=sep;
 								}
@@ -570,14 +571,14 @@ public class SW_OUTPUT {
 	private boolean tOffset;
 	
 	private SW_SOILS SW_Soils;
-	private SW_SOILWATER SW_Soilwat;
+	private SW_SOILWATER SW_SoilWater;
 	private SW_MODEL SW_Model;
 	private SW_WEATHER SW_Weather;
 	private SW_VEGESTAB SW_VegEstab;
 	private boolean EchoInits;
 	
 	
-	public SW_OUTPUT(boolean echo, SW_SOILS soils, SW_SOILWATER soilwat, SW_MODEL model, SW_WEATHER weather, SW_VEGESTAB estab) {
+	public SW_OUTPUT(SW_SOILS SW_Soils, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_WEATHER SW_Weather, SW_VEGESTAB SW_VegEstab) {
 		this.SW_Output = new SW_OUT[SW_OUTNKEYS];
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			this.SW_Output[i] = new SW_OUT();
@@ -587,21 +588,51 @@ public class SW_OUTPUT {
 		timeStep = new boolean[numPeriods];
 		for(int i=0; i<numPeriods; i++)
 			timeStep[i] = false;//not used default
+		this.SW_Soils = SW_Soils;
+		this.SW_SoilWater = SW_SoilWater;
+		this.SW_Model = SW_Model;
+		this.SW_Weather = SW_Weather;
+		this.SW_VegEstab = SW_VegEstab;
 		bFlush = false;
 		tOffset = true;
-		
-		SW_Soilwat=soilwat;
-		SW_Model = model;
-		SW_Weather = weather;
-		SW_VegEstab = estab;
-		SW_Soils = soils;
-		
-		bFlush = false;
-		tOffset = true;
-		EchoInits = echo;
 	}
 	
-	public void onRead(Path OutputSetupIn, Path OutputDirectory, boolean deepdrain) throws IOException {
+	public boolean onVerify(boolean deepdrain) {
+		LogFileIn f = LogFileIn.getInstance();
+		if(data) {
+			for (OutKey k : OutKey.values()) {
+				if(k==OutKey.eSW_NoKey || k==OutKey.eSW_LastKey)
+					continue;
+				/* Check validity of output key */
+				if(k==OutKey.eSW_Estab) {
+					SW_Output[k.idx()].use = SW_VegEstab.get_use();
+					SW_Output[k.idx()].sumtype = OutSum.eSW_Sum;
+					SW_Output[k.idx()].periodColumn = OutPeriod.SW_YEAR;
+					SW_Output[k.idx()].last = 366;
+				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
+					SW_Output[k.idx()].use = false;
+					f.LogError(LogMode.NOTE, "OutputSetupIn onRead: Unimplemented output key.");
+					continue;
+				}
+				/* check validity of summary type */
+				if (SW_Output[k.idx()].sumtype == OutSum.eSW_Fnl && !(k == OutKey.eSW_VWCBulk || k == OutKey.eSW_VWCMatric || k == OutKey.eSW_SWPMatric || k == OutKey.eSW_SWCBulk || k == OutKey.eSW_SWABulk || k == OutKey.eSW_SWAMatric || k == OutKey.eSW_DeepSWC)) {
+					f.LogError(LogMode.WARN, " Summary Type FIN with key "+k.key()+" is meaningless.\n"+"  Using type AVG instead.");
+					SW_Output[k.idx()].sumtype = OutSum.eSW_Avg;
+				}
+				/* verify deep drainage parameters */
+				if (k == OutKey.eSW_DeepSWC && SW_Output[k.idx()].sumtype != OutSum.eSW_Off && !deepdrain) {
+					f.LogError(LogMode.WARN, " : DEEPSWC cannot be output if flag not set in Site Param.");
+					continue;
+				}
+			}
+			onOutputsAlloc();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public void onRead(Path OutputSetupIn, Path OutputDirectory) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(OutputSetupIn, StandardCharsets.UTF_8);
 		
@@ -645,28 +676,6 @@ public class SW_OUTPUT {
 						SW_Output[k.idx()].periodColumn = OutPeriod.getEnum(values[2]);
 					}
 					
-				}
-				/* Check validity of output key */
-				if(k==OutKey.eSW_Estab) {
-					SW_Output[k.idx()].sumtype = OutSum.eSW_Sum;
-					SW_Output[k.idx()].periodColumn = OutPeriod.SW_YEAR;
-					
-					SW_Output[k.idx()].last = 366;
-				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
-					SW_Output[k.idx()].use = false;
-					f.LogError(LogMode.NOTE, "OutputSetupIn onRead: Unimplemented output key.");
-					continue;
-				}
-				/* check validity of summary type */
-				SW_Output[k.idx()].sumtype = OutSum.getEnum(values[1]);
-				if (SW_Output[k.idx()].sumtype == OutSum.eSW_Fnl && !(k == OutKey.eSW_VWCBulk || k == OutKey.eSW_VWCMatric || k == OutKey.eSW_SWPMatric || k == OutKey.eSW_SWCBulk || k == OutKey.eSW_SWABulk || k == OutKey.eSW_SWAMatric || k == OutKey.eSW_DeepSWC)) {
-					f.LogError(LogMode.WARN, OutputSetupIn.toString()+" : Summary Type FIN with key "+k.key()+" is meaningless.\n"+"  Using type AVG instead.");
-					SW_Output[k.idx()].sumtype = OutSum.eSW_Avg;
-				}
-				/* verify deep drainage parameters */
-				if (k == OutKey.eSW_DeepSWC && SW_Output[k.idx()].sumtype != OutSum.eSW_Off && !deepdrain) {
-					f.LogError(LogMode.WARN, OutputSetupIn.toString()+" : DEEPSWC cannot be output if flag not set in Site Param.");
-					continue;
 				}
 				//Set the values
 				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
@@ -815,6 +824,18 @@ public class SW_OUTPUT {
 			SW_Output[i].onAlloc();
 	}
 	
+	public void SW_OUT_flush() {
+		bFlush = true;
+		tOffset = false;
+		SW_OUT_sum_today(ObjType.eSWC);
+		SW_OUT_sum_today(ObjType.eWTH);
+		SW_OUT_sum_today(ObjType.eVES);
+		SW_OUT_write_today();
+		
+		bFlush=false;
+		tOffset=true;
+	}
+	
 	public void SW_OUT_new_year() {
 		for(int k=0; k < SW_OUTNKEYS; k++) {
 			if(!SW_Output[k].use)
@@ -840,8 +861,8 @@ public class SW_OUTPUT {
 		 * prior to today's calculations, but there's no logical
 		 * need to perform _new_day() on the soilwater.
 		 */
-		SW_SOILWATER.SOILWAT s = SW_Soilwat.getSoilWat();
-		//SW_WEATHER.WEATHER w = SW_Weather.getWeather();
+		SW_SOILWATER.SOILWAT s = SW_SoilWater.getSoilWat();
+		SW_WEATHER.WEATHER w = SW_Weather.getWeather();
 		
 		/* do this every day (kinda expensive but more general than before)*/
 		switch (otyp) {
@@ -849,7 +870,7 @@ public class SW_OUTPUT {
 			s.dysum.onClear();
 			break;
 		case eWTH:
-			s.dysum.onClear();
+			w.dysum.onClear();
 			break;
 		case eVES:
 			return;
@@ -867,7 +888,7 @@ public class SW_OUTPUT {
 				s.wksum.onClear();
 				break;
 			case eWTH:
-				s.wksum.onClear();
+				w.wksum.onClear();
 				break;
 			default:
 				break;
@@ -881,7 +902,7 @@ public class SW_OUTPUT {
 				s.mosum.onClear();
 				break;
 			case eWTH:
-				s.mosum.onClear();
+				w.mosum.onClear();
 				break;
 			default:
 				break;
@@ -895,7 +916,7 @@ public class SW_OUTPUT {
 				s.mosum.onClear();
 				break;
 			case eWTH:
-				s.mosum.onClear();
+				w.mosum.onClear();
 				break;
 			default:
 				break;
@@ -938,7 +959,7 @@ public class SW_OUTPUT {
 		int i;
 		
 		SW_WEATHER.WEATHER w = SW_Weather.getWeather();
-		SW_SOILWATER.SOILWAT v = SW_Soilwat.getSoilWat();
+		SW_SOILWATER.SOILWAT v = SW_SoilWater.getSoilWat();
 		
 		for(int k=0; k < SW_OUTNKEYS; k++) {
 			SW_OUT output = SW_Output[k];
@@ -1254,8 +1275,8 @@ public class SW_OUTPUT {
 						switch (pd) {
 						case SW_WEEK:
 							curr_pd = (SW_Model.getWeek() + 1) - (tOffset?1:0);
-							savg =  SW_Soilwat.getSoilWat().wkavg;
-							ssumof =  SW_Soilwat.getSoilWat().wksum;
+							savg =  SW_SoilWater.getSoilWat().wkavg;
+							ssumof =  SW_SoilWater.getSoilWat().wksum;
 							wavg = SW_Weather.getWeather().wkavg;
 							wsumof = SW_Weather.getWeather().wksum;
 							div = (bFlush) ? SW_Model.getLastdoy() % Times.WKDAYS : Times.WKDAYS;
@@ -1263,8 +1284,8 @@ public class SW_OUTPUT {
 
 						case SW_MONTH:
 							curr_pd = (SW_Model.getMonth() + 1) - (tOffset?1:0);
-							savg = SW_Soilwat.getSoilWat().moavg;
-							ssumof = SW_Soilwat.getSoilWat().mosum;
+							savg = SW_SoilWater.getSoilWat().moavg;
+							ssumof = SW_SoilWater.getSoilWat().mosum;
 							wavg = SW_Weather.getWeather().moavg;
 							wsumof = SW_Weather.getWeather().mosum;
 							div = Times.Time_days_in_month(Times.Months.fromInteger(SW_Model.getMonth() - (tOffset?1:0)));
@@ -1272,8 +1293,8 @@ public class SW_OUTPUT {
 
 						case SW_YEAR:
 							curr_pd = SW_Output[k].first;
-							savg = SW_Soilwat.getSoilWat().yravg;
-							ssumof = SW_Soilwat.getSoilWat().yrsum;
+							savg = SW_SoilWater.getSoilWat().yravg;
+							ssumof = SW_SoilWater.getSoilWat().yrsum;
 							wavg = SW_Weather.getWeather().yravg;
 							wsumof = SW_Weather.getWeather().yrsum;
 							div = SW_Output[k].last - SW_Output[k].first + 1;
@@ -1317,46 +1338,46 @@ public class SW_OUTPUT {
 
 						case eSW_SoilTemp:
 							for(int i=0; i<lyrs; i++)
-							savg.sTemp[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_Soilwat.getSoilWat().sTemp[i] : ssumof.sTemp[i] / div;
+							savg.sTemp[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().sTemp[i] : ssumof.sTemp[i] / div;
 							break;
 
 						case eSW_VWCBulk:
 							for(int i=0; i<lyrs; i++)
 							/* vwcBulk at this point is identical to swcBulk */
-							savg.vwcBulk[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_Soilwat.getSoilWat().swcBulk[Yesterday][i] : ssumof.vwcBulk[i] / div;
+							savg.vwcBulk[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][i] : ssumof.vwcBulk[i] / div;
 							break;
 
 						case eSW_VWCMatric:
 							for(int i=0; i<lyrs; i++)
 							/* vwcMatric at this point is identical to swcBulk */
-							savg.vwcMatric[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_Soilwat.getSoilWat().swcBulk[Yesterday][i] : ssumof.vwcMatric[i] / div;
+							savg.vwcMatric[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][i] : ssumof.vwcMatric[i] / div;
 							break;
 
 						case eSW_SWCBulk:
 							for(int i=0; i<lyrs; i++)
-								savg.swcBulk[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_Soilwat.getSoilWat().swcBulk[Yesterday][i] : ssumof.swcBulk[i] / div;
+								savg.swcBulk[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][i] : ssumof.swcBulk[i] / div;
 							break;
 
 						case eSW_SWPMatric:
 							for(int i=0; i<lyrs; i++)
 							/* swpMatric at this point is identical to swcBulk */
-								savg.swpMatric[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_Soilwat.getSoilWat().swcBulk[Yesterday][i] : ssumof.swpMatric[i] / div;
+								savg.swpMatric[i] = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][i] : ssumof.swpMatric[i] / div;
 							break;
 
 						case eSW_SWABulk:
 							for(int i=0; i<lyrs; i++)
 								savg.swaBulk[i] =
-									(SW_Output[k].sumtype == OutSum.eSW_Fnl) ? Math.max (SW_Soilwat.getSoilWat().swcBulk[Yesterday][i] - SW_Soils.getLayer(i).swcBulk_wiltpt, 0.) : ssumof.swaBulk[i] / div;
+									(SW_Output[k].sumtype == OutSum.eSW_Fnl) ? Math.max (SW_SoilWater.getSoilWat().swcBulk[Yesterday][i] - SW_Soils.getLayer(i).swcBulk_wiltpt, 0.) : ssumof.swaBulk[i] / div;
 							break;
 
 						case eSW_SWAMatric: /* swaMatric at this point is identical to swaBulk */
 							for(int i=0; i<lyrs; i++)
 								savg.swaMatric[i] =
-									(SW_Output[k].sumtype == OutSum.eSW_Fnl) ? Math.max (SW_Soilwat.getSoilWat().swcBulk[Yesterday][i] - SW_Soils.getLayer(i).swcBulk_wiltpt, 0.) : ssumof.swaMatric[i] / div;
+									(SW_Output[k].sumtype == OutSum.eSW_Fnl) ? Math.max (SW_SoilWater.getSoilWat().swcBulk[Yesterday][i] - SW_Soils.getLayer(i).swcBulk_wiltpt, 0.) : ssumof.swaMatric[i] / div;
 							break;
 
 						case eSW_DeepSWC:
-							savg.deep = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_Soilwat.getSoilWat().swcBulk[Yesterday][SW_Soils.getLayersInfo().deep_lyr] : ssumof.deep / div;
+							savg.deep = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][SW_Soils.getLayersInfo().deep_lyr] : ssumof.deep / div;
 							break;
 
 						case eSW_SurfaceWater:
@@ -1446,7 +1467,7 @@ public class SW_OUTPUT {
 	
 	private void collect_sums(ObjType otyp, OutPeriod op) {
 		/* --------------------------------------------------- */
-		SW_SOILWATER.SOILWAT s = SW_Soilwat.getSoilWat();
+		SW_SOILWATER.SOILWAT s = SW_SoilWater.getSoilWat();
 		SW_SOILWATER.SW_SOILWAT_OUTPUTS ssum = null;
 		SW_WEATHER.WEATHER w = SW_Weather.getWeather();
 		SW_WEATHER.SW_WEATHER_OUTPUTS wsum = null;
@@ -1529,5 +1550,13 @@ public class SW_OUTPUT {
 			f.LogError(LogMode.NOTE, "\n");
 		}
 		f.LogError(LogMode.NOTE, "\n----------  End of Output Configuration ---------- \n");
+	}
+	
+	public boolean get_echoinits() {
+		return this.EchoInits;
+	}
+	
+	public void set_echoinits(boolean echo) {
+		this.EchoInits = echo;
 	}
 }

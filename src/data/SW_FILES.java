@@ -123,9 +123,9 @@ public class SW_FILES {
 			if(Files.notExists(this.getWeatherSetupIn(true))) 
 				f.LogError(LogFileIn.LogMode.ERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getMarkovProbabilityIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovProbabilityIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.NOTE, this.getMarkovProbabilityIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getMarkovCovarianceIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovCovarianceIn(true).toString()+" : file does not exist.");
+				f.LogError(LogFileIn.LogMode.NOTE, this.getMarkovCovarianceIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getCloudIn(true)))
 				f.LogError(LogFileIn.LogMode.ERROR, this.getCloudIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getPlantProductivityIn(true)))

@@ -190,7 +190,7 @@ public class SW_SKY {
 	}
 	
 	public double getWindspeed_daily(int doy) {
-		return windspeed[doy-1];
+		return windspeed_daily[doy-1];
 	}
 
 	public void setWindspeed_daily(double[] windspeed_daily) {
@@ -216,7 +216,7 @@ public class SW_SKY {
 	}
 	
 	public void setR_humidity_daily(double r_humidity_daily, int doy) {
-		this.r_humidity_daily[doy] = r_humidity_daily;
+		this.r_humidity_daily[doy-1] = r_humidity_daily;
 	}
 
 	public double[] getTransmission_daily() {

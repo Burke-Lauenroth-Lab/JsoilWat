@@ -1,22 +1,12 @@
-import input.CloudIn;
-import input.EstabIn;
-import input.FilesIn;
-import input.LogFileIn;
-import input.OutputSetupIn;
-import input.ProductionIn;
-import input.SiteIn;
-import input.SoilsIn;
-import input.SwcSetupIn;
-import input.WeatherHistoryIn;
-import input.WeatherSetupIn;
-import input.YearsIn;
-
-import java.io.IOException;
-import java.nio.file.Paths;
-
+import data.SW_CONTROL;
 
 public class Main {
 	public static void main(String[] args) {
+		SW_CONTROL sim = new SW_CONTROL();
+		sim.onReadInputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
+		sim.onStartModel();
+	}
+	/*public static void main(String[] args) {
 		LogFileIn f = LogFileIn.getInstance();
 		FilesIn files = new FilesIn();
 		CloudIn cloud = new CloudIn();
@@ -85,5 +75,5 @@ public class Main {
 			e.printStackTrace();
 		}
 		System.out.println("done");
-	}
+	}*/
 }

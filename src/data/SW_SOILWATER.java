@@ -47,11 +47,15 @@ public class SW_SOILWATER {
 			transp_shrub = new double[Defines.MAX_LAYERS];
 			transp_grass = new double[Defines.MAX_LAYERS];
 			evap = new double[Defines.MAX_LAYERS];
+			lyrdrain = new double[Defines.MAX_LAYERS];
+			hydred_total = new double[Defines.MAX_LAYERS];
 			hydred_grass = new double[Defines.MAX_LAYERS];
 			hydred_shrub = new double[Defines.MAX_LAYERS];
 			hydred_tree = new double[Defines.MAX_LAYERS];
 			hydred_forb = new double[Defines.MAX_LAYERS];
 			sTemp = new double[Defines.MAX_LAYERS];
+			
+			
 		}
 		public void onClear() {
 			surfaceWater=total_evap=surfaceWater_evap=tree_evap=forb_evap=shrub_evap=0;
@@ -104,6 +108,13 @@ public class SW_SOILWATER {
 			sTemp = new double[Defines.MAX_LAYERS];
 			method = 0;
 			yr = new SW_TIMES();
+			dysum=new SW_SOILWAT_OUTPUTS();
+			wksum=new SW_SOILWAT_OUTPUTS();
+			mosum=new SW_SOILWAT_OUTPUTS();
+			yrsum=new SW_SOILWAT_OUTPUTS();
+			wkavg=new SW_SOILWAT_OUTPUTS();
+			moavg=new SW_SOILWAT_OUTPUTS();
+			yravg=new SW_SOILWAT_OUTPUTS();
 			filePrefix = "";
 		}
 		public void onClear() {
@@ -582,14 +593,14 @@ public class SW_SOILWATER {
 	private SW_SOILS SW_Soils;
 	private SW_SITE SW_Site;
 	
-	public SW_SOILWATER(SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_FLOW SW_Flow) {
+	public SW_SOILWATER(SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
 		this.soilwat = new SOILWAT();
 		this.hist = new SW_SOILWAT_HISTORY();
 		this.data = false;
 		this.SW_Model = SW_Model;
 		this.SW_Soils = SW_Soils;
-		this.SW_Flow = SW_Flow;
 		this.SW_Site = SW_Site;
+		this.SW_Flow = new SW_FLOW(SW_Model, SW_Site, SW_Soils, this, SW_Weather, SW_VegProd, SW_Sky);
 		temp_snow = 0;
 	}
 	
@@ -599,13 +610,15 @@ public class SW_SOILWATER {
 		this.data = false;
 	}
 	
-	public void onVerify() {
+	public boolean onVerify() {
 		// gets the soil temperatures from where they are read in the SW_Site struct for use later
 		// SW_Site.c must call it's read function before this, or it won't work
 		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
 			soilwat.sTemp[i] = SW_Soils.getLayer(i).sTemp;
 		}
 		soilwat.yr.equals(SW_Model.getEndYear());
+		
+		return true;
 	}
 	
 	public void onReadHist(Path WeatherHistoryFolder) {
@@ -622,7 +635,7 @@ public class SW_SOILWATER {
 				f.LogError(LogMode.ERROR, "SwcSetupIn onReadHist : Problem.");
 			}
 	}
-	public void onRead(Path swcSetupIn) throws IOException {
+	public void onRead(Path swcSetupIn, Path WeatherHistoryFolder) throws IOException {
 		int nitems=4, lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(swcSetupIn, StandardCharsets.UTF_8);
@@ -678,6 +691,8 @@ public class SW_SOILWATER {
 		}
 		if(lineno < nitems)
 			f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too few lines.");
+		
+		onReadHist(WeatherHistoryFolder);
 		this.data = true;
 	}
 	public void onWrite(Path swcSetupIn) throws IOException {
