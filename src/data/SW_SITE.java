@@ -172,9 +172,12 @@ public class SW_SITE {
 	}
 	
 	public boolean onVerify() {
+		SW_Soils.getLayersInfo().n_transp_rgn = transpirationRegions.get_nRegions();
 		_init_site_info();
 		if(EchoInits)
 			_echo_inputs("");
+		if(SW_Soils.get_echoinits())
+			SW_Soils._echo_inputs("");
 		return true;
 	}
 	
@@ -712,8 +715,8 @@ public class SW_SITE {
 				lyr.swcBulk_min = this.swc.swc_min * lyr.width;
 			}
 
-			lyr.swcBulk_wet = Double.compare(this.swc.swc_wet, 1.0)>0 ? SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_wet, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width : this.swc.swc_wet * lyr.width;
-			lyr.swcBulk_init = Double.compare(this.swc.swc_init, 1.0)>0 ? SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_init, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width : this.swc.swc_init * lyr.width;
+			lyr.swcBulk_wet = Defines.GT(this.swc.swc_wet, 1.0) ? SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_wet, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width : this.swc.swc_wet * lyr.width;
+			lyr.swcBulk_init = Defines.GT(this.swc.swc_init, 1.0) ? SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, this.swc.swc_init, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width : this.swc.swc_init * lyr.width;
 
 			/* test validity of values */
 			if (Double.compare(lyr.swcBulk_init, lyr.swcBulk_min)<0)

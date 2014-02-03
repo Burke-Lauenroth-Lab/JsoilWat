@@ -877,7 +877,7 @@ public class SW_SOILWATER {
 		 snowdensity (kg/m3)
 		 Output: snow depth (cm)
 		 ---------------------*/
-		if(Double.compare(snowdensity, 0.) > 0) {
+		if(Defines.GT(snowdensity, 0.)) {
 			return SWE/snowdensity * 10. * 100.;
 		} else {
 			return 0.;
@@ -940,12 +940,12 @@ public class SW_SOILWATER {
 		if (Double.compare(swcBulk, SW_SOILWAT_HISTORY.MISSING) == 0 || Double.compare(swcBulk,0.)==0)
 			return 0.0;
 
-		if (Double.compare(swcBulk, 0.0) > 0) {
-			if (Double.compare(fractionGravel,1.0) == 0)
+		if (Defines.GT(swcBulk, 0.0)) {
+			if (Defines.EQ(fractionGravel,1.0))
 				theta1 = 0.0;
 			else
 				theta1 = (swcBulk / width) * 100. / (1. - fractionGravel);
-			swp = psisMatric / Math.pow(theta1/thetasMatric, bMatric) / Defines.BARCONV;
+			swp = psisMatric / Defines.powe(theta1/thetasMatric, bMatric) / Defines.BARCONV;
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
 			f.LogError(LogMode.FATAL, String.format("Invalid SWC value (%.4f) in SW_SWC_swc2potential.\n"+
@@ -962,7 +962,7 @@ public class SW_SOILWATER {
 		double t, p;
 
 		swpMatric *= Defines.BARCONV;
-		p = Math.pow(psisMatric / swpMatric, binverseMatric);
+		p = Defines.powe(psisMatric / swpMatric, binverseMatric); //x^y == exponential(y * ln(x)) or e^(y * ln(x)).  NOTE: this will only work when x > 0 I believe
 		t = thetasMatric * p * 0.01 * (1 - fractionGravel);
 		return (t);
 	}
@@ -981,8 +981,8 @@ public class SW_SOILWATER {
 		sand *= 100.;
 		clay *= 100.;
 
-		res = (-0.0182482 + 0.00087269 * sand + 0.00513488 * clay + 0.02939286 * porosity - 0.00015395 * Math.pow(clay,2.0) - 0.0010827 * sand * porosity
-				- 0.00018233 * Math.pow(clay,2.0) * Math.pow(porosity,2.0) + 0.00030703 * Math.pow(clay,2.0) * porosity - 0.0023584 * Math.pow(porosity,2.0) * clay) * (1 - fractionGravel);
+		res = (-0.0182482 + 0.00087269 * sand + 0.00513488 * clay + 0.02939286 * porosity - 0.00015395 * Defines.squared(clay) - 0.0010827 * sand * porosity
+				- 0.00018233 * Defines.squared(clay) * Defines.squared(porosity) + 0.00030703 * Defines.squared(clay) * porosity - 0.0023584 * Defines.squared(porosity) * clay) * (1 - fractionGravel);
 
 		return (Math.max(res, 0.));
 	}

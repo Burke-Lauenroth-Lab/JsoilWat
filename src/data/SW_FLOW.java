@@ -1126,7 +1126,7 @@ public class SW_FLOW {
 		par1 = .35 * (vapor - humid) * (1. + .0098 * windsp); /* Penman (1948), eqn. 19: par1 = Ea [mm/day] = evaporation rate from open water with ea instead of es as required in eqn. 16 */
 		par2 = (1. - reflec) * shwave * (.18 + .55 * clrsky) /* Penman (1948), eqn. 13 [mm/day]: par2 = H = net radiant energy available at surface [mm/day] */
 		- ftemp * (.56 - .092 * Math.sqrt(humid)) * (.10 + .90 * clrsky);
-		P = 101.3 * Math.pow((293. - 0.0065 * elev) / 293., 5.26); /* Allen et al. (1998, ch.3 eqn. 7) and (2005, eqn. 3): P [kPa] = atmospheric pressure with elev [m] */
+		P = 101.3 * Defines.powe((293. - 0.0065 * elev) / 293., 5.26); /* Allen et al. (1998, ch.3 eqn. 7) and (2005, eqn. 3): P [kPa] = atmospheric pressure with elev [m] */
 		gamma = 0.000665 * P * 760. / 101.325 * 5. / 9.; /* Allen et al. (1998, ch.3 eqn. 8) and (2005, eqn. 4): gamma [mmHg/F] = psychrometric constant [kPa/C] * [mmHG/kPa] * [C/F] */
 		result = ((arads * par2 + gamma * par1) / (arads + gamma)) / 10.;/* Penman (1948), eqn. 16: result*10 = E [mm/day] = evaporation from open water */
 		/* originally and pre-Oct/11/2012, Penman (1948) gamma [mmHg/F] == 0.27*/
@@ -1868,7 +1868,7 @@ public class SW_FLOW {
 
 		for (i = 0; i < nlyrs; i++) {
 			swp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
-			relCondroot[i] = Math.min( 1., Math.max(0., 1./(1. + Math.pow(swp[i]/swp50, shapeCond) ) ) );
+			relCondroot[i] = Math.min( 1., Math.max(0., 1./(1. + Defines.powe(swp[i]/swp50, shapeCond) ) ) );
 			swpwp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk_Wiltpts[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
 			hydredmat[0][i] = hydredmat[i][0] = 0.; /* no hydred in top layer */
 		}
@@ -2285,9 +2285,9 @@ public class SW_FLOW {
 			part1 = cs / (sh * stValues.bDensityR[i]);
 
 			if (i > 0) { // handles all layers except the first soil layer
-				part2 = (sTempR[i - 1] - (2 * stValues.oldsTempR[i]) + stValues.oldsTempR[i + 1]) / Math.pow(deltaX,2.);
+				part2 = (sTempR[i - 1] - (2 * stValues.oldsTempR[i]) + stValues.oldsTempR[i + 1]) / Defines.squared(deltaX);
 			} else { // handles the first soil layer, since it needs the temp of the top of the soil
-				part2 = (T1 - (2 * stValues.oldsTempR[0]) + stValues.oldsTempR[1]) / Math.pow(deltaX, 2.);
+				part2 = (T1 - (2 * stValues.oldsTempR[0]) + stValues.oldsTempR[1]) / Defines.squared(deltaX);
 			}
 
 			sTempR[i] = ((part1 * part2) * deltaT) + stValues.oldsTempR[i];

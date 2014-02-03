@@ -171,9 +171,6 @@ public class SW_SOILS {
 			setDeepdrain(siteModelDeepdrain);
 			
 			widths = getLayerWidths();
-
-			if(EchoInits)
-				_echo_inputs("");
 			
 			return true;
 		} else {
@@ -268,7 +265,7 @@ public class SW_SOILS {
 		double theta33, theta33t, OM = 0., thetasMatric33, thetasMatric33t; /* Saxton et al. auxiliary variables */
 
 		this.layers[n].thetasMatric = -14.2 * sand - 3.7 * clay + 50.5;
-		this.layers[n].psisMatric = Math.pow(10.0, (-1.58* sand - 0.63*clay + 2.17));
+		this.layers[n].psisMatric = Defines.powe(10.0, (-1.58* sand - 0.63*clay + 2.17));
 		this.layers[n].bMatric = -0.3 * sand + 15.7 * clay + 3.10;
 
 		if (Defines.isZero(this.layers[n].bMatric)) {
@@ -280,7 +277,7 @@ public class SW_SOILS {
 
 		/* saturated soil water content: Saxton, K. E. and W. J. Rawls. 2006. Soil water characteristic estimates by texture and organic matter for hydrologic solutions. Soil Science Society of America Journal 70:1569-1578. */
 		theta33t = -0.251 * sand + 0.195 * clay + 0.011 * OM + 0.006 * (sand * OM) - 0.027 * (clay * OM) + 0.452 * (sand * clay) + 0.299;
-		theta33 = theta33t + (1.283 * Math.pow(theta33t, 2) - 0.374 * theta33t - 0.015);
+		theta33 = theta33t + (1.283 * Defines.powe(theta33t, 2) - 0.374 * theta33t - 0.015);
 
 		thetasMatric33t = 0.278 * sand + 0.034 * clay + 0.022 * OM - 0.018 * sand * OM - 0.027 * clay * OM - 0.584 * sand * clay + 0.078;
 		thetasMatric33 = thetasMatric33t + (0.636 * thetasMatric33t - 0.107);
@@ -302,7 +299,7 @@ public class SW_SOILS {
 		return widths;
 	}
 	
-	private void _echo_inputs(String soilsFile) {
+	public void _echo_inputs(String soilsFile) {
 		LogFileIn f = LogFileIn.getInstance();
 		
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("\nLayer Related Values:\n----------------------\n"));
@@ -354,15 +351,15 @@ public class SW_SOILS {
 		for(int i=0; i<this.layersInfo.n_layers; i++)
 		{
 			f.LogError(LogFileIn.LogMode.NOTE, String.format("  %3d   %15.4f   %15.4f  %15.4f %15.4f  %15.4f  %15.4f  %15.4f   %15.4f   %15.4f\n", i + 1,
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_fieldcap, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_wiltpt, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_forb, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_tree, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_shrub, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel,  this.layers[i].swcBulk_atSWPcrit_grass, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel,  this.layers[i].swcBulk_wet, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel,  this.layers[i].swcBulk_min, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric),
-					SW_SOILWATER.SW_SWPmatric2VWCBulk(this.layers[i].fractionVolBulk_gravel,  this.layers[i].swcBulk_init, this.layers[i].psisMatric, this.layers[i].binverseMatric, this.layers[i].thetasMatric)));
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_fieldcap, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_wiltpt, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_forb, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_tree, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_shrub, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_atSWPcrit_grass, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_wet, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_min, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i),
+					SW_SOILWATER.SW_SWCbulk2SWPmatric(this.layers[i].fractionVolBulk_gravel, this.layers[i].swcBulk_init, this.layers[i].width, this.layers[i].psisMatric, this.layers[i].thetasMatric, this.layers[i].bMatric, 0, 0, i)));
 		}
 	}
 	

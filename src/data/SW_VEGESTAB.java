@@ -202,8 +202,8 @@ public class SW_VEGESTAB {
 		List<String> lines = Files.readAllLines(sppFile, StandardCharsets.UTF_8);
 		
 		this.params.add(new SW_VEGESTAB_INFO());
-		this.count = this.params.size()-1;
-		SW_VEGESTAB_INFO v = this.params.get(this.count);
+		this.count = this.params.size();
+		SW_VEGESTAB_INFO v = this.params.get(this.count-1);
 		v.sppFileName = sppFile.getFileName().toString();
 		
 		for (String line : lines) {

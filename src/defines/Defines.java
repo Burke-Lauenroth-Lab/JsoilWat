@@ -79,6 +79,14 @@ public final class Defines {
 		return ((b)+((c)/Math.PI)*Math.atan(Math.PI*(d)*((z)-(a))) );
 	}
 	
+	public static double powe(double x, double y) {
+		return (Math.exp((y) * Math.log(x)));//Math.pow was having some problems
+	}
+	
+	public static double squared(double x) {
+		return powe(Math.abs(x), 2.0);
+	}
+	
 	/**************************************************************************************************************************************
 	 PURPOSE: To get the index of the lower(x1) and upper bound(x2) at the depth, for use in soil_temperature function.  written in it's own separate function to reduce code duplication.  located here so it doesn't take up space in SW_Flow_lib.c
 

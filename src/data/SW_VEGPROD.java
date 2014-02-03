@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import defines.Defines;
 import times.Times;
 import times.Times.Months;
 
@@ -293,6 +294,8 @@ public class SW_VEGPROD {
 	private MonthlyProductionValues monthlyProd;
 	private DailyVegProd daily;
 	private int nFileItemsRead;
+	private double lai_standing;
+	private boolean EchoInits;
 	private boolean data;
 	
 	public SW_VEGPROD() {
@@ -310,6 +313,7 @@ public class SW_VEGPROD {
 		this.monthlyProd = new MonthlyProductionValues();
 		this.daily = new DailyVegProd();
 		this.nFileItemsRead = 0;
+		this.lai_standing = 0;
 		this.data = false;
 	}
 	
@@ -356,14 +360,41 @@ public class SW_VEGPROD {
 			this.hydraulicRedistribution.onClear();
 			this.criticalSWP.onClear();
 			this.monthlyProd.onClear();
+			this.nFileItemsRead = 0;
+			this.lai_standing = 0;
 			this.data = false;
 		}
 	}
 	
 	public boolean onVerify() {
-		if(this.data)
+		if(this.data) {
+			LogFileIn f = LogFileIn.getInstance();
+			
+			this.criticalSWP.grasses *= -10;
+			this.criticalSWP.shrubs *= -10;
+			this.criticalSWP.trees *= -10;
+			this.criticalSWP.forbs *= -10;
+			
+			double fraction_sum = this.vegComp.grasses + this.vegComp.shrubs + this.vegComp.trees + this.vegComp.forbs + this.vegComp.bareGround;
+			if (!Defines.EQ(fraction_sum, 1.0)) {
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("Fractions of vegetation components were normalized, "+
+						"sum of fractions (%5.4f) != 1.0.\nNew coefficients are:", fraction_sum));
+				this.vegComp.grasses /= fraction_sum;
+				this.vegComp.shrubs /= fraction_sum;
+				this.vegComp.trees /= fraction_sum;
+				this.vegComp.bareGround /= fraction_sum;
+				this.vegComp.forbs /= fraction_sum;
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Grassland fraction : %5.4f", this.vegComp.grasses));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Shrubland fraction : %5.4f", this.vegComp.shrubs));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Forest/tree fraction : %5.4f", this.vegComp.trees));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  FORB fraction : %5.4f", this.vegComp.forbs));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Bare Ground fraction : %5.4f", this.vegComp.bareGround));
+			}
+			SW_VPD_init();
+			if(EchoInits)
+				_echo_inits();
 			return true;
-		else 
+		} else 
 			return false;
 	}
 	
@@ -941,6 +972,194 @@ public class SW_VEGPROD {
 			f.LogError(LogMode.WARN, "ProductionIn : onWrite : No data.");
 		}
 	}
+	
+	/** ==================================================
+	 * set up vegetation parameters to be used in
+	 * the "watrflow" subroutine.
+	 *
+	 * History:
+	 *     Originally included in the FORTRAN model.
+	 *
+	 *     20-Oct-03 (cwb) removed the calculation of
+	 *        lai_corr and changed the lai_conv value of 80
+	 *        as found in the prod.in file.  The conversion
+	 *        factor is now simply a divisor rather than
+	 *        an equation.  Removed the following code:
+	 lai_corr = v.lai_conv[m] * (1. - pstem) + aconst * pstem;
+	 lai_standing    = v.biomass[m] / lai_corr;
+	 where pstem = 0.3,
+	 aconst = 464.0,
+	 conv_stcr = 3.0;
+	 *
+	 *
+	 */
+	private void SW_VPD_init() {
+		int doy; /* base1 */
+
+		if (Defines.GT(vegComp.grasses, 0.)) {
+			Times.interpolate_monthlyValues(monthlyProd.grasses.litter, daily.grass.litter_daily);
+			Times.interpolate_monthlyValues(monthlyProd.grasses.biomass, daily.grass.biomass_daily);
+			Times.interpolate_monthlyValues(monthlyProd.grasses.percLive, daily.grass.pct_live_daily);
+			Times.interpolate_monthlyValues(monthlyProd.grasses.lai_conv, daily.grass.lai_conv_daily);
+		}
+
+		if (Defines.GT(vegComp.shrubs, 0.)) {
+			Times.interpolate_monthlyValues(monthlyProd.shrubs.litter, daily.shrub.litter_daily);
+			Times.interpolate_monthlyValues(monthlyProd.shrubs.biomass, daily.shrub.biomass_daily);
+			Times.interpolate_monthlyValues(monthlyProd.shrubs.percLive, daily.shrub.pct_live_daily);
+			Times.interpolate_monthlyValues(monthlyProd.shrubs.lai_conv, daily.shrub.lai_conv_daily);
+		}
+
+		if (Defines.GT(vegComp.trees, 0.)) {
+			Times.interpolate_monthlyValues(monthlyProd.trees.litter, daily.tree.litter_daily);
+			Times.interpolate_monthlyValues(monthlyProd.trees.biomass, daily.tree.biomass_daily);
+			Times.interpolate_monthlyValues(monthlyProd.trees.percLive, daily.tree.pct_live_daily);
+			Times.interpolate_monthlyValues(monthlyProd.trees.lai_conv, daily.tree.lai_conv_daily);
+		}
+
+		if (Defines.GT(vegComp.forbs, 0.)) {
+			Times.interpolate_monthlyValues(monthlyProd.forbs.litter, daily.forb.litter_daily);
+			Times.interpolate_monthlyValues(monthlyProd.forbs.biomass, daily.forb.biomass_daily);
+			Times.interpolate_monthlyValues(monthlyProd.forbs.percLive, daily.forb.pct_live_daily);
+			Times.interpolate_monthlyValues(monthlyProd.forbs.lai_conv, daily.forb.lai_conv_daily);
+		}
+
+		for (doy = 1; doy <= Times.MAX_DAYS; doy++) {
+			if (Defines.GT(vegComp.grasses, 0.)) {
+				lai_standing = daily.grass.biomass_daily[doy] / daily.grass.lai_conv_daily[doy];
+				daily.grass.pct_cover_daily[doy] = lai_standing / cover.grasses;
+				if (Defines.GT(canopy.grasses.canopyHeight, 0.)) {
+					daily.grass.veg_height_daily[doy] = canopy.grasses.canopyHeight;
+				} else {
+					daily.grass.veg_height_daily[doy] = Defines.tanfunc(daily.grass.biomass_daily[doy],
+							canopy.grasses.xinflec,
+							canopy.grasses.yinflec,
+							canopy.grasses.range,
+							canopy.grasses.slope); /* used for vegcov and for snowdepth_scale */
+				}
+				daily.grass.lai_live_daily[doy] = lai_standing * daily.grass.pct_live_daily[doy];
+				daily.grass.vegcov_daily[doy] = daily.grass.pct_cover_daily[doy] * daily.grass.veg_height_daily[doy]; /* used for vegetation interception */
+				daily.grass.biolive_daily[doy] = daily.grass.biomass_daily[doy] * daily.grass.pct_live_daily[doy];
+				daily.grass.biodead_daily[doy] = daily.grass.biomass_daily[doy] - daily.grass.biolive_daily[doy]; /* used for transpiration */
+				daily.grass.total_agb_daily[doy] = daily.grass.litter_daily[doy] + daily.grass.biomass_daily[doy]; /* used for bare-soil evaporation */
+			} else {
+				daily.grass.lai_live_daily[doy] = 0.;
+				daily.grass.vegcov_daily[doy] = 0.;
+				daily.grass.biolive_daily[doy] = 0.;
+				daily.grass.biodead_daily[doy] = 0.;
+				daily.grass.total_agb_daily[doy] = 0.;
+			}
+
+			if (Defines.GT(vegComp.shrubs, 0.)) {
+				lai_standing = daily.shrub.biomass_daily[doy] / daily.shrub.lai_conv_daily[doy];
+				daily.shrub.pct_cover_daily[doy] = lai_standing / cover.shrubs;
+				if (Defines.GT(canopy.shrubs.canopyHeight, 0.)) {
+					daily.shrub.veg_height_daily[doy] = canopy.shrubs.canopyHeight;
+				} else {
+					daily.shrub.veg_height_daily[doy] = Defines.tanfunc(daily.shrub.biomass_daily[doy],
+							canopy.shrubs.xinflec,
+							canopy.shrubs.yinflec,
+							canopy.shrubs.range,
+							canopy.shrubs.slope); /* used for vegcov and for snowdepth_scale */
+				}
+				daily.shrub.lai_live_daily[doy] = lai_standing * daily.shrub.pct_live_daily[doy];
+				daily.shrub.vegcov_daily[doy] = daily.shrub.pct_cover_daily[doy] * daily.shrub.veg_height_daily[doy]; /* used for vegetation interception */
+				daily.shrub.biolive_daily[doy] = daily.shrub.biomass_daily[doy] * daily.shrub.pct_live_daily[doy];
+				daily.shrub.biodead_daily[doy] = daily.shrub.biomass_daily[doy] - daily.shrub.biolive_daily[doy]; /* used for transpiration */
+				daily.shrub.total_agb_daily[doy] = daily.shrub.litter_daily[doy] + daily.shrub.biomass_daily[doy]; /* used for bare-soil evaporation */
+			} else {
+				daily.shrub.lai_live_daily[doy] = 0.;
+				daily.shrub.vegcov_daily[doy] = 0.;
+				daily.shrub.biolive_daily[doy] = 0.;
+				daily.shrub.biodead_daily[doy] = 0.;
+				daily.shrub.total_agb_daily[doy] = 0.;
+			}
+
+			if (Defines.GT(vegComp.trees, 0.)) {
+				lai_standing = daily.tree.biomass_daily[doy] / daily.tree.lai_conv_daily[doy];
+				daily.tree.pct_cover_daily[doy] = lai_standing / cover.trees;
+				if (Defines.GT(canopy.trees.canopyHeight, 0.)) {
+					daily.tree.veg_height_daily[doy] = canopy.trees.canopyHeight;
+				} else {
+					daily.tree.veg_height_daily[doy] = Defines.tanfunc(daily.tree.biomass_daily[doy],
+							canopy.trees.xinflec,
+							canopy.trees.yinflec,
+							canopy.trees.range,
+							canopy.trees.slope); /* used for vegcov and for snowdepth_scale */
+				}
+				daily.tree.lai_live_daily[doy] = lai_standing * daily.tree.pct_live_daily[doy]; /* used for vegetation interception */
+				daily.tree.vegcov_daily[doy] = daily.tree.pct_cover_daily[doy] * daily.tree.veg_height_daily[doy];
+				daily.tree.biolive_daily[doy] = daily.tree.biomass_daily[doy] * daily.tree.pct_live_daily[doy];
+				daily.tree.biodead_daily[doy] = daily.tree.biomass_daily[doy] - daily.tree.biolive_daily[doy]; /* used for transpiration */
+				daily.tree.total_agb_daily[doy] = daily.tree.litter_daily[doy] + daily.tree.biolive_daily[doy]; /* used for bare-soil evaporation */
+			} else {
+				daily.tree.lai_live_daily[doy] = 0.;
+				daily.tree.vegcov_daily[doy] = 0.;
+				daily.tree.biolive_daily[doy] = 0.;
+				daily.tree.biodead_daily[doy] = 0.;
+				daily.tree.total_agb_daily[doy] = 0.;
+			}
+
+			if (Defines.GT(vegComp.forbs, 0.)) {
+				lai_standing = daily.forb.biomass_daily[doy] / daily.forb.lai_conv_daily[doy];
+				daily.forb.pct_cover_daily[doy] = lai_standing / cover.forbs;
+				if (Defines.GT(canopy.forbs.canopyHeight, 0.)) {
+					daily.forb.veg_height_daily[doy] = canopy.forbs.canopyHeight;
+				} else {
+					daily.forb.veg_height_daily[doy] = Defines.tanfunc(daily.forb.biomass_daily[doy],
+							canopy.forbs.xinflec,
+							canopy.forbs.yinflec,
+							canopy.forbs.range,
+							canopy.forbs.slope); /* used for vegcov and for snowdepth_scale */
+				}
+				daily.forb.lai_live_daily[doy] = lai_standing * daily.forb.pct_live_daily[doy]; /* used for vegetation interception */
+				daily.forb.vegcov_daily[doy] = daily.forb.pct_cover_daily[doy] * daily.forb.veg_height_daily[doy];
+				daily.forb.biolive_daily[doy] = daily.forb.biomass_daily[doy] * daily.forb.pct_live_daily[doy];
+				daily.forb.biodead_daily[doy] = daily.forb.biomass_daily[doy] - daily.forb.biolive_daily[doy]; /* used for transpiration */
+				daily.forb.total_agb_daily[doy] = daily.forb.litter_daily[doy] + daily.forb.biolive_daily[doy]; /* used for bare-soil evaporation */
+			} else {
+				daily.forb.lai_live_daily[doy] = 0.;
+				daily.forb.vegcov_daily[doy] = 0.;
+				daily.forb.biolive_daily[doy] = 0.;
+				daily.forb.biodead_daily[doy] = 0.;
+				daily.forb.total_agb_daily[doy] = 0.;
+			}
+		}
+	}
+	
+	private void _echo_inits() {
+		/* ================================================== */
+		LogFileIn f = LogFileIn.getInstance();
+
+		f.LogError(LogMode.NOTE, String.format("\n==============================================\n"+
+				"Vegetation Production Parameters\n\n"));
+
+		f.LogError(LogMode.NOTE, String.format("Grassland component\t= %1.2f\n"+
+				"\tAlbedo\t= %1.2f\n"+
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.grasses, albedo.grasses, hydraulicRedistribution.grasses.flag));
+
+		f.LogError(LogMode.NOTE, String.format("Shrubland component\t= %1.2f\n"+
+				"\tAlbedo\t= %1.2f\n"+
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.shrubs, albedo.shrubs, hydraulicRedistribution.shrubs.flag));
+
+		f.LogError(LogMode.NOTE, String.format("Forest-Tree component\t= %1.2f\n"+
+				"\tAlbedo\t= %1.2f\n"+
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.trees, albedo.trees, hydraulicRedistribution.trees.flag));
+
+		f.LogError(LogMode.NOTE, String.format("FORB component\t= %1.2f\n"+
+				"\tAlbedo\t= %1.2f\n"+
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.forbs, albedo.forbs, hydraulicRedistribution.forbs.flag));
+
+		f.LogError(LogMode.NOTE, String.format("Bare Ground component\t= %1.2f\n"+
+				"\tAlbedo\t= %1.2f\n", vegComp.bareGround, albedo.bareGround));
+	}
+	
+	public boolean get_echoinits() {
+		return this.EchoInits;
+	}
+	public void set_echoinits(boolean echo) {
+		this.EchoInits = echo;
+	}	
 	public VegetationComposition getVegetationComposition() {
 		return this.vegComp;
 	}

@@ -30,6 +30,25 @@ public class SW_CONTROL {
 		SW_Weather.setSoilWater(SW_SoilWater);
 	}
 	
+	public void onStartModel(boolean echo) {
+		int year;
+		
+		_set_echo(echo);
+		
+		if(onVerify()) {
+			for(year = SW_Model.getStartYear(); year<=SW_Model.getEndYear(); year++) {
+				SW_Model.setYear(year);
+				SW_CTL_run_current_year();
+			}
+
+			try {
+				SW_Output.onWriteOutputs();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void onReadInputs(String swFiles) {
 		try {
 			SW_Files.onRead(swFiles);
@@ -54,28 +73,11 @@ public class SW_CONTROL {
 		SW_Sky.onVerify() &&
 		SW_Weather.onVerify() &&
 		SW_VegProd.onVerify() &&
-		SW_Site.onVerify() &&
 		SW_Soils.onVerify(SW_Site.getDeepdrain()) &&
+		SW_Site.onVerify() &&
 		SW_SoilWater.onVerify() &&
 		SW_Output.onVerify(SW_Site.getDeepdrain()) &&
 		SW_VegEstab.onVerify();
-	}
-	
-	public void onStartModel() {
-		int year;
-		
-		if(onVerify()) {
-			for(year = SW_Model.getStartYear(); year<=SW_Model.getEndYear(); year++) {
-				SW_Model.setYear(year);
-				SW_CTL_run_current_year();
-			}
-
-			try {
-				SW_Output.onWriteOutputs();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	private void SW_CTL_run_current_year() {
@@ -121,5 +123,14 @@ public class SW_CONTROL {
 		SW_Output.SW_OUT_sum_today(ObjType.eVES);
 		
 		SW_Output.SW_OUT_write_today();
+	}
+	
+	private void _set_echo(boolean echo) {
+		this.SW_Output.set_echoinits(echo);
+		this.SW_Site.set_echoinits(echo);
+		this.SW_Soils.set_echoinits(echo);
+		this.SW_VegEstab.set_echoinits(echo);
+		this.SW_VegProd.set_echoinits(echo);
+		
 	}
 }

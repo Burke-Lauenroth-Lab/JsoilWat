@@ -4,7 +4,7 @@ public class Main {
 	public static void main(String[] args) {
 		SW_CONTROL sim = new SW_CONTROL();
 		sim.onReadInputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
-		sim.onStartModel();
+		sim.onStartModel(true);
 	}
 	/*public static void main(String[] args) {
 		LogFileIn f = LogFileIn.getInstance();

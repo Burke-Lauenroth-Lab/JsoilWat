@@ -193,6 +193,9 @@ public class SW_OUTPUT {
 		public String key() {
 			return this.name;
 		}
+		public String toString() {
+			return this.name;
+		}
 	}
 	/* summary methods */
 	public enum OutSum {
@@ -219,6 +222,9 @@ public class SW_OUTPUT {
 				if(value.equalsIgnoreCase(v.key())) return v;
 			}
 			throw new IllegalArgumentException();
+		}
+		public String toString() {
+			return this.name;
 		}
 	}
 	
@@ -624,8 +630,14 @@ public class SW_OUTPUT {
 					f.LogError(LogMode.WARN, " : DEEPSWC cannot be output if flag not set in Site Param.");
 					continue;
 				}
+				
+				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
 			}
 			onOutputsAlloc();
+			
+			if(EchoInits)
+				_echo_outputs();
+			
 			return true;
 		} else {
 			return false;
@@ -677,29 +689,29 @@ public class SW_OUTPUT {
 					}
 					
 				}
-				//Set the values
-				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
-				if (SW_Output[k.idx()].use) {
-					SW_Output[k.idx()].mykey = k;
-					SW_Output[k.idx()].myobj = k.objType();
-					SW_Output[k.idx()].periodColumn = OutPeriod.getEnum(values[2]);
-					SW_Output[k.idx()].filename_prefix = values[5];
-					try {
-						SW_Output[k.idx()].first_orig = Integer.valueOf(values[3]);
-						if(values[4].toLowerCase().equals("end"))
-							SW_Output[k.idx()].last_orig = 366;
-						else
-							SW_Output[k.idx()].last_orig = Integer.valueOf(values[4]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Could not covert start or end."+e.getMessage());
-					}
-					if (SW_Output[k.idx()].last_orig == 0) {
-						f.LogError(LogMode.ERROR, "OutputSetupIn onRead : Invalid ending day");
-					}
+				
+				//Set the values		
+				SW_Output[k.idx()].mykey = k;
+				SW_Output[k.idx()].myobj = k.objType();
+				SW_Output[k.idx()].sumtype = OutSum.getEnum(values[1]);
+				SW_Output[k.idx()].periodColumn = OutPeriod.getEnum(values[2]);
+				SW_Output[k.idx()].filename_prefix = values[5];
+				try {
+					SW_Output[k.idx()].first_orig = Integer.valueOf(values[3]);
+					if(values[4].toLowerCase().equals("end"))
+						SW_Output[k.idx()].last_orig = 366;
+					else
+						SW_Output[k.idx()].last_orig = Integer.valueOf(values[4]);
+				} catch(NumberFormatException e) {
+					f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Could not covert start or end."+e.getMessage());
 				}
+				if (SW_Output[k.idx()].last_orig == 0) {
+					f.LogError(LogMode.ERROR, "OutputSetupIn onRead : Invalid ending day");
+				}
+				
 				//Set the outputs for the Periods
 				for (int i = 0; i < numPeriods; i++) {
-					if (SW_Output[k.idx()].use && SW_Output[k.idx()].get_PeriodUse(i)) {
+					if (SW_Output[k.idx()].get_PeriodUse(i)) {
 						String temp = values[5]+".";
 						switch (i) {
 						case 0:
@@ -724,9 +736,6 @@ public class SW_OUTPUT {
 			}
 		}
 		this.data = true;
-		
-		if(EchoInits)
-			_echo_outputs();
 	}
 	
 	public void onWrite(Path OutputSetupIn) throws IOException {
@@ -1056,7 +1065,7 @@ public class SW_OUTPUT {
 							output.setRow(v.get_snowpack(output.period));
 							break;
 						case eSW_DeepSWC:
-							output.setRow(v.get_hydred(output.period));
+							output.setRow(v.get_deepswc(output.period));
 							break;
 						case eSW_SoilTemp:
 							output.setRow(v.get_soiltemp(output.period));
@@ -1529,27 +1538,31 @@ public class SW_OUTPUT {
 	private void _echo_outputs() {
 		/* --------------------------------------------------- */
 		LogFileIn f = LogFileIn.getInstance();
-		f.LogError(LogMode.NOTE, "\n===============================================\n  Output Configuration:\n");
+		String outconfig ="";
+		outconfig += "\n===============================================\n  Output Configuration:\n";
 		for(int k=0; k<SW_OUTNKEYS; k++)
 		{
 			if (!SW_Output[k].use)
 				continue;
-			f.LogError(LogMode.NOTE, "---------------------------\nKey ");
-			f.LogError(LogMode.NOTE, OutKey.fromInt(k).toString());
-			f.LogError(LogMode.NOTE, "\n\tSummary Type: ");
-			f.LogError(LogMode.NOTE, SW_Output[k].sumtype.toString());
-			f.LogError(LogMode.NOTE, "\n\tOutput Period: ");
-			f.LogError(LogMode.NOTE, SW_Output[k].period.toString());
-			f.LogError(LogMode.NOTE, String.format("\n\tStart period: %d", SW_Output[k].first_orig));
-			f.LogError(LogMode.NOTE, String.format("\n\tEnd period  : %d", SW_Output[k].last_orig));
-			f.LogError(LogMode.NOTE, "\n\tOutput File: ");
-			f.LogError(LogMode.NOTE, SW_Output[k].file_dy.toString());
-			f.LogError(LogMode.NOTE, SW_Output[k].file_wk.toString());
-			f.LogError(LogMode.NOTE, SW_Output[k].file_mo.toString());
-			f.LogError(LogMode.NOTE, SW_Output[k].file_yr.toString());
-			f.LogError(LogMode.NOTE, "\n");
+			outconfig += "---------------------------\nKey "+OutKey.fromInt(k).toString();
+			outconfig += "\n\tSummary Type: " + SW_Output[k].sumtype.toString();
+			outconfig += "\n\tOutput Period: " + SW_Output[k].periodColumn.toString();
+			outconfig += String.format("\n\tStart period: %d", SW_Output[k].first_orig);
+			outconfig += String.format("\n\tEnd period  : %d", SW_Output[k].last_orig);
+			String temp = "";
+			if(SW_Output[k].usePeriods[0])
+				temp+=SW_Output[k].file_dy.getFileName().toString()+"  ";
+			if(SW_Output[k].usePeriods[1])
+				temp+=SW_Output[k].file_wk.getFileName().toString()+"  ";
+			if(SW_Output[k].usePeriods[2])
+				temp+=SW_Output[k].file_mo.getFileName().toString()+"  ";
+			if(SW_Output[k].usePeriods[3])
+				temp+=SW_Output[k].file_yr.getFileName().toString()+"  ";
+			outconfig += "\n\tOutput File(s): " + temp;
+			outconfig += "\n";
 		}
-		f.LogError(LogMode.NOTE, "\n----------  End of Output Configuration ---------- \n");
+		outconfig += "\n----------  End of Output Configuration ---------- \n";
+		f.LogError(LogMode.NOTE, outconfig);
 	}
 	
 	public boolean get_echoinits() {

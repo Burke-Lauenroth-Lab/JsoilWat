@@ -58,9 +58,10 @@ public class SW_SKY {
 	}
 	
 	public boolean onVerify() {
-		if(this.data)
+		if(this.data) {
+			SW_SKY_init();
 			return true;
-		else
+		} else
 			return false;
 	}
 		
@@ -173,7 +174,7 @@ public class SW_SKY {
 	}
 	
 	public double getCloudcov_daily(int doy) {
-		return cloudcov_daily[doy-1];
+		return cloudcov_daily[doy];
 	}
 
 	public void setCloudcov_daily(double[] cloudcov_daily) {
@@ -182,7 +183,7 @@ public class SW_SKY {
 	}
 	
 	public void setCloudcov_daily(double cloudcov_daily, int doy) {
-		this.cloudcov_daily[doy-1] = cloudcov_daily;
+		this.cloudcov_daily[doy] = cloudcov_daily;
 	}
 
 	public double[] getWindspeed_daily() {
@@ -190,7 +191,7 @@ public class SW_SKY {
 	}
 	
 	public double getWindspeed_daily(int doy) {
-		return windspeed_daily[doy-1];
+		return windspeed_daily[doy];
 	}
 
 	public void setWindspeed_daily(double[] windspeed_daily) {
@@ -199,7 +200,7 @@ public class SW_SKY {
 	}
 	
 	public void setWindspeed_daily(double windspeed_daily, int doy) {
-		this.windspeed_daily[doy-1] = windspeed_daily;
+		this.windspeed_daily[doy] = windspeed_daily;
 	}
 
 	public double[] getR_humidity_daily_daily() {
@@ -207,7 +208,7 @@ public class SW_SKY {
 	}
 	
 	public double getR_humidity_daily(int doy) {
-		return r_humidity_daily[doy-1];
+		return r_humidity_daily[doy];
 	}
 
 	public void setR_humidity_daily(double[] r_humidity_daily) {
@@ -216,7 +217,7 @@ public class SW_SKY {
 	}
 	
 	public void setR_humidity_daily(double r_humidity_daily, int doy) {
-		this.r_humidity_daily[doy-1] = r_humidity_daily;
+		this.r_humidity_daily[doy] = r_humidity_daily;
 	}
 
 	public double[] getTransmission_daily() {
@@ -224,7 +225,7 @@ public class SW_SKY {
 	}
 	
 	public double getTransmission_daily(int doy) {
-		return transmission_daily[doy-1];
+		return transmission_daily[doy];
 	}
 
 	public void setTransmission_daily(double[] transmission_daily) {
@@ -233,7 +234,7 @@ public class SW_SKY {
 	}
 	
 	public void setTransmissiony_daily(double transmission_daily, int doy) {
-		this.transmission_daily[doy-1] = transmission_daily;
+		this.transmission_daily[doy] = transmission_daily;
 	}
 	
 	public double[] getSnow_density_daily() {
@@ -241,7 +242,7 @@ public class SW_SKY {
 	}
 	
 	public double getSnow_density_daily(int doy) {
-		return snow_density_daily[doy-1];
+		return snow_density_daily[doy];
 	}
 
 	public void setSnow_density_daily(double[] snow_density_daily) {
@@ -250,7 +251,7 @@ public class SW_SKY {
 	}
 	
 	public void setSnow_density_daily(double snow_density_daily, int doy) {
-		this.snow_density_daily[doy-1] = snow_density_daily;
+		this.snow_density_daily[doy] = snow_density_daily;
 	}
 	
 	
