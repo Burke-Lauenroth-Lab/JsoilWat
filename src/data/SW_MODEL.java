@@ -211,6 +211,16 @@ public class SW_MODEL {
 			f.LogError(LogFileIn.LogMode.ERROR, "swYears onWriteYears : No Data.");
 		}
 	}
+	public int getYearsInSimulation() {
+		return getEndYear() - getStartYear() + 1;
+	}
+	public int getDaysInSimulation() {
+		int n=0;
+		
+		for(int i=this.getStartYear(); i<=this.getEndYear(); i++)
+			n+=Times.Time_get_lastdoy_y(i);
+		return n;
+	}
 
 	public int getStartYear() {
 		return startyr;

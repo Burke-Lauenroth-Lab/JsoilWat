@@ -227,7 +227,27 @@ public class SW_OUTPUT {
 			return this.name;
 		}
 	}
-	
+	private class SW_OUT_TIME {
+		public int[][] days;
+		public int[][] weeks;
+		public int[][] months;
+		public int[] years;
+		public int yrow;
+		public int mrow;
+		public int wrow;
+		public int drow;
+		
+		public SW_OUT_TIME() {
+			days = new int[SW_Model.getDaysInSimulation()][2];
+			weeks = new int[SW_Model.getYearsInSimulation() * 53][2];
+			months = new int[SW_Model.getYearsInSimulation() * 12][2];
+			years = new int[SW_Model.getYearsInSimulation()];
+			yrow=0;
+			mrow=0;
+			wrow=0;
+			drow=0;
+		}
+	}
 	private class SW_OUT {
 		private OutKey mykey;
 		private Defines.ObjType myobj;
@@ -355,6 +375,7 @@ public class SW_OUTPUT {
 							lines.clear();
 							for(int j=0; j<dy_data.length; j++) {
 								line="";
+								line+=String.format("%4d%s%3d%s", SW_OutTimes.days[j][0], sep, SW_OutTimes.days[j][1], sep);
 								for(int k=0; k<dy_data[j].length; k++) {
 									line+=String.format("%7f", dy_data[j][k]);
 									if(k!=(dy_data[j].length-1))
@@ -368,6 +389,7 @@ public class SW_OUTPUT {
 							lines.clear();
 							for(int j=0; j<wk_data.length; j++) {
 								line="";
+								line+=String.format("%4d%s%3d%s", SW_OutTimes.weeks[j][0], sep, SW_OutTimes.weeks[j][1], sep);
 								for(int k=0; k<wk_data[j].length; k++) {
 									line+=String.format("%7f", wk_data[j][k]);
 									if(k!=(wk_data[j].length-1))
@@ -381,6 +403,7 @@ public class SW_OUTPUT {
 							lines.clear();
 							for(int j=0; j<mo_data.length; j++) {
 								line="";
+								line+=String.format("%4d%s%3d%s", SW_OutTimes.months[j][0], sep, SW_OutTimes.months[j][1], sep);
 								for(int k=0; k<mo_data[j].length; k++) {
 									line+=String.format("%7f", mo_data[j][k]);
 									if(k!=(mo_data[j].length-1))
@@ -394,6 +417,7 @@ public class SW_OUTPUT {
 							lines.clear();
 							for(int j=0; j<yr_data.length; j++) {
 								line="";
+								line+=String.format("%4d%s", SW_OutTimes.years[j], sep);
 								for(int k=0; k<yr_data[j].length; k++) {
 									line+=String.format("%7f", yr_data[j][k]);
 									if(k!=(yr_data[j].length-1))
@@ -508,28 +532,18 @@ public class SW_OUTPUT {
 		}
 		private int get_nRows(int pd) {
 			int tYears = (SW_Model.getEndYear() - SW_Model.getStartYear() + 1);
-			int n=0;
-			
 			switch (pd) {
 			case 0:
-				for(int i=SW_Model.getStartYear(); i<=SW_Model.getEndYear(); i++)
-					n+=Times.Time_get_lastdoy_y(i);
-				n*=(usePeriods[pd]?1:0);
-				break;
+				return SW_Model.getDaysInSimulation()*(usePeriods[pd]?1:0);
 			case 1:
-				n = tYears * 53 * (usePeriods[pd]?1:0);
-				break;
+				return tYears * 53 * (usePeriods[pd]?1:0);
 			case 2:
-				n = tYears * 12 * (usePeriods[pd]?1:0);
-				break;
+				return tYears * 12 * (usePeriods[pd]?1:0);
 			case 3:
-				n = tYears * (usePeriods[pd]?1:0);
-				break;
+				return tYears * (usePeriods[pd]?1:0);
 			default:
-				n=0;
-				break;
+				return 0;
 			}
-			return n;
 		}
 		private final String[] comments = {"/* */",
 			"/* max., min, average temperature (C) */",
@@ -566,6 +580,7 @@ public class SW_OUTPUT {
 	}
 	
 	private SW_OUT[] SW_Output;
+	private SW_OUT_TIME SW_OutTimes;
 	private String _sep;
 	private boolean data;
 	//private int numPeriod;
@@ -609,6 +624,8 @@ public class SW_OUTPUT {
 			for (OutKey k : OutKey.values()) {
 				if(k==OutKey.eSW_NoKey || k==OutKey.eSW_LastKey)
 					continue;
+				
+				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
 				/* Check validity of output key */
 				if(k==OutKey.eSW_Estab) {
 					SW_Output[k.idx()].use = SW_VegEstab.get_use();
@@ -630,10 +647,9 @@ public class SW_OUTPUT {
 					f.LogError(LogMode.WARN, " : DEEPSWC cannot be output if flag not set in Site Param.");
 					continue;
 				}
-				
-				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
 			}
 			onOutputsAlloc();
+			SW_OutTimes =  new SW_OUT_TIME();
 			
 			if(EchoInits)
 				_echo_outputs();
@@ -967,6 +983,24 @@ public class SW_OUTPUT {
 		boolean writeit;
 		int i;
 		
+		
+		if(SW_Model.get_newyear() || bFlush)
+			SW_OutTimes.years[SW_OutTimes.yrow++] = SW_Model.getYear();
+		if((SW_Model.get_newmonth() || bFlush) && (((SW_Model.getMonth() + 1) - (tOffset?1:0)) >= 1)) {
+			SW_OutTimes.months[SW_OutTimes.mrow][0] = SW_Model.getYear();
+			SW_OutTimes.months[SW_OutTimes.mrow++][1] = (SW_Model.getMonth()+1) - (tOffset?1:0);
+		}
+		if((SW_Model.get_newweek() || bFlush)  && (((SW_Model.getWeek() + 1) - (tOffset?1:0)) >= 1)) {
+			SW_OutTimes.weeks[SW_OutTimes.wrow][0] = SW_Model.getYear();
+			SW_OutTimes.weeks[SW_OutTimes.wrow++][1] = (SW_Model.getWeek()+1) - (tOffset?1:0);
+		}
+		if(SW_Model.getDOY() >= 1 && SW_Model.getDOY() <= SW_Model.getLastdoy()) {
+			SW_OutTimes.days[SW_OutTimes.drow][0] = SW_Model.getYear();
+			SW_OutTimes.days[SW_OutTimes.drow++][1] = SW_Model.getDOY();
+		}
+		
+		
+				
 		SW_WEATHER.WEATHER w = SW_Weather.getWeather();
 		SW_SOILWATER.SOILWAT v = SW_SoilWater.getSoilWat();
 		
@@ -1000,6 +1034,7 @@ public class SW_OUTPUT {
 						if (!writeit || t < SW_Output[k].first || t > SW_Output[k].last)
 							continue;
 
+						
 						switch (output.mykey) {
 						case eSW_Temp:
 							output.setRow(w.getTempRow(output.period));

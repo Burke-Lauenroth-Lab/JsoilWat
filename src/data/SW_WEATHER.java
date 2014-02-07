@@ -162,13 +162,13 @@ public class SW_WEATHER {
 		public double[] getRunoffRow(SW_OUTPUT.OutPeriod pd) {
 			switch (pd) {
 			case SW_DAY:
-				return new double[] {dysum.surfaceRunoff, dysum.snowRunoff};
+				return new double[] {dysum.surfaceRunoff + dysum.snowRunoff, dysum.surfaceRunoff, dysum.snowRunoff};
 			case SW_WEEK:
-				return new double[] {wkavg.surfaceRunoff, wkavg.snowRunoff};
+				return new double[] {wkavg.surfaceRunoff + wkavg.snowRunoff, wkavg.surfaceRunoff, wkavg.snowRunoff};
 			case SW_MONTH:
-				return new double[] {moavg.surfaceRunoff, moavg.snowRunoff};
+				return new double[] {moavg.surfaceRunoff + moavg.snowRunoff, moavg.surfaceRunoff, moavg.snowRunoff};
 			case SW_YEAR:
-				return new double[] {yravg.surfaceRunoff, yravg.snowRunoff};
+				return new double[] {yravg.surfaceRunoff + yravg.snowRunoff, yravg.surfaceRunoff, yravg.snowRunoff};
 			default:
 				return null;
 			}
