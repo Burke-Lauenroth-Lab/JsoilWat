@@ -1,4 +1,4 @@
-import data.SW_CONTROL;
+import soilwat.SW_CONTROL;
 
 public class Main {
 	public static void main(String[] args) {
