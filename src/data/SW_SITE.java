@@ -454,7 +454,7 @@ public class SW_SITE {
 								too_many_regions = true;
 								break;
 							}
-							this.transpirationRegions.set(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+							this.transpirationRegions.set(Integer.parseInt(values[0]), Integer.parseInt(values[1])-1);
 						} catch(NumberFormatException e) {
 							f.LogError(LogFileIn.LogMode.ERROR, "SiteIn onRead : Monthly Production - Grasslands: Could not convert string to double. " + e.getMessage());
 						}

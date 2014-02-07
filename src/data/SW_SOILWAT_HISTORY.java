@@ -90,6 +90,7 @@ public class SW_SOILWAT_HISTORY {
 				f.LogError(LogFileIn.LogMode.WARN, "SwcHistory onWrite : No data from files or default.");
 			}
 		}
+		
 		public void onClear() {
 			this.nDaysInYear=0;
 			this.nLayers=0;
@@ -208,7 +209,7 @@ public class SW_SOILWAT_HISTORY {
 	}
 	
 	public boolean swcMissing(int doy) {
-		if(Double.compare(this.swcHist.get(yearToIndex.get(nCurrentYear)).swc[doy-1][1], MISSING)==0)
+		if(Defines.EQ(this.swcHist.get(yearToIndex.get(nCurrentYear)).swc[doy-1][1], MISSING))
 			return true;
 		else
 			return false;

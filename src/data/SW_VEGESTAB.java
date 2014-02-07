@@ -122,6 +122,9 @@ public class SW_VEGESTAB {
 	}
 	
 	public void SW_VES_new_year() {
+		if(this.count == 0)
+			return;
+		
 		for(int i=0; i<this.count; i++)
 			this.yrsum.days[i] = 0;
 	}
@@ -394,6 +397,7 @@ public class SW_VEGESTAB {
 		int Today = Defines.Today;
 
 		int i;
+		
 		double avgtemp = wn.temp_avg[Today], /* avg of today's min/max temp */
 				avgswc; /* avg_swc today */
 

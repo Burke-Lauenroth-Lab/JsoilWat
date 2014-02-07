@@ -739,18 +739,18 @@ public class SW_SOILWATER {
 		}
 
 		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++)
-			soilwat.is_wet[i] = (Double.compare( soilwat.swcBulk[TwoDays.Today.ordinal()][i], SW_Soils.getLayer(i).swcBulk_wet)>=0);
+			soilwat.is_wet[i] = (Defines.GE( soilwat.swcBulk[Defines.Today][i], SW_Soils.getLayer(i).swcBulk_wet));
 	}
 	public void SW_SWC_end_doy() {
 		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
-			this.soilwat.swcBulk[TwoDays.Yesterday.ordinal()][i] = soilwat.swcBulk[TwoDays.Today.ordinal()][i];
+			this.soilwat.swcBulk[Defines.Yesterday][i] = soilwat.swcBulk[Defines.Today][i];
 		}
-		soilwat.snowpack[TwoDays.Yesterday.ordinal()] = soilwat.snowpack[TwoDays.Today.ordinal()];
+		soilwat.snowpack[Defines.Yesterday] = soilwat.snowpack[Defines.Today];
 	}
 	public void SW_SWC_new_year() {
 		int year = SW_Model.getYear();
-		int Today = TwoDays.Today.ordinal();
-		int Yesterday = TwoDays.Yesterday.ordinal();
+		int Today = Defines.Today;
+		int Yesterday = Defines.Yesterday;
 		
 		boolean reset = (SW_Site.getModel().flags.reset_yr || SW_Model.getYear()==SW_Model.getStartYear());
 		soilwat.yrsum.onClear();
@@ -786,7 +786,7 @@ public class SW_SOILWATER {
 		 */
 		doy--;
 		double upper, lower;
-		int Today = TwoDays.Today.ordinal();
+		int Today = Defines.Today;
 		//int Yesterday = TwoDays.Yesterday.ordinal();
 		
 		switch (soilwat.method) {
@@ -802,9 +802,9 @@ public class SW_SOILWATER {
 			{
 				upper = hist.getSWC(doy)[lyr] + hist.getStd_err(doy)[lyr];
 				lower = hist.getSWC(doy)[lyr] - hist.getStd_err(doy)[lyr];
-				if (Double.compare(soilwat.swcBulk[Today][lyr], upper) > 0)
+				if (Defines.GT(soilwat.swcBulk[Today][lyr], upper))
 					soilwat.swcBulk[Today][lyr] = upper;
-				else if (Double.compare(soilwat.swcBulk[Today][lyr], lower) < 0)
+				else if (Defines.LT(soilwat.swcBulk[Today][lyr], lower))
 					soilwat.swcBulk[Today][lyr] = lower;
 			}
 			break;
