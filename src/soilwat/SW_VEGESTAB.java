@@ -13,10 +13,68 @@ import soilwat.LogFileIn.LogMode;
 
 public class SW_VEGESTAB {
 
-	private static final int SW_GERM_BARS=0;
-	private static final int SW_ESTAB_BARS=1;
+	public static final int SW_GERM_BARS=0;
+	public static final int SW_ESTAB_BARS=1;
 	
-	public class SW_VEGESTAB_INFO {
+	public static class SPP_INPUT_DATA {
+		/* THESE VARIABLES DO NOT CHANGE DURING THE NORMAL MODEL RUN */
+		public class SoilLayerParams {
+			public int estab_lyrs;	/* estab could conceivably need more than one layer */
+									/* swc is averaged over these top layers to compare to */
+									/* the converted value from min_swc_estab */
+			public double bars[] = new double[2]; 			/* read from input, saved for reporting */
+			public void onSet(int estab_lyrs, double swpGermination, double swpEstablishment) {
+				this.estab_lyrs = estab_lyrs;
+				this.bars[SW_GERM_BARS] = swpGermination;
+				this.bars[SW_ESTAB_BARS] = swpEstablishment;
+			}
+		}
+		public class TimingParams {
+			public int min_pregerm_days, /* first possible day of germination */
+			max_pregerm_days, 		/* last possible day of germination */
+			min_wetdays_for_germ, 	/* number of consecutive days top layer must be */
+									/* "wet" in order for germination to occur. */
+			max_drydays_postgerm, 	/* maximum number of consecutive dry days after */
+									/* germination before establishment can no longer occur. */
+			min_wetdays_for_estab, 	/* minimum number of consecutive days the top layer */
+									/* must be "wet" in order to establish */
+			min_days_germ2estab, 	/* minimum number of days to wait after germination */
+									/* and seminal roots wet before check for estab. */
+			max_days_germ2estab; 	/* maximum number of days after germination to wait */
+									/* for establishment */
+			public void onSet(int min_pregerm_days, int max_pregerm_days, int min_wetdays_for_germ, int max_drydays_postgerm,
+					int min_wetdays_for_estab, int min_days_germ2estab, int max_days_germ2estab) {
+				this.min_pregerm_days = min_pregerm_days;
+				this.max_pregerm_days = max_pregerm_days;
+				this.min_wetdays_for_germ = min_wetdays_for_germ;
+				this.max_drydays_postgerm = max_drydays_postgerm;
+				this.min_wetdays_for_estab = min_wetdays_for_estab;
+				this.min_days_germ2estab = min_days_germ2estab;
+				this.max_days_germ2estab = max_days_germ2estab;
+			}
+		}
+		public class TempParams {
+			public double min_temp_germ, 	/* min avg daily temp req't for germination */
+			max_temp_germ, 	/* max temp for germ in degC */
+			min_temp_estab, /* min avg daily temp req't for establishment */
+			max_temp_estab; /* max temp for estab in degC */
+			public void onSet(double min_temp_germ, double max_temp_germ, double min_temp_estab, double max_temp_estab) {
+				this.min_temp_germ = min_temp_germ;
+				this.max_temp_germ = max_temp_germ;
+				this.min_temp_estab = min_temp_estab;
+				this.max_temp_estab = max_temp_estab;
+			}
+		}
+		public SoilLayerParams soilLayerParams = new SoilLayerParams();
+		public TimingParams timingParams = new TimingParams();
+		public TempParams tempParams = new TempParams();
+		public String sppName;
+		
+		//public void onSet(String sppName, int )
+	}
+	
+	protected class SW_VEGESTAB_INFO extends SPP_INPUT_DATA {
+		public String sppFileName;
 		/* THESE VARIABLES CAN CHANGE VALUE IN THE MODEL */
 		public int estab_doy, 	/* day of establishment for this plant */
 		germ_days, 				/* elapsed days since germination with no estab */
@@ -25,44 +83,19 @@ public class SW_VEGESTAB {
 		wetdays_for_estab;
 		public boolean germd, 	/* has this plant germinated yet?  */
 		no_estab; 				/* if TRUE, can't attempt estab for remainder of year */
-		
-		/* THESE VARIABLES DO NOT CHANGE DURING THE NORMAL MODEL RUN */
-		public String sppFileName;
-		public String sppName;
-		public int min_pregerm_days, /* first possible day of germination */
-		max_pregerm_days, 		/* last possible day of germination */
-		min_wetdays_for_germ, 	/* number of consecutive days top layer must be */
-								/* "wet" in order for germination to occur. */
-		max_drydays_postgerm, 	/* maximum number of consecutive dry days after */
-								/* germination before establishment can no longer occur. */
-		min_wetdays_for_estab, 	/* minimum number of consecutive days the top layer */
-								/* must be "wet" in order to establish */
-		min_days_germ2estab, 	/* minimum number of days to wait after germination */
-								/* and seminal roots wet before check for estab. */
-		max_days_germ2estab; 	/* maximum number of days after germination to wait */
-								/* for establishment */
-		public int estab_lyrs;	/* estab could conceivably need more than one layer */
-								/* swc is averaged over these top layers to compare to */
-								/* the converted value from min_swc_estab */
-		public double bars[], 			/* read from input, saved for reporting */
-		min_swc_germ, 	/* wetting point required for germination converted from */
-						/* bars to cm per layer for efficiency in the loop */
-		min_swc_estab, 	/* same as min_swc_germ but for establishment */
-						/* this is the average of the swc of the first estab_lyrs */
-		min_temp_germ, 	/* min avg daily temp req't for germination */
-		max_temp_germ, 	/* max temp for germ in degC */
-		min_temp_estab, /* min avg daily temp req't for establishment */
-		max_temp_estab; /* max temp for estab in degC */
-		
+		public double min_swc_germ, 	/* wetting point required for germination converted from */
+										/* bars to cm per layer for efficiency in the loop */
+		min_swc_estab; 					/* same as min_swc_germ but for establishment */
+										/* this is the average of the swc of the first estab_lyrs */
+				
 		private boolean data;
 		
-		public SW_VEGESTAB_INFO() {
+		protected SW_VEGESTAB_INFO() {
 			this.data=false;
-			this.bars = new double[2];
 		}
 	}
 	
-	public class SW_VEGESTAB_OUTPUTS {
+	protected class SW_VEGESTAB_OUTPUTS {
 		private int[] days = null;
 	}
 	
@@ -80,7 +113,7 @@ public class SW_VEGESTAB {
 	private SW_SOILS SW_Soils;
 	private boolean EchoInits;
 	
-	public SW_VEGESTAB(SW_WEATHER SW_Weather, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_SOILS SW_Soils) {
+	protected SW_VEGESTAB(SW_WEATHER SW_Weather, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_SOILS SW_Soils) {
 		this.use = false;
 		this.count = 0;
 		this.params = new ArrayList<SW_VEGESTAB_INFO>();
@@ -94,7 +127,7 @@ public class SW_VEGESTAB {
 		this.SW_Soils = SW_Soils;
 	}
 	
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		if(use) {
 			for(int i=0; i<this.count; i++)
 				_spp_init(i);
@@ -107,18 +140,18 @@ public class SW_VEGESTAB {
 		return true;
 	}
 	
-	public SW_VEGESTAB_OUTPUTS get_yrsum() {
+	protected SW_VEGESTAB_OUTPUTS get_yrsum() {
 		return yrsum;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.data = false;
 		this.params.clear();
 		this.yravg.days = null;
 		this.yravg.days = null;
 	}
 	
-	public void SW_VES_new_year() {
+	protected void SW_VES_new_year() {
 		if(this.count == 0)
 			return;
 		
@@ -126,12 +159,12 @@ public class SW_VEGESTAB {
 			this.yrsum.days[i] = 0;
 	}
 	
-	public void onCheckEstab(int modelDOY) {
+	protected void onCheckEstab(int modelDOY) {
 		for(int i=0; i<this.count;i++)
 			_checkit(modelDOY, i);
 	}
 	
-	public void onRead(Path estabIn, Path prjDir) throws IOException {
+	protected void onRead(Path estabIn, Path prjDir) throws IOException {
 		int lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(estabIn, StandardCharsets.UTF_8);
@@ -170,7 +203,7 @@ public class SW_VEGESTAB {
 		this.data = true;
 	}
 	
-	public void onWrite(Path estabIn, Path prjDir) throws IOException {
+	protected void onWrite(Path estabIn, Path prjDir) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# list of filenames for which to check establishment");
@@ -221,7 +254,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for number of layers affecting establishment.");
 					try {
-						v.estab_lyrs = Integer.parseInt(values[0]);
+						v.soilLayerParams.estab_lyrs = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert number of layers affecting establishment line.");
 					}
@@ -230,7 +263,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for germination (top layer).");
 					try {
-						v.bars[SW_GERM_BARS] = Double.valueOf(values[0]);
+						v.soilLayerParams.bars[SW_GERM_BARS] = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for germination (top layer) line.");
 					}
@@ -239,7 +272,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for establishment (average of top layers).");
 					try {
-						v.bars[SW_ESTAB_BARS] = Double.valueOf(values[0]);
+						v.soilLayerParams.bars[SW_ESTAB_BARS] = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for establishment (average of top layers) line.");
 					}
@@ -248,7 +281,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for first possible day of germination.");
 					try {
-						v.min_pregerm_days = Integer.parseInt(values[0]);
+						v.timingParams.min_pregerm_days = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert first possible day of germination line.");
 					}
@@ -257,7 +290,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for last possible day of germination.");
 					try {
-						v.max_pregerm_days = Integer.parseInt(values[0]);
+						v.timingParams.max_pregerm_days = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert last possible day of germination line.");
 					}
@@ -266,7 +299,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days for germination to occur.");
 					try {
-						v.min_wetdays_for_germ = Integer.parseInt(values[0]);
+						v.timingParams.min_wetdays_for_germ = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of consecutive 'wet' days for germination to occur line.");
 					}
@@ -275,7 +308,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of consecutive 'dry' days after germination allowing estab.");
 					try {
-						v.max_drydays_postgerm = Integer.parseInt(values[0]);
+						v.timingParams.max_drydays_postgerm = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of consecutive 'dry' days after germination allowing estab line.");
 					}
@@ -284,7 +317,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days after germination before establishment.");
 					try {
-						v.min_wetdays_for_estab = Integer.parseInt(values[0]);
+						v.timingParams.min_wetdays_for_estab = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert consecutive 'wet' days after germination before establishment line.");
 					}
@@ -293,7 +326,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of days between germination and establishment.");
 					try {
-						v.min_days_germ2estab = Integer.parseInt(values[0]);
+						v.timingParams.min_days_germ2estab = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of days between germination and establishment line.");
 					}
@@ -302,7 +335,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of days between germination and establishment.");
 					try {
-						v.max_days_germ2estab = Integer.parseInt(values[0]);
+						v.timingParams.max_days_germ2estab = Integer.parseInt(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of days between germination and establishment line.");
 					}
@@ -311,7 +344,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for germination.");
 					try {
-						v.min_temp_germ = Double.valueOf(values[0]);
+						v.tempParams.min_temp_germ = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for germination line.");
 					}
@@ -320,7 +353,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for germination.");
 					try {
-						v.max_temp_germ = Double.valueOf(values[0]);
+						v.tempParams.max_temp_germ = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for germination line.");
 					}
@@ -329,7 +362,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for establishment.");
 					try {
-						v.min_temp_estab = Double.valueOf(values[0]);
+						v.tempParams.min_temp_estab = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for establishment line.");
 					}
@@ -338,7 +371,7 @@ public class SW_VEGESTAB {
 					if(values.length > 1)
 						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for establishment.");
 					try {
-						v.max_temp_estab = Double.valueOf(values[0]);
+						v.tempParams.max_temp_estab = Double.valueOf(values[0]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
 					}
@@ -363,22 +396,22 @@ public class SW_VEGESTAB {
 			List<String> lines = new ArrayList<String>();
 			lines.add(v.sppName + "\t" + "# 4-char name of species");
 			lines.add("# soil layer parameters");
-			lines.add(v.estab_lyrs + "\t" + "# number of layers affecting establishment");
-			lines.add(v.bars[SW_GERM_BARS] + "\t" + "# SWP (bars) requirement for germination (top layer)");
-			lines.add(v.bars[SW_ESTAB_BARS] + "\t" + "# SWP (bars) requirement for establishment (average of top layers)");
+			lines.add(v.soilLayerParams.estab_lyrs + "\t" + "# number of layers affecting establishment");
+			lines.add(v.soilLayerParams.bars[SW_GERM_BARS] + "\t" + "# SWP (bars) requirement for germination (top layer)");
+			lines.add(v.soilLayerParams.bars[SW_ESTAB_BARS] + "\t" + "# SWP (bars) requirement for establishment (average of top layers)");
 			lines.add("# timing parameters in days");
-			lines.add(v.min_pregerm_days + "\t" + "# first possible day of germination");
-			lines.add(v.max_pregerm_days + "\t" + "# last possible day of germination");
-			lines.add(v.min_wetdays_for_germ + "\t" + "# min number of consecutive 'wet' days for germination to occur");
-			lines.add(v.max_drydays_postgerm + "\t" + "# max number of consecutive 'dry' days after germination allowing estab");
-			lines.add(v.min_wetdays_for_estab + "\t" + "# min number of consecutive 'wet' days after germination before establishment");
-			lines.add(v.min_days_germ2estab + "\t" + "# min number of days between germination and establishment");
-			lines.add(v.max_days_germ2estab + "\t" + "# max number of days between germination and establishment");
+			lines.add(v.timingParams.min_pregerm_days + "\t" + "# first possible day of germination");
+			lines.add(v.timingParams.max_pregerm_days + "\t" + "# last possible day of germination");
+			lines.add(v.timingParams.min_wetdays_for_germ + "\t" + "# min number of consecutive 'wet' days for germination to occur");
+			lines.add(v.timingParams.max_drydays_postgerm + "\t" + "# max number of consecutive 'dry' days after germination allowing estab");
+			lines.add(v.timingParams.min_wetdays_for_estab + "\t" + "# min number of consecutive 'wet' days after germination before establishment");
+			lines.add(v.timingParams.min_days_germ2estab + "\t" + "# min number of days between germination and establishment");
+			lines.add(v.timingParams.max_days_germ2estab + "\t" + "# max number of days between germination and establishment");
 			lines.add("# temperature parameters in C");
-			lines.add(v.min_temp_germ + "\t" + "# min temp threshold for germination");
-			lines.add(v.max_temp_germ + "\t" + "# max temp threshold for germination");
-			lines.add(v.min_temp_estab + "\t" + "# min temp threshold for establishment");
-			lines.add(v.max_temp_estab + "\t" + "# max temp threshold for establishment");
+			lines.add(v.tempParams.min_temp_germ + "\t" + "# min temp threshold for germination");
+			lines.add(v.tempParams.max_temp_germ + "\t" + "# max temp threshold for germination");
+			lines.add(v.tempParams.min_temp_estab + "\t" + "# min temp threshold for establishment");
+			lines.add(v.tempParams.max_temp_estab + "\t" + "# max temp threshold for establishment");
 			Files.write(sppFile, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
@@ -411,20 +444,20 @@ public class SW_VEGESTAB {
 		else
 			v.wetdays_for_germ = 0;
 
-		if (doy < v.min_pregerm_days)
+		if (doy < v.timingParams.min_pregerm_days)
 			return;
 
 		/* ---- check for germination, establishment */
-		if (!v.germd && v.wetdays_for_germ >= v.min_wetdays_for_germ) {
+		if (!v.germd && v.wetdays_for_germ >= v.timingParams.min_wetdays_for_germ) {
 
-			if (doy < v.min_pregerm_days)
+			if (doy < v.timingParams.min_pregerm_days)
 				return;
-			if (doy > v.max_pregerm_days) {
+			if (doy > v.timingParams.max_pregerm_days) {
 				v.no_estab = true;
 				return;
 			}
 			/* temp doesn't affect wetdays */
-			if (Defines.LT(avgtemp, v.min_temp_germ) || Defines.GT(avgtemp, v.max_temp_germ))
+			if (Defines.LT(avgtemp, v.tempParams.min_temp_germ) || Defines.GT(avgtemp, v.tempParams.max_temp_germ))
 				return;
 
 			v.germd = true;
@@ -435,9 +468,9 @@ public class SW_VEGESTAB {
 			/* any dry period (> max_drydays) or temp out of range
 			 * after germination means restart */
 			avgswc = 0;
-			for (i = 0; i < v.estab_lyrs;)
+			for (i = 0; i < v.soilLayerParams.estab_lyrs;)
 				avgswc += sw.swcBulk[Today][i++];
-			avgswc /= (double) v.estab_lyrs;
+			avgswc /= (double) v.soilLayerParams.estab_lyrs;
 			if (Defines.LT(avgswc, v.min_swc_estab)) {
 				v.drydays_postgerm++;
 				v.wetdays_for_estab = 0;
@@ -446,7 +479,7 @@ public class SW_VEGESTAB {
 				v.wetdays_for_estab++;
 			}
 
-			if (v.drydays_postgerm > v.max_drydays_postgerm || Defines.LT(avgtemp, v.min_temp_estab) || Defines.GT(avgtemp, v.max_temp_estab)) {
+			if (v.drydays_postgerm > v.timingParams.max_drydays_postgerm || Defines.LT(avgtemp, v.tempParams.min_temp_estab) || Defines.GT(avgtemp, v.tempParams.max_temp_estab)) {
 				/* too bad: discontinuity in environment, plant dies, start over */
 				_EstabFailed(sppnum);
 				return;
@@ -454,12 +487,12 @@ public class SW_VEGESTAB {
 
 			v.germ_days++;
 
-			if (v.wetdays_for_estab < v.min_wetdays_for_estab || v.germ_days < v.min_days_germ2estab) {
+			if (v.wetdays_for_estab < v.timingParams.min_wetdays_for_estab || v.germ_days < v.timingParams.min_days_germ2estab) {
 				return;
 				/* no need to zero anything */
 			}
 
-			if (v.germ_days > v.max_days_germ2estab) {
+			if (v.germ_days > v.timingParams.max_days_germ2estab) {
 				_EstabFailed(sppnum);
 				return;
 			}
@@ -495,15 +528,15 @@ public class SW_VEGESTAB {
 		/* The thetas and psis etc should be initialized by now */
 		/* because init_layers() must be called prior to this routine */
 		/* (see watereqn() ) */
-		v.min_swc_germ = SW_SOILWATER.SW_SWPmatric2VWCBulk(SW_Soils.getLayer(0).fractionVolBulk_gravel, v.bars[SW_GERM_BARS], SW_Soils.getLayer(0).psisMatric, SW_Soils.getLayer(0).binverseMatric, SW_Soils.getLayer(0).thetasMatric) * SW_Soils.getLayer(0).width;
+		v.min_swc_germ = SW_SOILWATER.SW_SWPmatric2VWCBulk(SW_Soils.getLayer(0).fractionVolBulk_gravel, v.soilLayerParams.bars[SW_GERM_BARS], SW_Soils.getLayer(0).psisMatric, SW_Soils.getLayer(0).binverseMatric, SW_Soils.getLayer(0).thetasMatric) * SW_Soils.getLayer(0).width;
 
 		/* due to possible differences in layer textures and widths, we need
 		 * to average the estab swc across the given layers to peoperly
 		 * compare the actual swc average in the checkit() routine */
 		v.min_swc_estab = 0.;
-		for (i = 0; i < v.estab_lyrs; i++)
-			v.min_swc_estab += SW_SOILWATER.SW_SWPmatric2VWCBulk(SW_Soils.getLayer(i).fractionVolBulk_gravel, v.bars[SW_ESTAB_BARS], SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).binverseMatric, SW_Soils.getLayer(i).thetasMatric) * SW_Soils.getLayer(i).width;
-		v.min_swc_estab /= v.estab_lyrs;
+		for (i = 0; i < v.soilLayerParams.estab_lyrs; i++)
+			v.min_swc_estab += SW_SOILWATER.SW_SWPmatric2VWCBulk(SW_Soils.getLayer(i).fractionVolBulk_gravel, v.soilLayerParams.bars[SW_ESTAB_BARS], SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).binverseMatric, SW_Soils.getLayer(i).thetasMatric) * SW_Soils.getLayer(i).width;
+		v.min_swc_estab /= v.soilLayerParams.estab_lyrs;
 
 		_sanity_check(sppnum);
 	}
@@ -517,16 +550,16 @@ public class SW_VEGESTAB {
 
 		min_transp_lyrs = Math.min(SW_Soils.getLayersInfo().n_transp_lyrs_tree, Math.min(SW_Soils.getLayersInfo().n_transp_lyrs_forb, Math.min(SW_Soils.getLayersInfo().n_transp_lyrs_shrub, SW_Soils.getLayersInfo().n_transp_lyrs_grass)));
 
-		if (v.estab_lyrs > min_transp_lyrs) {
+		if (v.soilLayerParams.estab_lyrs > min_transp_lyrs) {
 			f.LogError(LogMode.FATAL, String.format( "%s : Layers requested (estab_lyrs) > (# transpiration layers=%d).", v.sppFileName, min_transp_lyrs));
 		}
 
-		if (v.min_pregerm_days > v.max_pregerm_days) {
+		if (v.timingParams.min_pregerm_days > v.timingParams.max_pregerm_days) {
 			f.LogError(LogMode.FATAL, String.format( "%s : First day of germination > last day of germination.", v.sppFileName));
 		}
 
-		if (v.min_wetdays_for_estab > v.max_days_germ2estab) {
-			f.LogError(LogMode.FATAL, String.format( "%s : Minimum wetdays after germination (%d) > maximum days allowed for establishment (%d).", v.sppFileName, v.min_wetdays_for_estab, v.max_days_germ2estab));
+		if (v.timingParams.min_wetdays_for_estab > v.timingParams.max_days_germ2estab) {
+			f.LogError(LogMode.FATAL, String.format( "%s : Minimum wetdays after germination (%d) > maximum days allowed for establishment (%d).", v.sppFileName, v.timingParams.min_wetdays_for_estab, v.timingParams.max_days_germ2estab));
 		}
 
 		if (v.min_swc_germ < SW_Soils.getLayer(0).swcBulk_wiltpt) {
@@ -571,11 +604,11 @@ public class SW_VEGESTAB {
 					"\tMaximum consecutive dry days after germination: %d\n"+
 					"---------------------------------------------------------------\n\n",
 
-			v.sppName, v.bars[SW_GERM_BARS], v.min_swc_germ / SW_Soils.getLayer(0).width, v.min_swc_germ, v.min_temp_germ, v.max_temp_germ, v.min_pregerm_days,
-					v.max_pregerm_days, v.min_wetdays_for_germ,
+			v.sppName, v.soilLayerParams.bars[SW_GERM_BARS], v.min_swc_germ / SW_Soils.getLayer(0).width, v.min_swc_germ, v.tempParams.min_temp_germ, v.tempParams.max_temp_germ, v.timingParams.min_pregerm_days,
+				v.timingParams.max_pregerm_days, v.timingParams.min_wetdays_for_germ,
 
-					v.estab_lyrs, v.bars[SW_ESTAB_BARS], v.estab_lyrs, v.min_swc_estab, v.min_temp_estab, v.max_temp_estab, v.min_days_germ2estab,
-					v.max_days_germ2estab, v.min_wetdays_for_estab, v.max_drydays_postgerm
+					v.soilLayerParams.estab_lyrs, v.soilLayerParams.bars[SW_ESTAB_BARS], v.soilLayerParams.estab_lyrs, v.min_swc_estab, v.tempParams.min_temp_estab, v.tempParams.max_temp_estab, v.timingParams.min_days_germ2estab,
+					v.timingParams.max_days_germ2estab, v.timingParams.min_wetdays_for_estab, v.timingParams.max_drydays_postgerm
 
 					));
 		}

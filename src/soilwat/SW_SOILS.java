@@ -7,36 +7,53 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import soilwat.InputData.SoilsIn;
 import soilwat.LogFileIn.LogMode;
 
 public class SW_SOILS {
-	public class SW_LAYER_INFO {
-		public double depth,/*for printing out line*/
-		width, /* width of the soil layer (cm) */
-		soilBulk_density, /* bulk soil density, i.e., including gravel component, (g/cm3) */
-		evap_coeff, /* prop. of total soil evap from this layer */
-		transp_coeff_forb, transp_coeff_tree, transp_coeff_shrub, transp_coeff_grass, /* prop. of total transp from this layer    */
-		soilMatric_density, /* matric soil density, i.e., gravel component excluded, (g/cm3) */
-		fractionVolBulk_gravel, /* gravel content (> 2 mm) as volume-fraction of bulk soil (g/cm3) */
-		fractionWeightMatric_sand, /* sand content (< 2 mm & > . mm) as weight-fraction of matric soil (g/g) */
-		fractionWeightMatric_clay, /* clay content (< . mm & > . mm) as weight-fraction of matric soil (g/g) */
-		swcBulk_fieldcap, /* field_cap * width                        */
+	public static class SOILS_INPUT_DATA {
+		public double depth; /*for printing out line*/
+		public double soilMatric_density; /* matric soil density, i.e., gravel component excluded, (g/cm3) */
+		public double fractionVolBulk_gravel; /* gravel content (> 2 mm) as volume-fraction of bulk soil (g/cm3) */
+		public double evap_coeff; /* prop. of total soil evap from this layer */
+		public double transp_coeff_forb, transp_coeff_tree, transp_coeff_shrub, transp_coeff_grass; /* prop. of total transp from this layer    */
+		public double fractionWeightMatric_sand; /* sand content (< 2 mm & > . mm) as weight-fraction of matric soil (g/g) */
+		public double fractionWeightMatric_clay; /* clay content (< . mm & > . mm) as weight-fraction of matric soil (g/g) */
+		public double impermeability; /* fraction of how impermeable a layer is (0=permeable, 1=impermeable)    */
+		public double sTemp; /* initial soil temperature for each soil layer */
+		
+		public void onSet(double depth, double matricd, double gravel_content, double evco, double trco_grass, double trco_shrub, double trco_tree,
+				double trco_forb, double perc_sand, double perc_clay, double imperm, double soiltemp) {
+			this.depth = depth;
+			this.soilMatric_density = matricd;
+			this.fractionVolBulk_gravel = gravel_content;
+			this.evap_coeff = evco;
+			this.transp_coeff_grass = trco_grass;
+			this.transp_coeff_shrub = trco_shrub;
+			this.transp_coeff_tree = trco_tree;
+			this.transp_coeff_forb = trco_forb;
+			this.fractionWeightMatric_sand = perc_sand;
+			this.fractionWeightMatric_clay = perc_clay;
+			this.impermeability = imperm;
+			this.sTemp = soiltemp;
+		}
+	}
+	protected class SW_LAYER_INFO extends SOILS_INPUT_DATA {
+		protected double width, /* width of the soil layer (cm) */
+		soilBulk_density; /* bulk soil density, i.e., including gravel component, (g/cm3) */
+		protected double swcBulk_fieldcap, /* field_cap * width                        */
 		swcBulk_wiltpt, /* wilting_pt * width                       */
 		swcBulk_wet, /* swc considered "wet" (cm) *width         */
 		swcBulk_init, /* start the model at this swc (cm) *width  */
 		swcBulk_min, /* swc cannot go below this (cm) *width     */
-		swcBulk_saturated, /* saturated soil water content (cm) * width */
-		impermeability, /* fraction of how impermeable a layer is (0=permeable, 1=impermeable)    */
-		swcBulk_atSWPcrit_forb, swcBulk_atSWPcrit_tree, swcBulk_atSWPcrit_shrub, swcBulk_atSWPcrit_grass, /* swc at the critical soil water potential */
-
+		swcBulk_saturated; /* saturated soil water content (cm) * width */
+		protected double swcBulk_atSWPcrit_forb, swcBulk_atSWPcrit_tree, swcBulk_atSWPcrit_shrub, swcBulk_atSWPcrit_grass, /* swc at the critical soil water potential */
 		thetasMatric, /* This group is parameters for */
 		psisMatric, /* Cosby et al. (1982) SWC <. SWP */
 		bMatric, /* conversion functions. */
-		binverseMatric,
-
-		sTemp; /* initial soil temperature for each soil layer */
+		binverseMatric;
 		
-		public int my_transp_rgn_forb, my_transp_rgn_tree, my_transp_rgn_shrub, my_transp_rgn_grass; /* which transp zones from Site am I in? */
+		protected int my_transp_rgn_forb, my_transp_rgn_tree, my_transp_rgn_shrub, my_transp_rgn_grass; /* which transp zones from Site am I in? */
 		
 		public String toString() {
 			return String.format("%7.3f %10.3f      %-12.3f %7.3f %13.3f %13.3f %12.3f %12.3f %8.3f %8.3f %9.3f %11.3f", this.depth, this.soilMatric_density, this.fractionVolBulk_gravel,
@@ -50,7 +67,7 @@ public class SW_SOILS {
 			my_transp_rgn_forb = 0;
 		}
 	}
-	public class LayersInfo {
+	protected class LayersInfo {
 		public int n_layers, /* total number of soil layers */
 		n_transp_rgn, /* soil layers are grouped into n transp. regions */
 		n_evap_lyrs, /* number of layers in which evap is possible */
@@ -65,7 +82,7 @@ public class SW_SOILS {
 	private boolean data;
 	private boolean deepdrainSet;
 	
-	public SW_SOILS() {
+	protected SW_SOILS() {
 		this.layersInfo = new LayersInfo();
 		this.layers = new SW_LAYER_INFO[Defines.MAX_LAYERS];
 		for(int i=0; i<Defines.MAX_LAYERS;  i++)
@@ -80,7 +97,7 @@ public class SW_SOILS {
 		widths = null;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.data = false;
 		layersInfo.n_layers = 0;
 		layersInfo.n_transp_rgn=0;
@@ -93,7 +110,7 @@ public class SW_SOILS {
 			this.layers[i].onClear();
 	}
 	
-	public boolean onVerify(boolean siteModelDeepdrain) {
+	protected boolean onVerify(boolean siteModelDeepdrain) {
 		boolean fail = false;
 		LogFileIn f = LogFileIn.getInstance();
 		String message = "";
@@ -174,8 +191,34 @@ public class SW_SOILS {
 			return false;
 		}
 	}
-	
-	public void onRead(Path soilsIn) throws IOException {
+	protected void onSetInput(SoilsIn soilsIn) {
+		//Copy over all layers - could improve
+		double dmin=0.0,dmax;
+		layersInfo.n_layers=soilsIn.nLayers;
+		for(int i=0; i<Defines.MAX_LAYERS; i++) {
+			dmax = soilsIn.layers[i].depth;
+			this.layers[i].depth = dmax;
+			this.layers[i].width = dmax-dmin;
+			dmin = dmax;
+			this.layers[i].soilMatric_density = soilsIn.layers[i].soilMatric_density;
+			this.layers[i].fractionVolBulk_gravel = soilsIn.layers[i].fractionVolBulk_gravel;
+			this.layers[i].evap_coeff = soilsIn.layers[i].evap_coeff;
+			this.layers[i].transp_coeff_grass = soilsIn.layers[i].transp_coeff_grass ;
+			this.layers[i].transp_coeff_shrub = soilsIn.layers[i].transp_coeff_shrub;
+			this.layers[i].transp_coeff_tree = soilsIn.layers[i].transp_coeff_tree;
+			this.layers[i].transp_coeff_forb = soilsIn.layers[i].transp_coeff_forb;
+			this.layers[i].fractionWeightMatric_sand = soilsIn.layers[i].fractionWeightMatric_sand;
+			this.layers[i].fractionWeightMatric_clay = soilsIn.layers[i].fractionWeightMatric_clay;
+			this.layers[i].impermeability = soilsIn.layers[i].impermeability;
+			this.layers[i].my_transp_rgn_grass = 0;
+			this.layers[i].my_transp_rgn_shrub = 0;
+			this.layers[i].my_transp_rgn_tree = 0;
+			this.layers[i].my_transp_rgn_forb = 0;
+			this.layers[i].sTemp = soilsIn.layers[i].sTemp;
+		}
+		this.data = true;
+	}
+	protected void onRead(Path soilsIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(soilsIn, StandardCharsets.UTF_8);
 		this.data = false;
@@ -221,7 +264,7 @@ public class SW_SOILS {
 		this.data = true;
 	}
 	
-	public void onWrite(Path soilsIn) throws IOException {
+	protected void onWrite(Path soilsIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Soil layer definitions");
@@ -258,7 +301,7 @@ public class SW_SOILS {
 		}
 	}
 	
-	private void water_eqn(double fractionGravel, double sand, double clay, int n) {
+	protected void water_eqn(double fractionGravel, double sand, double clay, int n) {
 		double theta33, theta33t, OM = 0., thetasMatric33, thetasMatric33t; /* Saxton et al. auxiliary variables */
 
 		this.layers[n].thetasMatric = -14.2 * sand - 3.7 * clay + 50.5;
@@ -296,7 +339,7 @@ public class SW_SOILS {
 		return widths;
 	}
 	
-	public void _echo_inputs(String soilsFile) {
+	protected void _echo_inputs(String soilsFile) {
 		LogFileIn f = LogFileIn.getInstance();
 		
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("\nLayer Related Values:\n----------------------\n"));
@@ -360,19 +403,19 @@ public class SW_SOILS {
 		}
 	}
 	
-	public boolean get_echoinits() {
+	protected boolean get_echoinits() {
 		return this.EchoInits;
 	}
-	public void set_echoinits(boolean echo) {
+	protected void set_echoinits(boolean echo) {
 		this.EchoInits = echo;
 	}
-	public LayersInfo getLayersInfo() {
+	protected LayersInfo getLayersInfo() {
 		return layersInfo;
 	}
-	public SW_LAYER_INFO getLayer(int lyr) {
+	protected SW_LAYER_INFO getLayer(int lyr) {
 		return this.layers[lyr];
 	}
-	public double[] getWidths() {
+	protected double[] getWidths() {
 		return this.widths;
 	}
 }

@@ -239,7 +239,7 @@ public class SW_FLOW {
 
 		/* Interception */
 		p.ppt_toUse = SW_Weather.getNow().rain[Today]; /* ppt is partioned into ppt = snow + rain */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) { /* trees present AND trees not fully covered in snow */
+		if (Defines.GT(SW_VegProd.getVegetationComposition().tree, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) { /* trees present AND trees not fully covered in snow */
 			tree_intercepted_water(doy);
 			p.ppt_toUse = p.h2o_for_soil; /* amount of rain that is not intercepted by the forest canopy */
 		} else { /* snow depth is more than vegetation height  */
@@ -247,21 +247,21 @@ public class SW_FLOW {
 			p.tree_h2o = 0.;
 		} /* end forest interception */
 
-		if (Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().shrub, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) {
 			shrub_intercepted_water(doy);
 			p.ppt_toUse = p.h2o_for_soil; /* amount of rain that is not intercepted by the shrub canopy */
 		} else {
 			p.shrub_h2o = 0.;
 		} /* end shrub interception */
 
-		if (Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) { /* forbs present AND not fully covered in snow */
+		if (Defines.GT(SW_VegProd.getVegetationComposition().forb, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) { /* forbs present AND not fully covered in snow */
 			forb_intercepted_water(doy);
 			p.ppt_toUse = p.h2o_for_soil; /* amount of rain that is not intercepted by the forbs */
 		} else { /* snow depth is more than vegetation height  */
 			p.forb_h2o = 0.;
 		} /* end forb interception */
 
-		if (Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().grass, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) {
 			grass_intercepted_water(doy);
 		} else {
 			p.grass_h2o = 0.;
@@ -270,26 +270,26 @@ public class SW_FLOW {
 		if (Defines.EQ(soilWat.snowpack[Today], 0.)) { /* litter interception only when no snow */
 			p.litter_h2o_help = 0.;
 
-			if (Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.)) {
-				litter_intercepted_water(SW_VegProd.getDailyValues().tree.litter_daily[doy], SW_VegProd.getVegetationComposition().trees, SW_VegProd.getLitterInterceptionParameters().trees.a,
+			if (Defines.GT(SW_VegProd.getVegetationComposition().tree, 0.)) {
+				litter_intercepted_water(SW_VegProd.getDailyValues().tree.litter_daily[doy], SW_VegProd.getVegetationComposition().tree, SW_VegProd.getLitterInterceptionParameters().trees.a,
 						SW_VegProd.getLitterInterceptionParameters().trees.b, SW_VegProd.getLitterInterceptionParameters().trees.c, SW_VegProd.getLitterInterceptionParameters().trees.d);
 				p.litter_h2o_help += p.litter_h2o;
 			}
 
-			if (Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.)) {
-				litter_intercepted_water(SW_VegProd.getDailyValues().shrub.litter_daily[doy], SW_VegProd.getVegetationComposition().shrubs, SW_VegProd.getLitterInterceptionParameters().shrubs.a,
+			if (Defines.GT(SW_VegProd.getVegetationComposition().shrub, 0.)) {
+				litter_intercepted_water(SW_VegProd.getDailyValues().shrub.litter_daily[doy], SW_VegProd.getVegetationComposition().shrub, SW_VegProd.getLitterInterceptionParameters().shrubs.a,
 						SW_VegProd.getLitterInterceptionParameters().shrubs.b, SW_VegProd.getLitterInterceptionParameters().shrubs.c, SW_VegProd.getLitterInterceptionParameters().shrubs.d);
 				p.litter_h2o_help += p.litter_h2o;
 			}
 
-			if (Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.)) {
-				litter_intercepted_water(SW_VegProd.getDailyValues().forb.litter_daily[doy], SW_VegProd.getVegetationComposition().forbs, SW_VegProd.getLitterInterceptionParameters().forbs.a,
+			if (Defines.GT(SW_VegProd.getVegetationComposition().forb, 0.)) {
+				litter_intercepted_water(SW_VegProd.getDailyValues().forb.litter_daily[doy], SW_VegProd.getVegetationComposition().forb, SW_VegProd.getLitterInterceptionParameters().forbs.a,
 						SW_VegProd.getLitterInterceptionParameters().forbs.b, SW_VegProd.getLitterInterceptionParameters().forbs.c, SW_VegProd.getLitterInterceptionParameters().forbs.d);
 				p.litter_h2o_help += p.litter_h2o;
 			}
 
-			if (Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.)) {
-				litter_intercepted_water(SW_VegProd.getDailyValues().grass.litter_daily[doy], SW_VegProd.getVegetationComposition().grasses, SW_VegProd.getLitterInterceptionParameters().grasses.a,
+			if (Defines.GT(SW_VegProd.getVegetationComposition().grass, 0.)) {
+				litter_intercepted_water(SW_VegProd.getDailyValues().grass.litter_daily[doy], SW_VegProd.getVegetationComposition().grass, SW_VegProd.getLitterInterceptionParameters().grasses.a,
 						SW_VegProd.getLitterInterceptionParameters().grasses.b, SW_VegProd.getLitterInterceptionParameters().grasses.c, SW_VegProd.getLitterInterceptionParameters().grasses.d);
 				p.litter_h2o_help += p.litter_h2o;
 			}
@@ -348,12 +348,12 @@ public class SW_FLOW {
 		}
 
 		/* Tree transpiration & bare-soil evaporation rates */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) { /* trees present AND trees not fully covered in snow */
+		if (Defines.GT(SW_VegProd.getVegetationComposition().tree, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) { /* trees present AND trees not fully covered in snow */
 			tree_EsT_partitioning(doy);
 
 			if (Defines.EQ(soilWat.snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_tree = pot_soil_evap("tree", doy);
-				p.soil_evap_rate_tree *= SW_VegProd.getVegetationComposition().trees;
+				p.soil_evap_rate_tree *= SW_VegProd.getVegetationComposition().tree;
 			} else {
 				p.soil_evap_rate_tree = 0.;
 			}
@@ -361,19 +361,19 @@ public class SW_FLOW {
 			p.swpot_avg_tree = transp_weighted_avg("tree",doy);
 
 			p.transp_rate_tree = pot_transp("tree", doy);
-			p.transp_rate_tree *= p.snowdepth_scale_tree * SW_VegProd.getVegetationComposition().trees;
+			p.transp_rate_tree *= p.snowdepth_scale_tree * SW_VegProd.getVegetationComposition().tree;
 		} else {
 			p.soil_evap_rate_tree = 0.;
 			p.transp_rate_tree = 0.;
 		}
 
 		/* Shrub transpiration & bare-soil evaporation rates */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) { /* shrubs present AND shrubs not fully covered in snow */
+		if (Defines.GT(SW_VegProd.getVegetationComposition().shrub, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) { /* shrubs present AND shrubs not fully covered in snow */
 			shrub_EsT_partitioning(doy);
 
 			if (Defines.EQ(soilWat.snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_shrub = pot_soil_evap("shrub", doy);
-				p.soil_evap_rate_shrub *= SW_VegProd.getVegetationComposition().shrubs;
+				p.soil_evap_rate_shrub *= SW_VegProd.getVegetationComposition().shrub;
 			} else {
 				p.soil_evap_rate_shrub = 0.;
 			}
@@ -381,7 +381,7 @@ public class SW_FLOW {
 			p.swpot_avg_shrub = transp_weighted_avg("shrub", doy);
 
 			p.transp_rate_shrub = pot_transp("shrub",doy);
-			p.transp_rate_shrub *= p.snowdepth_scale_shrub * SW_VegProd.getVegetationComposition().shrubs;
+			p.transp_rate_shrub *= p.snowdepth_scale_shrub * SW_VegProd.getVegetationComposition().shrub;
 
 		} else {
 			p.soil_evap_rate_shrub = 0.;
@@ -389,12 +389,12 @@ public class SW_FLOW {
 		}
 
 		/* Forb transpiration & bare-soil evaporation rates */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) { /* forbs present AND forbs not fully covered in snow */
+		if (Defines.GT(SW_VegProd.getVegetationComposition().forb, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) { /* forbs present AND forbs not fully covered in snow */
 			forb_EsT_partitioning(doy);
 
 			if (Defines.EQ(soilWat.snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_forb = pot_soil_evap("forb", doy);
-				p.soil_evap_rate_forb *= SW_VegProd.getVegetationComposition().forbs;
+				p.soil_evap_rate_forb *= SW_VegProd.getVegetationComposition().forb;
 			} else {
 				p.soil_evap_rate_forb = 0.;
 			}
@@ -402,7 +402,7 @@ public class SW_FLOW {
 			p.swpot_avg_forb = transp_weighted_avg("forb", doy);
 
 			p.transp_rate_forb = pot_transp("forb", doy);
-			p.transp_rate_forb *= p.snowdepth_scale_forb * SW_VegProd.getVegetationComposition().forbs;
+			p.transp_rate_forb *= p.snowdepth_scale_forb * SW_VegProd.getVegetationComposition().forb;
 
 		} else {
 			p.soil_evap_rate_forb = 0.;
@@ -410,12 +410,12 @@ public class SW_FLOW {
 		}
 
 		/* Grass transpiration & bare-soil evaporation rates */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) { /* grasses present AND grasses not fully covered in snow */
+		if (Defines.GT(SW_VegProd.getVegetationComposition().grass, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) { /* grasses present AND grasses not fully covered in snow */
 			grass_EsT_partitioning(doy);
 
 			if (Defines.EQ(soilWat.snowpack[Today], 0.)) { /* bare-soil evaporation only when no snow */
 				p.soil_evap_rate_grass = pot_soil_evap("grass", doy);
-				p.soil_evap_rate_grass *= SW_VegProd.getVegetationComposition().grasses;
+				p.soil_evap_rate_grass *= SW_VegProd.getVegetationComposition().grass;
 			} else {
 				p.soil_evap_rate_grass = 0.;
 			}
@@ -423,7 +423,7 @@ public class SW_FLOW {
 			p.swpot_avg_grass = transp_weighted_avg("grass", doy);
 
 			p.transp_rate_grass = pot_transp("grass", doy);
-			p.transp_rate_grass *= p.snowdepth_scale_grass * SW_VegProd.getVegetationComposition().grasses;
+			p.transp_rate_grass *= p.snowdepth_scale_grass * SW_VegProd.getVegetationComposition().grass;
 		} else {
 			p.soil_evap_rate_grass = 0.;
 			p.transp_rate_grass = 0.;
@@ -488,7 +488,7 @@ public class SW_FLOW {
 		}
 
 		/* Tree transpiration and bare-soil evaporation */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().tree, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) {
 			/* remove bare-soil evap from swc */
 			remove_from_soil(lyrEvap_Tree, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_tree, lyrSWCBulk_HalfWiltpts);
 
@@ -503,7 +503,7 @@ public class SW_FLOW {
 		}
 
 		/* Shrub transpiration and bare-soil evaporation */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().shrub, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) {
 			/* remove bare-soil evap from swc */
 			remove_from_soil(lyrEvap_Shrub, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_shrub, lyrSWCBulk_HalfWiltpts);
 
@@ -518,7 +518,7 @@ public class SW_FLOW {
 		}
 
 		/* Forb transpiration and bare-soil evaporation */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().forb, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) {
 			/* remove bare-soil evap from swc */
 			remove_from_soil(lyrEvap_Forb, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_forb, lyrSWCBulk_HalfWiltpts);
 
@@ -534,7 +534,7 @@ public class SW_FLOW {
 		}
 
 		/* Grass transpiration & bare-soil evaporation */
-		if (Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) {
+		if (Defines.GT(SW_VegProd.getVegetationComposition().grass, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) {
 			/* remove bare-soil evap from swc */
 			remove_from_soil(lyrEvap_Grass, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_grass, lyrSWCBulk_HalfWiltpts);
 
@@ -550,21 +550,21 @@ public class SW_FLOW {
 		}
 
 		/* Hydraulic redistribution */
-		if (SW_VegProd.getHydraulicRedistribution().grasses.flag && Defines.GT(SW_VegProd.getVegetationComposition().grasses, 0.) && Defines.GT(SW_VegProd.getDailyValues().grass.biolive_daily[doy], 0.)) {
+		if (SW_VegProd.getHydraulicRedistribution().grasses.flag && Defines.GT(SW_VegProd.getVegetationComposition().grass, 0.) && Defines.GT(SW_VegProd.getDailyValues().grass.biolive_daily[doy], 0.)) {
 			hydraulic_redistribution(lyrTranspCo_Grass, lyrHydRed_Grass, SW_VegProd.getHydraulicRedistribution().grasses.maxCondRoot, SW_VegProd.getHydraulicRedistribution().grasses.swp50,
-					SW_VegProd.getHydraulicRedistribution().grasses.shapeCond, SW_VegProd.getVegetationComposition().grasses);
+					SW_VegProd.getHydraulicRedistribution().grasses.shapeCond, SW_VegProd.getVegetationComposition().grass);
 		}
-		if (SW_VegProd.getHydraulicRedistribution().forbs.flag && Defines.GT(SW_VegProd.getVegetationComposition().forbs, 0.) && Defines.GT(SW_VegProd.getDailyValues().forb.biolive_daily[doy], 0.)) {
+		if (SW_VegProd.getHydraulicRedistribution().forbs.flag && Defines.GT(SW_VegProd.getVegetationComposition().forb, 0.) && Defines.GT(SW_VegProd.getDailyValues().forb.biolive_daily[doy], 0.)) {
 			hydraulic_redistribution(lyrTranspCo_Forb, lyrHydRed_Forb, SW_VegProd.getHydraulicRedistribution().forbs.maxCondRoot, SW_VegProd.getHydraulicRedistribution().forbs.swp50,
-					SW_VegProd.getHydraulicRedistribution().forbs.shapeCond, SW_VegProd.getVegetationComposition().forbs);
+					SW_VegProd.getHydraulicRedistribution().forbs.shapeCond, SW_VegProd.getVegetationComposition().forb);
 		}
-		if (SW_VegProd.getHydraulicRedistribution().shrubs.flag && Defines.GT(SW_VegProd.getVegetationComposition().shrubs, 0.) && Defines.GT(SW_VegProd.getDailyValues().shrub.biolive_daily[doy], 0.)) {
+		if (SW_VegProd.getHydraulicRedistribution().shrubs.flag && Defines.GT(SW_VegProd.getVegetationComposition().shrub, 0.) && Defines.GT(SW_VegProd.getDailyValues().shrub.biolive_daily[doy], 0.)) {
 			hydraulic_redistribution(lyrTranspCo_Shrub, lyrHydRed_Shrub, SW_VegProd.getHydraulicRedistribution().shrubs.maxCondRoot, SW_VegProd.getHydraulicRedistribution().shrubs.swp50,
-					SW_VegProd.getHydraulicRedistribution().shrubs.shapeCond, SW_VegProd.getVegetationComposition().shrubs);
+					SW_VegProd.getHydraulicRedistribution().shrubs.shapeCond, SW_VegProd.getVegetationComposition().shrub);
 		}
-		if (SW_VegProd.getHydraulicRedistribution().trees.flag && Defines.GT(SW_VegProd.getVegetationComposition().trees, 0.) && Defines.GT(SW_VegProd.getDailyValues().tree.biolive_daily[doy], 0.)) {
+		if (SW_VegProd.getHydraulicRedistribution().trees.flag && Defines.GT(SW_VegProd.getVegetationComposition().tree, 0.) && Defines.GT(SW_VegProd.getDailyValues().tree.biolive_daily[doy], 0.)) {
 			hydraulic_redistribution(lyrTranspCo_Tree, lyrHydRed_Tree, SW_VegProd.getHydraulicRedistribution().trees.maxCondRoot, SW_VegProd.getHydraulicRedistribution().trees.swp50,
-					SW_VegProd.getHydraulicRedistribution().trees.shapeCond, SW_VegProd.getVegetationComposition().trees);
+					SW_VegProd.getHydraulicRedistribution().trees.shapeCond, SW_VegProd.getVegetationComposition().tree);
 		}
 
 		/* Calculate percolation for unsaturated soil water conditions. */
@@ -577,8 +577,8 @@ public class SW_FLOW {
 		/* Soil Temperature starts here */
 
 		double biomass; // computing the standing crop biomass real quickly to condense the call to soil_temperature
-		biomass = SW_VegProd.getDailyValues().grass.biomass_daily[doy] * SW_VegProd.getVegetationComposition().grasses + SW_VegProd.getDailyValues().shrub.biomass_daily[doy] * SW_VegProd.getVegetationComposition().shrubs
-				+ SW_VegProd.getDailyValues().forb.biomass_daily[doy] * SW_VegProd.getVegetationComposition().forbs + SW_VegProd.getDailyValues().tree.biolive_daily[doy] * SW_VegProd.getVegetationComposition().trees; // changed to exclude tree biomass, bMatric/c it was breaking the soil_temperature function
+		biomass = SW_VegProd.getDailyValues().grass.biomass_daily[doy] * SW_VegProd.getVegetationComposition().grass + SW_VegProd.getDailyValues().shrub.biomass_daily[doy] * SW_VegProd.getVegetationComposition().shrub
+				+ SW_VegProd.getDailyValues().forb.biomass_daily[doy] * SW_VegProd.getVegetationComposition().forb + SW_VegProd.getDailyValues().tree.biolive_daily[doy] * SW_VegProd.getVegetationComposition().tree; // changed to exclude tree biomass, bMatric/c it was breaking the soil_temperature function
 
 				// soil_temperature function computes the soil temp for each layer and stores it in lyrsTemp
 				// doesn't affect SWC at all, but needs it for the calculation, so therefore the temperature is the last calculation done
@@ -772,7 +772,7 @@ public class SW_FLOW {
 			intcpt = SW_VegProd.getVegetationInterceptionParameters().grasses.b * SW_VegProd.getDailyValues().grass.vegcov_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().grasses.a;
 			slope = SW_VegProd.getVegetationInterceptionParameters().grasses.d * SW_VegProd.getDailyValues().grass.vegcov_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().grasses.c;
 
-			p.grass_h2o = (intcpt + slope * p.ppt_toUse) * (p.snowdepth_scale_grass * SW_VegProd.getVegetationComposition().grasses);
+			p.grass_h2o = (intcpt + slope * p.ppt_toUse) * (p.snowdepth_scale_grass * SW_VegProd.getVegetationComposition().grass);
 
 			p.grass_h2o = Math.min(p.grass_h2o, p.ppt_toUse);
 			p.grass_h2o = Math.min(p.grass_h2o, SW_VegProd.getDailyValues().grass.vegcov_daily[doy]*.1);
@@ -797,7 +797,7 @@ public class SW_FLOW {
 			intcpt = SW_VegProd.getVegetationInterceptionParameters().shrubs.b * SW_VegProd.getDailyValues().shrub.vegcov_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().shrubs.a;
 			slope = SW_VegProd.getVegetationInterceptionParameters().shrubs.d * SW_VegProd.getDailyValues().shrub.vegcov_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().shrubs.c;
 
-			p.shrub_h2o = (intcpt + slope * p.ppt_toUse) * p.snowdepth_scale_shrub * SW_VegProd.getVegetationComposition().shrubs;
+			p.shrub_h2o = (intcpt + slope * p.ppt_toUse) * p.snowdepth_scale_shrub * SW_VegProd.getVegetationComposition().shrub;
 
 			p.shrub_h2o = Math.min(p.shrub_h2o, p.ppt_toUse);
 			p.shrub_h2o = Math.min(p.shrub_h2o, (SW_VegProd.getDailyValues().shrub.vegcov_daily[doy] * .1));
@@ -831,7 +831,7 @@ public class SW_FLOW {
 			intcpt = SW_VegProd.getVegetationInterceptionParameters().trees.b * SW_VegProd.getDailyValues().tree.lai_live_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().trees.a;
 			slope = SW_VegProd.getVegetationInterceptionParameters().trees.d * SW_VegProd.getDailyValues().tree.lai_live_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().trees.c;
 
-			p.tree_h2o = (intcpt + slope * p.ppt_toUse) * (p.snowdepth_scale_tree * SW_VegProd.getVegetationComposition().trees);
+			p.tree_h2o = (intcpt + slope * p.ppt_toUse) * (p.snowdepth_scale_tree * SW_VegProd.getVegetationComposition().tree);
 
 			p.tree_h2o = Math.min(p.tree_h2o, p.ppt_toUse);
 			//p.tree_h2o = Math.min(p.tree_h2o, p.ppt_toUse);
@@ -868,7 +868,7 @@ public class SW_FLOW {
 			intcpt = SW_VegProd.getVegetationInterceptionParameters().forbs.b * SW_VegProd.getDailyValues().forb.vegcov_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().forbs.a;
 			slope = SW_VegProd.getVegetationInterceptionParameters().forbs.d * SW_VegProd.getDailyValues().forb.vegcov_daily[doy] + SW_VegProd.getVegetationInterceptionParameters().forbs.c;
 
-			p.forb_h2o = (intcpt + slope * p.ppt_toUse) * (p.snowdepth_scale_forb * SW_VegProd.getVegetationComposition().forbs);
+			p.forb_h2o = (intcpt + slope * p.ppt_toUse) * (p.snowdepth_scale_forb * SW_VegProd.getVegetationComposition().forb);
 
 			p.forb_h2o = Math.min(p.forb_h2o, p.ppt_toUse);
 			p.forb_h2o = Math.min(p.forb_h2o, SW_VegProd.getDailyValues().forb.vegcov_daily[doy]*.1);
@@ -1069,7 +1069,7 @@ public class SW_FLOW {
 		double slope=SW_Site.getIntrinsic().slope;
 		double aspect=SW_Site.getIntrinsic().aspect;
 		
-		double reflec=SW_VegProd.getAlbedo().grasses * SW_VegProd.getVegetationComposition().grasses + SW_VegProd.getAlbedo().shrubs * SW_VegProd.getVegetationComposition().shrubs + SW_VegProd.getAlbedo().forbs * SW_VegProd.getVegetationComposition().forbs + SW_VegProd.getAlbedo().trees * SW_VegProd.getVegetationComposition().trees + SW_VegProd.getAlbedo().bareGround * SW_VegProd.getVegetationComposition().bareGround;
+		double reflec=SW_VegProd.getAlbedo().grass * SW_VegProd.getVegetationComposition().grass + SW_VegProd.getAlbedo().shrubs * SW_VegProd.getVegetationComposition().shrub + SW_VegProd.getAlbedo().forbs * SW_VegProd.getVegetationComposition().forb + SW_VegProd.getAlbedo().trees * SW_VegProd.getVegetationComposition().tree + SW_VegProd.getAlbedo().bareGround * SW_VegProd.getVegetationComposition().bareGround;
 		double humid=SW_Sky.getR_humidity_daily(doy);
 		double windsp=SW_Sky.getWindspeed_daily(doy);
 		double cloudcov=SW_Sky.getCloudcov_daily(doy);

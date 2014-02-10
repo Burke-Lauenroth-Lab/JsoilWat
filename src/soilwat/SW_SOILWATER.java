@@ -9,16 +9,15 @@ import java.util.List;
 
 import soilwat.LogFileIn.LogMode;
 import soilwat.SW_WEATHER.SW_WEATHER_2DAYS;
-import soilwat.Times.TwoDays;
 
 public class SW_SOILWATER {
 	public static final int SW_Adjust_Avg = 1;
 	public static final int SW_Adjust_StdErr = 2;
 	
-	public class SW_SOILWAT_OUTPUTS {
-		public double surfaceWater, total_evap, surfaceWater_evap, tree_evap, forb_evap, shrub_evap,
+	protected class SW_SOILWAT_OUTPUTS {
+		protected double surfaceWater, total_evap, surfaceWater_evap, tree_evap, forb_evap, shrub_evap,
 			grass_evap, litter_evap, total_int, tree_int, forb_int, shrub_int, grass_int, litter_int, snowpack, snowdepth, et, aet, pet, deep;
-		public double[] wetdays, vwcBulk, /* soil water content cm/cm */
+		protected double[] wetdays, vwcBulk, /* soil water content cm/cm */
 		vwcMatric, swcBulk, /* soil water content cm/layer */
 		swpMatric, /* soil water potential */
 		swaBulk, /* available soil water cm/layer, swc-(wilting point) */
@@ -26,7 +25,7 @@ public class SW_SOILWATER {
 				lyrdrain, hydred_total, hydred_tree, /* hydraulic redistribution cm/layer */
 				hydred_forb, hydred_shrub, hydred_grass, 
 				sTemp; // soil temperature in celcius for each layer
-		public SW_SOILWAT_OUTPUTS() {
+		protected SW_SOILWAT_OUTPUTS() {
 			surfaceWater=total_evap=surfaceWater_evap=tree_evap=forb_evap=shrub_evap=0;
 			grass_evap=litter_evap=total_int=tree_int=forb_int=shrub_int=grass_int=litter_int=snowpack=snowdepth=et=aet=pet=deep=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=snowpack=0;
@@ -53,7 +52,7 @@ public class SW_SOILWATER {
 			
 			
 		}
-		public void onClear() {
+		protected void onClear() {
 			surfaceWater=total_evap=surfaceWater_evap=tree_evap=forb_evap=shrub_evap=0;
 			grass_evap=litter_evap=total_int=tree_int=forb_int=shrub_int=grass_int=litter_int=snowpack=snowdepth=et=aet=pet=deep=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=snowpack=0;
@@ -64,28 +63,38 @@ public class SW_SOILWATER {
 		}
 	}
 	
-	public class SOILWAT {
+	public static class SWC_INPUT_DATA {
+		public boolean hist_use;
+		public String filePrefix;
+		public SW_TIMES yr;
+		public int method;
+		public SWC_INPUT_DATA() {
+			yr = new SW_TIMES();
+		}
+	}
+	
+	protected class SOILWAT extends SWC_INPUT_DATA {
 		/* current daily soil water related values */
-		public boolean[] is_wet; /* swc sufficient to count as wet today */
-		public double snowdepth, surfaceWater, surfaceWater_evap, pet, aet, litter_evap, tree_evap, forb_evap,
+		protected boolean[] is_wet; /* swc sufficient to count as wet today */
+		protected double snowdepth, surfaceWater, surfaceWater_evap, pet, aet, litter_evap, tree_evap, forb_evap,
 			shrub_evap, grass_evap, litter_int, tree_int, forb_int, shrub_int, grass_int;
-		public double[] snowpack, /* swe of snowpack, if accumulation flag set */
+		protected double[] snowpack, /* swe of snowpack, if accumulation flag set */
 		transpiration_tree, transpiration_forb, transpiration_shrub, transpiration_grass, evaporation,
 				drain, /* amt of swc able to drain from curr layer to next */
 				hydred_tree, /* hydraulic redistribution cm/layer */
 				hydred_forb, hydred_shrub, hydred_grass, 
 				sTemp; // soil temperature
-		public double[][] swcBulk;
+		protected double[][] swcBulk;
 		SW_SOILWAT_OUTPUTS dysum, /* helpful placeholder */
 		wksum, mosum, yrsum, /* accumulators for *avg */
 		wkavg, moavg, yravg; /* averages or sums as appropriate */
 		//SWC Setup File Settings
-		boolean hist_use;
-		public int method;
-		public SW_TIMES yr;
-		public String filePrefix;
+		//protected boolean hist_use;
+		//protected int method;
+		//protected SW_TIMES yr;
+		//protected String filePrefix;
 		
-		public SOILWAT() {
+		protected SOILWAT() {
 			snowdepth=surfaceWater=surfaceWater_evap=pet=aet=litter_evap=tree_evap=forb_evap=shrub_evap=grass_evap=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=0;
 			is_wet = new boolean[Defines.MAX_LAYERS];
@@ -103,7 +112,6 @@ public class SW_SOILWATER {
 			hydred_forb = new double[Defines.MAX_LAYERS];
 			sTemp = new double[Defines.MAX_LAYERS];
 			method = 0;
-			yr = new SW_TIMES();
 			dysum=new SW_SOILWAT_OUTPUTS();
 			wksum=new SW_SOILWAT_OUTPUTS();
 			mosum=new SW_SOILWAT_OUTPUTS();
@@ -113,7 +121,7 @@ public class SW_SOILWATER {
 			yravg=new SW_SOILWAT_OUTPUTS();
 			filePrefix = "";
 		}
-		public void onClear() {
+		protected void onClear() {
 			snowdepth=surfaceWater=surfaceWater_evap=pet=aet=litter_evap=tree_evap=forb_evap=shrub_evap=grass_evap=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=0;
 			for(int i=0; i<Defines.MAX_LAYERS; i++) {
@@ -135,7 +143,7 @@ public class SW_SOILWATER {
 			moavg.onClear();
 			yravg.onClear();
 		}
-		public double[] get_vwcBulkRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_vwcBulkRow(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -156,7 +164,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_vwcMatricRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_vwcMatricRow(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double convert=0;
 			double[] tmp = new double[nlyr];
@@ -179,7 +187,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_swcBulkRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_swcBulkRow(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -200,7 +208,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_swpMatricRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_swpMatricRow(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -225,7 +233,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_swaBulkRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_swaBulkRow(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -246,7 +254,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_swaMatricRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_swaMatricRow(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double convert=0;
 			double[] tmp = new double[nlyr];
@@ -269,7 +277,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_surfaceWater(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_surfaceWater(SW_OUTPUT.OutPeriod pd) {
 			switch (pd) {
 			case SW_DAY:
 				return new double[] {dysum.surfaceWater};
@@ -283,7 +291,7 @@ public class SW_SOILWATER {
 				return null;
 			}
 		}
-		public double[] get_transp(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_transp(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr*5];
 			for(int i=0; i<nlyr; i++) {
@@ -320,7 +328,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_evapSoil(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_evapSoil(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_evap_lyrs;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -341,7 +349,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_evapSurface(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_evapSurface(SW_OUTPUT.OutPeriod pd) {
 			double[] tmp = new double[7];
 			switch (pd) {
 			case SW_DAY:
@@ -383,7 +391,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_interception(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_interception(SW_OUTPUT.OutPeriod pd) {
 			double[] tmp = new double[6];
 			switch (pd) {
 			case SW_DAY:
@@ -421,7 +429,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_lyrdrain(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_lyrdrain(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers-1;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -442,7 +450,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_hydred(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_hydred(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr*5];
 			for(int i=0; i<nlyr; i++) {
@@ -479,7 +487,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_aet(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_aet(SW_OUTPUT.OutPeriod pd) {
 			switch (pd) {
 			case SW_DAY:
 				return new double[] {dysum.aet};
@@ -493,7 +501,7 @@ public class SW_SOILWATER {
 				return null;
 			}
 		}
-		public double[] get_pet(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_pet(SW_OUTPUT.OutPeriod pd) {
 			switch (pd) {
 			case SW_DAY:
 				return new double[] {dysum.pet};
@@ -507,7 +515,7 @@ public class SW_SOILWATER {
 				return null;
 			}
 		}
-		public double[] get_wetdays(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_wetdays(SW_OUTPUT.OutPeriod pd) {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -528,7 +536,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		public double[] get_snowpack(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_snowpack(SW_OUTPUT.OutPeriod pd) {
 			switch (pd) {
 			case SW_DAY:
 				return new double[] {dysum.snowpack, dysum.snowdepth};
@@ -542,7 +550,7 @@ public class SW_SOILWATER {
 				return null;
 			}
 		}
-		public double[] get_deepswc(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_deepswc(SW_OUTPUT.OutPeriod pd) {
 			switch (pd) {
 			case SW_DAY:
 				return new double[] {dysum.deep};
@@ -589,7 +597,7 @@ public class SW_SOILWATER {
 	private SW_SOILS SW_Soils;
 	private SW_SITE SW_Site;
 	
-	public SW_SOILWATER(SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
+	protected SW_SOILWATER(SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
 		this.soilwat = new SOILWAT();
 		this.hist = new SW_SOILWAT_HISTORY();
 		this.data = false;
@@ -600,13 +608,13 @@ public class SW_SOILWATER {
 		temp_snow = 0;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.temp_snow = 0;
 		this.soilwat.onClear();
 		this.data = false;
 	}
 	
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		// gets the soil temperatures from where they are read in the SW_Site struct for use later
 		// SW_Site.c must call it's read function before this, or it won't work
 		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
@@ -616,8 +624,13 @@ public class SW_SOILWATER {
 		
 		return true;
 	}
-	
-	public void onReadHist(Path WeatherHistoryFolder) {
+	protected void onSetInput(SWC_INPUT_DATA swcSetupIn) {
+		soilwat.hist_use = swcSetupIn.hist_use;
+		soilwat.filePrefix = swcSetupIn.filePrefix;
+		soilwat.yr.setFirst(swcSetupIn.yr.getFirst());
+		soilwat.method = swcSetupIn.method;
+	}
+	protected void onReadHist(Path WeatherHistoryFolder) {
 		//We only read the sw hist if hist_use is set and
 		//only grab the years set in setup file.
 		if(soilwat.hist_use)
@@ -631,7 +644,7 @@ public class SW_SOILWATER {
 				f.LogError(LogMode.ERROR, "SwcSetupIn onReadHist : Problem.");
 			}
 	}
-	public void onRead(Path swcSetupIn, Path WeatherHistoryFolder) throws IOException {
+	protected void onRead(Path swcSetupIn, Path WeatherHistoryFolder) throws IOException {
 		int nitems=4, lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(swcSetupIn, StandardCharsets.UTF_8);
@@ -691,7 +704,7 @@ public class SW_SOILWATER {
 		onReadHist(WeatherHistoryFolder);
 		this.data = true;
 	}
-	public void onWrite(Path swcSetupIn) throws IOException {
+	protected void onWrite(Path swcSetupIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Setup parameters for measured swc");
@@ -707,7 +720,7 @@ public class SW_SOILWATER {
 			f.LogError(LogMode.WARN, "SwcSetupIn : onWrite : No data.");
 		}
 	}
-	public void SW_SWC_water_flow() {
+	protected void SW_SWC_water_flow() {
 		/* =================================================== */
 		/* Adjust SWC according to historical (measured) data
 		 * if available, compute water flow, and check if swc
@@ -737,13 +750,13 @@ public class SW_SOILWATER {
 		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++)
 			soilwat.is_wet[i] = (Defines.GE( soilwat.swcBulk[Defines.Today][i], SW_Soils.getLayer(i).swcBulk_wet));
 	}
-	public void SW_SWC_end_doy() {
+	protected void SW_SWC_end_doy() {
 		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
 			this.soilwat.swcBulk[Defines.Yesterday][i] = soilwat.swcBulk[Defines.Today][i];
 		}
 		soilwat.snowpack[Defines.Yesterday] = soilwat.snowpack[Defines.Today];
 	}
-	public void SW_SWC_new_year() {
+	protected void SW_SWC_new_year() {
 		int year = SW_Model.getYear();
 		int Today = Defines.Today;
 		int Yesterday = Defines.Yesterday;
@@ -776,7 +789,7 @@ public class SW_SOILWATER {
 			soilwat.swcBulk[Today][SW_Soils.getLayersInfo().deep_lyr] = 0.;
 		}
 	}
-	public void SW_SWC_adjust_swc(int doy) {
+	protected void SW_SWC_adjust_swc(int doy) {
 		/* =================================================== */
 		/* 01/07/02 (cwb) added final loop to guarantee swc > swcBulk_min
 		 */
@@ -815,7 +828,7 @@ public class SW_SOILWATER {
 		for(int lyr=0; lyr<SW_Soils.getLayersInfo().n_layers; lyr++)
 			soilwat.swcBulk[Today][lyr] = Math.max(soilwat.swcBulk[Today][lyr], SW_Soils.getLayer(lyr).swcBulk_min);
 	}
-	public void SW_SWC_adjust_snow(SW_WEATHER_2DAYS now) {
+	protected void SW_SWC_adjust_snow(SW_WEATHER_2DAYS now) {
 		/*---------------------
 		 10/04/2010	(drs) added snowMAUS snow accumulation, sublimation and melt algorithm: Trnka, M., Kocmánková, E., Balek, J., Eitzinger, J., Ruget, F., Formayer, H., Hlavinka, P., Schaumberger, A., Horáková, V., Mozny, M. & Zalud, Z. (2010) Simple snow cover model for agrometeorological applications. Agricultural and Forest Meteorology, 150, 1115-1127.
 		 replaced SW_SWC_snow_accumulation, SW_SWC_snow_sublimation, and SW_SWC_snow_melt with SW_SWC_adjust_snow
@@ -866,7 +879,7 @@ public class SW_SOILWATER {
 			now.snowloss[Today] = 0.;
 		}
 	}
-	public static double SW_SnowDepth(double SWE, double snowdensity) {
+	protected static double SW_SnowDepth(double SWE, double snowdensity) {
 		/*---------------------
 		 08/22/2011	(drs)	calculates depth of snowpack
 		 Input:	SWE: snow water equivalents (cm = 10kg/m2)
@@ -879,7 +892,7 @@ public class SW_SOILWATER {
 			return 0.;
 		}
 	}
-	public static double SW_SWCbulk2SWPmatric(double fractionGravel, double swcBulk, double width, double psisMatric, double thetasMatric, double bMatric, int year, int doy, int lyr) {
+	protected static double SW_SWCbulk2SWPmatric(double fractionGravel, double swcBulk, double width, double psisMatric, double thetasMatric, double bMatric, int year, int doy, int lyr) {
 		/**********************************************************************
 		 PURPOSE: Calculate the soil water potential or the soilwater
 		 content of the current layer,
@@ -950,7 +963,7 @@ public class SW_SOILWATER {
 
 		return swp;
 	}
-	public static double SW_SWPmatric2VWCBulk(double fractionGravel, double swpMatric,  double psisMatric, double binverseMatric, double thetasMatric) {
+	protected static double SW_SWPmatric2VWCBulk(double fractionGravel, double swpMatric,  double psisMatric, double binverseMatric, double thetasMatric) {
 		/* =================================================== */
 		/* used to be swfunc in the fortran version */
 		/* 27-Aug-03 (cwb) moved from the Site module. */
@@ -962,7 +975,7 @@ public class SW_SOILWATER {
 		t = thetasMatric * p * 0.01 * (1 - fractionGravel);
 		return (t);
 	}
-	public static double SW_VWCBulkRes(double fractionGravel, double sand, double clay, double porosity) {
+	protected static double SW_VWCBulkRes(double fractionGravel, double sand, double clay, double porosity) {
 		/*---------------------
 		 02/03/2012	(drs)	calculates 'Brooks-Corey' residual volumetric soil water based on Rawls WJ, Brakensiek DL (1985) Prediction of soil water properties for hydrological modeling. In Watershed management in the Eighties (eds Jones EB, Ward TJ), pp. 293-299. American Society of Civil Engineers, New York.
 		 however, equation is only valid if (0.05 < clay < 0.6) & (0.05 < sand < 0.7)
@@ -983,7 +996,7 @@ public class SW_SOILWATER {
 		return (Math.max(res, 0.));
 	}
 	
-	public SOILWAT getSoilWat() {
+	protected SOILWAT getSoilWat() {
 		return this.soilwat;
 	}
 }

@@ -30,6 +30,24 @@ public class SW_CONTROL {
 		SW_Weather.setSoilWater(SW_SoilWater);
 	}
 	
+	public void onReadInputs(String swFiles) {
+		try {
+			SW_Files.onRead(swFiles);
+			SW_Model.onRead(SW_Files.getYearsIn(true));
+			SW_Sky.onRead(SW_Files.getCloudIn(true));
+			SW_Weather.onRead(SW_Files.getWeatherSetupIn(true), SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
+			SW_Weather.onReadHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
+			SW_VegProd.onRead(SW_Files.getPlantProductivityIn(true));
+			SW_Soils.onRead(SW_Files.getSoilsIn(true));
+			SW_Site.onRead(SW_Files.getSiteParametersIn(true));
+			SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
+			SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
+			SW_Output.onRead(SW_Files.getOutputSetupIn(true), SW_Files.getOutputDirectory(true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void onStartModel(boolean echo) {
 		int year;
 		
@@ -49,24 +67,21 @@ public class SW_CONTROL {
 		}
 	}
 	
-	public void onReadInputs(String swFiles) {
-		try {
-			SW_Files.onRead(swFiles);
-			SW_Model.onRead(SW_Files.getYearsIn(true));
-			SW_Sky.onRead(SW_Files.getCloudIn(true));
-			SW_Weather.onRead(SW_Files.getWeatherSetupIn(true), SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
-			SW_Weather.onReadHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
-			SW_VegProd.onRead(SW_Files.getPlantProductivityIn(true));
-			SW_Soils.onRead(SW_Files.getSoilsIn(true));
-			SW_Site.onRead(SW_Files.getSiteParametersIn(true));
-			SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
-			SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
-			SW_Output.onRead(SW_Files.getOutputSetupIn(true), SW_Files.getOutputDirectory(true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void onClear() {
+		SW_Files.onClear();
+		SW_Model.onClear();
+		SW_Sky.onClear();
+		SW_Weather.onClear();
+		SW_Soils.onClear();
+		SW_VegProd.onClear();
+		SW_Site.onClear();
+		SW_SoilWater.onClear();
+		SW_VegEstab.onClear();
+		SW_Output.onClear();
+		SW_Weather.onClear();
+		LogFileIn.getInstance().onClear();
 	}
-	
+		
 	private boolean onVerify() {
 		return SW_Files.onVerify() &&
 		SW_Model.onVerify() &&
@@ -82,7 +97,6 @@ public class SW_CONTROL {
 	
 	private void SW_CTL_run_current_year() {
 		/*=======================================================*/
-
 		_begin_year();
 
 		for (SW_Model.setDOY(SW_Model.getFirstdoy()); SW_Model.getDOY() <= SW_Model.getLastdoy(); SW_Model.setDOY(SW_Model.getDOY()+1)) {
@@ -121,7 +135,6 @@ public class SW_CONTROL {
 		SW_Output.SW_OUT_sum_today(ObjType.eSWC);
 		SW_Output.SW_OUT_sum_today(ObjType.eWTH);
 		SW_Output.SW_OUT_sum_today(ObjType.eVES);
-		
 		SW_Output.SW_OUT_write_today();
 	}
 	
@@ -131,6 +144,5 @@ public class SW_CONTROL {
 		this.SW_Soils.set_echoinits(echo);
 		this.SW_VegEstab.set_echoinits(echo);
 		this.SW_VegProd.set_echoinits(echo);
-		
 	}
 }

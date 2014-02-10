@@ -13,7 +13,7 @@ import soilwat.LogFileIn.LogMode;
 public class SW_OUTPUT {
 
 	
-	private static final int SW_OUTNKEYS=28;/* must also match number of items in enum (minus eSW_NoKey and eSW_LastKey) */
+	public static final int SW_OUTNKEYS=28;/* must also match number of items in enum (minus eSW_NoKey and eSW_LastKey) */
 	
 	/* These are the keywords to be found in the output setup file */
 	/* some of them are from the old fortran model and are no longer */
@@ -223,6 +223,7 @@ public class SW_OUTPUT {
 			return this.name;
 		}
 	}
+	
 	private class SW_OUT_TIME {
 		public int[][] days;
 		public int[][] weeks;
@@ -243,18 +244,34 @@ public class SW_OUTPUT {
 			wrow=0;
 			drow=0;
 		}
+		
+		public void onClear() {
+			yrow=mrow=drow=wrow=0;
+		}
 	}
-	private class SW_OUT {
-		private OutKey mykey;
+	
+	public static class OUTPUT_INPUT_DATA {
+		public OutKey mykey;
+		public OutSum sumtype;
+		public OutPeriod periodColumn;//We need to store this just in case we write out
+		public int first_orig, last_orig;
+		public String filename_prefix;
+		public boolean use = false;
+		public void onSet(boolean use, OutSum sumtype, OutPeriod period, int start, int end, String filenamePrefix) {
+			this.use = use;
+			this.sumtype = sumtype;
+			this.periodColumn = period;
+			this.first_orig = start;
+			this.last_orig = end;
+			this.filename_prefix = filenamePrefix;
+		}
+	}
+	
+	private class SW_OUT extends OUTPUT_INPUT_DATA {
 		private Defines.ObjType myobj;
 		private OutPeriod period;//current period used to pass to get_ functions
-		private OutPeriod periodColumn;//We need to store this just in case we write out
 		private boolean[] usePeriods;//One is True if !useTimeStep else multiple possible
-		private OutSum sumtype;
-		private String filename_prefix;
-		private boolean use;
-		private int first, last, /* updated for each year */
-			first_orig, last_orig;
+		private int first, last; /* updated for each year */
 		private int yr_row, mo_row, wk_row, dy_row;
 		private double[][] dy_data;
 		private double[][] wk_data;
@@ -262,13 +279,19 @@ public class SW_OUTPUT {
 		private double[][] yr_data;
 		private Path file_dy, file_wk, file_mo, file_yr;
 		
-		public SW_OUT() {
-			this.use = false;
+		protected SW_OUT() {
 			this.usePeriods = new boolean[numPeriods];
 			for(int i=0; i<numPeriods; i++)
 				this.usePeriods[i] = false;
 		}
-		public void setRow(double[] row) {
+		protected void onClear() {
+			for(int i=0; i<numPeriods; i++) {
+				this.usePeriods[i] = false;
+			}
+			yr_row=mo_row=wk_row=dy_row=0;
+			this.use = false;
+		}
+		protected void setRow(double[] row) {
 			switch (period) {
 			case SW_DAY:
 				if(usePeriods[0]) {
@@ -295,7 +318,7 @@ public class SW_OUTPUT {
 			}
 			onIncrement();
 		}
-		public void onIncrement() {
+		protected void onIncrement() {
 			switch (period) {
 			case SW_DAY:
 				if(usePeriods[0]) dy_row++;
@@ -313,7 +336,7 @@ public class SW_OUTPUT {
 				break;
 			}
 		}
-		public void onAlloc() {
+		protected void onAlloc() {
 			if(use) {
 				for(int i=0; i<4; i++) {
 					int rows=get_nRows(i);
@@ -360,7 +383,7 @@ public class SW_OUTPUT {
 				}
 			}
 		}
-		public void onWrite(String sep) throws IOException {
+		protected void onWrite(String sep) throws IOException {
 			if(use) {
 				List<String> lines = new ArrayList<String>();
 				String line="";
@@ -431,10 +454,10 @@ public class SW_OUTPUT {
 //		public boolean get_PeriodUse(OutPeriod pd) {
 //			return usePeriods[pd.idx()];
 //		}
-		public boolean get_PeriodUse(int pd) {
+		protected boolean get_PeriodUse(int pd) {
 			return usePeriods[pd];
 		}
-		private int get_nColumns() {
+		protected int get_nColumns() {
 			int i=0;
 			switch (mykey) {
 			case eSW_NoKey:
@@ -526,7 +549,7 @@ public class SW_OUTPUT {
 			}
 			return i;
 		}
-		private int get_nRows(int pd) {
+		protected int get_nRows(int pd) {
 			int tYears = (SW_Model.getEndYear() - SW_Model.getStartYear() + 1);
 			switch (pd) {
 			case 0:
@@ -541,7 +564,7 @@ public class SW_OUTPUT {
 				return 0;
 			}
 		}
-		private final String[] comments = {"/* */",
+		protected final String[] comments = {"/* */",
 			"/* max., min, average temperature (C) */",
 			"/* total precip = sum(rain, snow), rain, snow-fall, snowmelt, and snowloss (cm) */",
 			"/* water to infiltrate in top soil layer (cm), runoff (cm); (not-intercepted rain)+(snowmelt-runoff) */",
@@ -595,7 +618,7 @@ public class SW_OUTPUT {
 	private boolean EchoInits;
 	
 	
-	public SW_OUTPUT(SW_SOILS SW_Soils, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_WEATHER SW_Weather, SW_VEGESTAB SW_VegEstab) {
+	protected SW_OUTPUT(SW_SOILS SW_Soils, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_WEATHER SW_Weather, SW_VEGESTAB SW_VegEstab) {
 		this.SW_Output = new SW_OUT[SW_OUTNKEYS];
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			this.SW_Output[i] = new SW_OUT();
@@ -654,6 +677,19 @@ public class SW_OUTPUT {
 		} else {
 			return false;
 		}
+	}
+	
+	public void onClear() {
+		for(int i=0; i<numPeriods; i++) {
+			SW_Output[i].onClear();
+		}
+		for(int i=0; i<numPeriods; i++)
+			timeStep[i] = false;//not used default
+		SW_OutTimes.onClear();
+		bFlush = false;
+		tOffset = true;
+		useTimeStep = false;
+		this.data = false;
 	}
 	
 	public void onRead(Path OutputSetupIn, Path OutputDirectory) throws IOException {

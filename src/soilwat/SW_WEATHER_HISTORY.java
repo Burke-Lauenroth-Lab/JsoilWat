@@ -153,6 +153,57 @@ public class SW_WEATHER_HISTORY {
 		this.data = false;
 	}
 	
+	public void onSetYear(int year, double[] tempMax, double[] tempMin, double[] ppt) {
+		LogFileIn f = LogFileIn.getInstance();
+		if((tempMax.length != tempMin.length) || (tempMax.length != ppt.length) || (tempMin.length != ppt.length)) {
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onSet : tempMin tempMax PPT lengths are different from eachother.");
+		}
+		if(tempMax.length < 365) {
+			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onSet : Missing Data.");
+		}
+		int idx;
+		int k=0, x=0;
+		double acc=0;
+		if(yearToIndex.containsKey(year)) {
+			idx = yearToIndex.get(year);
+		} else {
+			SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST();
+			this.weatherHist.add(weathHist);
+			idx = this.weatherHist.indexOf(weathHist);
+			this.yearToIndex.put(year, idx);
+		}
+		//Set Data
+		this.weatherHist.get(idx).nDaysInYear = tempMax.length;
+		for(int i=0; i<Times.MAX_DAYS; i++) {
+			if(i<tempMax.length) {
+				this.weatherHist.get(idx).temp_max[i] = tempMax[i];
+				this.weatherHist.get(idx).temp_min[i] = tempMin[i];
+				this.weatherHist.get(idx).temp_avg[i] = (tempMax[i]+tempMin[i])/2.0;
+				this.weatherHist.get(idx).ppt[i] = ppt[i];
+				acc+=this.weatherHist.get(idx).temp_avg[i];
+				k++;
+			}
+		}
+		this.weatherHist.get(idx).temp_year_avg = acc/(k+0.0);
+		for(int i=0; i<Times.MAX_MONTHS;i++) {
+			k=31;
+			if(i==8 || i==3 || i==5 || i==10)
+				k=30;// september, april, june, & november all have 30 days...
+			else if (i==1) {
+				k=28;// february has 28 days, except if it's a leap year, in which case it has 29 days...
+				if(Times.isleapyear(year))
+					k=29;
+			}
+			acc=0;
+			for(int j=0; j<k; j++)
+				acc+=this.weatherHist.get(idx).temp_avg[j+x];
+			this.weatherHist.get(idx).temp_month_avg[i] = acc/(k+0.0);
+			x+=k;
+		}
+		this.weatherHist.get(idx).data = true;
+		this.data = true;
+	}
+	
 	public void onRead(Path WeatherHistoryFile) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		int year = 0;

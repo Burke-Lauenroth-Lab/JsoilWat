@@ -9,6 +9,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SW_FILES {
+	public static class FILES_INPUT_DATA {
+		public String ProjectDirectory;
+		public String OutputDirectory;
+		public String WeatherPathAndPrefix;
+		public String FilesIn;
+		public String YearsIn;
+		public String LogFile;
+		public String SiteParametersIn;
+		public String SoilsIn;
+		public String WeatherSetupIn;
+		public String MarkovProbabilityIn;
+		public String MarkovCovarianceIn;
+		public String CloudIn;
+		public String PlantProductivityIn;
+		public String EstablishmentIn;
+		public String SWCSetupIn;
+		public String OutputSetupIn;
+	}
 	/* Private Member Values*/
 	//Line index Values
 	private final static int nYearsIn=4, nLogFile=5, nSiteParameters=8, nSoils=9, nWeatherSetup=12, nWeatherPath=13, nWeatherPrefix=13,
@@ -52,11 +70,11 @@ public class SW_FILES {
 	private boolean verified;
 	
 	/* Constructor */
-	public SW_FILES() {
+	protected SW_FILES() {
 		this.data = false;
 		this.verified = false;
 	}
-	public void onSetDefault() {
+	protected void onSetDefault() {
 		this.pProjectDirectory = Paths.get("");//should get the current working directory
 		this.pOutputDirectory = Paths.get("Output/");
 		this.pWeatherPath = Paths.get("Input/data_39.0625_-119.4375/");
@@ -78,7 +96,7 @@ public class SW_FILES {
 		this.verified = false;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.data = false;
 		this.verified = false;
 		this.pProjectDirectory = Paths.get("/");
@@ -100,7 +118,7 @@ public class SW_FILES {
 		this.pOutputSetupIn = Paths.get("/");
 	}
 	
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			//create directories if they do not exist
@@ -143,7 +161,7 @@ public class SW_FILES {
 		}
 	}
 	
-	public void onCreateFiles() {
+	protected void onCreateFiles() {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
 			if(Files.notExists(pProjectDirectory)) {
@@ -262,8 +280,28 @@ public class SW_FILES {
 			f.LogError(LogFileIn.LogMode.ERROR, "FilesIn CreateFiles : No Data To Create File Structure.");
 		}
 	}
+	protected void onSetInput(FILES_INPUT_DATA filesIn) {
+		this.pProjectDirectory = Paths.get(filesIn.ProjectDirectory);
+		this.pFilesIn = Paths.get(filesIn.FilesIn);
+		this.pYearsIn =  Paths.get(filesIn.YearsIn);
+		this.pLogFile = Paths.get(filesIn.LogFile);
+		this.pSiteParametersIn = Paths.get(filesIn.SiteParametersIn);
+		this.pSoilsIn = Paths.get(filesIn.SoilsIn);
+		this.pWeatherSetupIn = Paths.get(filesIn.WeatherSetupIn);
+		this.pWeatherPath = Paths.get(filesIn.WeatherPathAndPrefix).getParent();
+		this.sWeatherPrefix = Paths.get(filesIn.WeatherPathAndPrefix).getFileName().toString();
+		this.pMarkovProbabilityIn = Paths.get(filesIn.MarkovProbabilityIn);
+		this.pMarkovCovarianceIn = Paths.get(filesIn.MarkovCovarianceIn);
+		this.pCloudIn = Paths.get(filesIn.CloudIn);
+		this.pPlantProductivityIn = Paths.get(filesIn.PlantProductivityIn);
+		this.pEstablishmentIn = Paths.get(filesIn.EstablishmentIn);
+		this.pSWCSetupIn = Paths.get(filesIn.SWCSetupIn);
+		this.pOutputDirectory = Paths.get(filesIn.OutputDirectory);
+		this.pOutputSetupIn = Paths.get(filesIn.OutputSetupIn);
+		this.data = true;
+	}
 	/* Public Functions */
-	public void onRead(String swFiles) throws IOException{
+	protected void onRead(String swFiles) throws IOException{
 		this.pFilesIn = Paths.get(swFiles);
 		this.pProjectDirectory = this.pFilesIn.getParent();
 		this.pFilesIn = this.pFilesIn.getFileName();
@@ -287,7 +325,7 @@ public class SW_FILES {
 		this.data = true;
 	}
 	
-	public void onWrite() throws IOException{
+	protected void onWrite() throws IOException{
 		if(this.data && this.verified) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# List of input files for SOILWAT v32");
@@ -326,156 +364,156 @@ public class SW_FILES {
 	}
 	
 	/* GETTERS AND SETTERS */
-	public Path getProjectDirectory() {
+	protected Path getProjectDirectory() {
 		return this.pProjectDirectory;
 	}
-	public void setProjectDirectory(Path ProjectDirectory) {
+	protected void setProjectDirectory(Path ProjectDirectory) {
 		this.pProjectDirectory = ProjectDirectory;
 	}
 	
-	public Path getOutputDirectory(boolean fullPath) {
+	protected Path getOutputDirectory(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pOutputDirectory);
 		else
 			return this.pOutputDirectory;
 	}
-	public void setOutputDirectory(Path OutputDirectory) {
+	protected void setOutputDirectory(Path OutputDirectory) {
 		this.pOutputDirectory = OutputDirectory;
 	}
 	
-	public Path getWeatherPath(boolean fullPath) {
+	protected Path getWeatherPath(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pWeatherPath);
 		else
 			return this.pWeatherPath;
 	}
-	public Path getWeatherHistoryFilePath(int year) {
+	protected Path getWeatherHistoryFilePath(int year) {
 		return getWeatherPath(true).resolve(getWeatherPrefix()+"."+String.valueOf(year));
 	}
-	public void setWeatherPath(Path WeatherPath) {
+	protected void setWeatherPath(Path WeatherPath) {
 		this.pWeatherPath = WeatherPath;
 	}
-	public String getWeatherPrefix() {
+	protected String getWeatherPrefix() {
 		return sWeatherPrefix;
 	}
-	public void setWeatherPrefix(String sWeatherPrefix) {
+	protected void setWeatherPrefix(String sWeatherPrefix) {
 		this.sWeatherPrefix = sWeatherPrefix;
 	}
-	public Path getFilesIn(boolean fullPath) {
+	protected Path getFilesIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pFilesIn);
 		else
 			return this.pFilesIn;
 	}
-	public void setFilesIn(Path FilesIn) {
+	protected void setFilesIn(Path FilesIn) {
 		this.pFilesIn = FilesIn;
 	}
-	public Path getYearsIn(boolean fullPath) {
+	protected Path getYearsIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pYearsIn);
 		else
 			return this.pYearsIn;
 	}
-	public void setYearsIn(Path YearsIn) {
+	protected void setYearsIn(Path YearsIn) {
 		this.pYearsIn = YearsIn;
 	}
-	public Path getLogFileIn(boolean fullPath) {
+	protected Path getLogFileIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pLogFile);
 		else
 			return this.pLogFile;
 	}
-	public void setLogFileIn(Path LogFileIn) {
+	protected void setLogFileIn(Path LogFileIn) {
 		this.pLogFile = LogFileIn;
 	}
-	public Path getSiteParametersIn(boolean fullPath) {
+	protected Path getSiteParametersIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pSiteParametersIn);
 		else
 			return this.pSiteParametersIn;
 	}
-	public void setSiteParametersIn(Path SiteParametersIn) {
+	protected void setSiteParametersIn(Path SiteParametersIn) {
 		this.pSiteParametersIn = SiteParametersIn;
 	}
-	public Path getSoilsIn(boolean fullPath) {
+	protected Path getSoilsIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pSoilsIn);
 		else
 			return this.pSoilsIn;
 	}
-	public void setSoilsIn(Path SoilsIn) {
+	protected void setSoilsIn(Path SoilsIn) {
 		this.pSoilsIn = SoilsIn;
 	}
-	public Path getWeatherSetupIn(boolean fullPath) {
+	protected Path getWeatherSetupIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pWeatherSetupIn);
 		else
 			return this.pWeatherSetupIn;
 	}
-	public void setWeatherSetupIn(Path WeatherSetupIn) {
+	protected void setWeatherSetupIn(Path WeatherSetupIn) {
 		this.pWeatherSetupIn = WeatherSetupIn;
 	}
-	public Path getMarkovProbabilityIn(boolean fullPath) {
+	protected Path getMarkovProbabilityIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pMarkovProbabilityIn);
 		else
 			return this.pMarkovProbabilityIn;
 	}
-	public void setMarkovProbabilityIn(Path MarkovProbabilityIn) {
+	protected void setMarkovProbabilityIn(Path MarkovProbabilityIn) {
 		this.pMarkovProbabilityIn = MarkovProbabilityIn;
 	}
-	public Path getMarkovCovarianceIn(boolean fullPath) {
+	protected Path getMarkovCovarianceIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pMarkovCovarianceIn);
 		else
 			return this.pMarkovCovarianceIn;
 	}
-	public void setMarkovCovarianceIn(Path MarkovCovarianceIn) {
+	protected void setMarkovCovarianceIn(Path MarkovCovarianceIn) {
 		this.pMarkovCovarianceIn = MarkovCovarianceIn;
 	}
-	public Path getCloudIn(boolean fullPath) {
+	protected Path getCloudIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pCloudIn);
 		else
 			return this.pCloudIn;
 	}
-	public void setCloudIn(Path CloudIn) {
+	protected void setCloudIn(Path CloudIn) {
 		this.pCloudIn = CloudIn;
 	}
-	public Path getPlantProductivityIn(boolean fullPath) {
+	protected Path getPlantProductivityIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pPlantProductivityIn);
 		else
 			return this.pPlantProductivityIn;
 	}
-	public void setPlantProductivityIn(Path PlantProductivityIn) {
+	protected void setPlantProductivityIn(Path PlantProductivityIn) {
 		this.pPlantProductivityIn = PlantProductivityIn;
 	}
-	public Path getEstablishmentIn(boolean fullPath) {
+	protected Path getEstablishmentIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pEstablishmentIn);
 		else
 			return this.pEstablishmentIn;
 	}
-	public void setEstablishmentIn(Path EstablishmentIn) {
+	protected void setEstablishmentIn(Path EstablishmentIn) {
 		this.pEstablishmentIn = EstablishmentIn;
 	}
-	public Path getSWCSetupIn(boolean fullPath) {
+	protected Path getSWCSetupIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pSWCSetupIn);
 		else
 			return this.pSWCSetupIn;
 	}
-	public void setSWCSetupIn(Path SWCSetupIn) {
+	protected void setSWCSetupIn(Path SWCSetupIn) {
 		this.pSWCSetupIn = SWCSetupIn;
 	}
-	public Path getOutputSetupIn(boolean fullPath) {
+	protected Path getOutputSetupIn(boolean fullPath) {
 		if(fullPath)
 			return this.pProjectDirectory.resolve(this.pOutputSetupIn);
 		else
 			return this.pOutputSetupIn;
 	}
-	public void setOutputSetupIn(Path OutputSetupIn) {
+	protected void setOutputSetupIn(Path OutputSetupIn) {
 		this.pOutputSetupIn = OutputSetupIn;
 	}
 }

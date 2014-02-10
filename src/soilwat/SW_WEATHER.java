@@ -19,15 +19,15 @@ public class SW_WEATHER {
 	 *  as they're always in the right units.
 	 */
 
-	public class SW_WEATHER_2DAYS {
+	protected static class SW_WEATHER_2DAYS {
 		/* comes from markov weather day-to-day */
-		public double temp_yr_avg,gsppt; /* gr. season ppt only needs one day */
-		public double[] temp_avg, temp_run_avg, /* year's avg for STEPPE */
+		protected double temp_yr_avg,gsppt; /* gr. season ppt only needs one day */
+		protected double[] temp_avg, temp_run_avg, /* year's avg for STEPPE */
 		temp_max, temp_min, ppt, /* 20091015 (drs) ppt is divided into rain and snow */
 		rain, snow, snowmelt, snowloss, ppt_actual; /* 20091015 (drs) was here previously, but not used in code as of today */
 		
 		
-		public SW_WEATHER_2DAYS() {
+		protected SW_WEATHER_2DAYS() {
 			temp_avg = new double[Defines.TWO_DAYS];
 			temp_run_avg = new double[Defines.TWO_DAYS];
 			temp_max = new double[Defines.TWO_DAYS];
@@ -41,7 +41,7 @@ public class SW_WEATHER {
 			gsppt = 0;
 			temp_yr_avg=0;
 		}
-		public void onClear() {
+		protected void onClear() {
 			for(int i=0; i<Defines.TWO_DAYS; i++) {
 				temp_avg[i] = 0;
 				temp_run_avg[i] = 0;
@@ -61,44 +61,44 @@ public class SW_WEATHER {
 
 	/* accumulators for output values hold only the */
 	/* current period's values (eg, weekly or monthly) */
-	public class SW_WEATHER_OUTPUTS {
-		double temp_max, temp_min, temp_avg, ppt, rain, snow, snowmelt, snowloss, /* 20091015 (drs) ppt is divided into rain and snow */
+	protected static class SW_WEATHER_OUTPUTS {
+		protected double temp_max, temp_min, temp_avg, ppt, rain, snow, snowmelt, snowloss, /* 20091015 (drs) ppt is divided into rain and snow */
 		snowRunoff, surfaceRunoff, soil_inf, et, aet, pet;
 		
-		public SW_WEATHER_OUTPUTS() {
+		protected SW_WEATHER_OUTPUTS() {
 			
 		}
 		
-		public void onClear() {
+		protected void onClear() {
 			temp_max=temp_min=temp_avg=ppt=rain=snow=snowmelt=snowloss=0;
 			snowRunoff=surfaceRunoff=soil_inf=et=aet=pet=0;
 		}
 	}
-
-	public class WEATHER {
-		boolean use_markov, /* TRUE=use markov for any year missing a weather */
+	
+	public static class WEATHER_INPUT_DATA {
+		public boolean use_markov; /* TRUE=use markov for any year missing a weather */
 		/*      file, which means markov must be initialized */
 		/* FALSE = fail if any weather file is missing.  */
-		use_snow;
-		double pct_snowdrift, pct_snowRunoff;
-		int days_in_runavg;
-		SW_TIMES yr;
-		double[] runavg_list;
-		double[] scale_precip, scale_temp_max, scale_temp_min;
-		String name_prefix;
-		double snowRunoff, surfaceRunoff, soil_inf;
+		public boolean use_snow;
+		public double pct_snowdrift, pct_snowRunoff;
+		public int days_in_runavg;
+		public SW_TIMES yr;		
+		public double[] scale_precip = new double[Times.MAX_MONTHS], scale_temp_max = new double[Times.MAX_MONTHS], scale_temp_min = new double[Times.MAX_MONTHS];
+	}
+
+	protected static class WEATHER extends WEATHER_INPUT_DATA {
+		protected double[] runavg_list;
+		protected String name_prefix;
+		protected double snowRunoff, surfaceRunoff, soil_inf;
 
 		/* This section is required for computing the output quantities.  */
-		SW_WEATHER_OUTPUTS dysum, /* helpful placeholder */
+		protected SW_WEATHER_OUTPUTS dysum, /* helpful placeholder */
 		wksum, mosum, yrsum, /* accumulators for *avg */
 		wkavg, moavg, yravg; /* averages or sums as appropriate*/
 		
-		SW_WEATHER_2DAYS now;
+		protected SW_WEATHER_2DAYS now;
 		
 		public WEATHER() {
-			scale_precip = new double[Times.MAX_MONTHS];
-			scale_temp_max = new double[Times.MAX_MONTHS];
-			scale_temp_min = new double[Times.MAX_MONTHS];
 			yr = new SW_TIMES();
 			dysum = new SW_WEATHER_OUTPUTS();
 			wksum = new SW_WEATHER_OUTPUTS();
@@ -196,7 +196,7 @@ public class SW_WEATHER {
 	private int nFileItemsRead;
 	private final int nFileItems=18;
 	
-	public SW_WEATHER(SW_MODEL SW_Model) {
+	protected SW_WEATHER(SW_MODEL SW_Model) {
 		this.hist = new SW_WEATHER_HISTORY();
 		this.SW_Markov = new SW_MARKOV();
 		this.weather = new WEATHER();
@@ -209,26 +209,26 @@ public class SW_WEATHER {
 		SW_Markov.setPpt_events(0);
 	}
 	
-	public void setSoilWater(SW_SOILWATER SW_SoilWater) {
+	protected void setSoilWater(SW_SOILWATER SW_SoilWater) {
 		this.SW_SoilWater = SW_SoilWater;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.data = false;
 		this.weth_found = false;
 		hist.onClear();
-		weather.use_markov = false;
-		weather.use_snow = false;
-		weather.pct_snowdrift = 0;
-		weather.pct_snowRunoff = 0;
-		weather.days_in_runavg = 0;
+		//weather.use_markov = false;
+		//weather.use_snow = false;
+		//weather.pct_snowdrift = 0;
+		//weather.pct_snowRunoff = 0;
+		//weather.days_in_runavg = 0;
 		this.nFileItemsRead=0;
 		tail=0;
 		SW_Markov.setPpt_events(0);
 		this.firsttime = true;
 	}
 	
-	public void onSetDefault(Path ProjectDirectory) {
+	protected void onSetDefault(Path ProjectDirectory) {
 		this.data = true;
 		this.firsttime = true;
 		this.weth_found = false;
@@ -248,9 +248,11 @@ public class SW_WEATHER {
 		SW_Markov.setPpt_events(0);
 	}
 
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
+			weather.runavg_list = new double[weather.days_in_runavg];
+			
 			if(SW_Model.get_HasData())
 				weather.yr.setLast(SW_Model.getEndYear());
 			if(this.nFileItemsRead != nFileItems)
@@ -270,10 +272,26 @@ public class SW_WEATHER {
 			return false;
 		}
 	}
-	public void onReadHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+	protected void onReadHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
 		hist.onRead(WeatherHistoryFolder, prefix, weather.yr.getFirst(), SW_Model.getEndYear());
 	}
-	public void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws IOException {
+	protected void onSetInput(WEATHER_INPUT_DATA weatherSetupIn) {
+		weather.use_snow = weatherSetupIn.use_snow;
+		weather.pct_snowdrift = weatherSetupIn.pct_snowdrift;
+		weather.pct_snowRunoff = weatherSetupIn.pct_snowRunoff;
+		weather.use_markov = weatherSetupIn.use_markov;
+		weather.yr.setFirst(weatherSetupIn.yr.getFirst());
+		weather.days_in_runavg = weatherSetupIn.days_in_runavg;
+		for(int i=0; i<Times.MAX_MONTHS; i++) {
+			weather.scale_precip[i] = weatherSetupIn.scale_precip[i];
+			weather.scale_temp_max[i] = weatherSetupIn.scale_temp_max[i];
+			weather.scale_temp_min[i] = weatherSetupIn.scale_temp_min[i];
+		}
+	}
+	protected void onSetWeatherHist(SW_WEATHER_HISTORY hist) {
+		this.hist = hist;
+	}
+	protected void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws IOException {
 		this.nFileItemsRead=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(WeatherSetupIn, StandardCharsets.UTF_8);
@@ -322,7 +340,6 @@ public class SW_WEATHER {
 				case 5:
 					try{
 						weather.days_in_runavg = Integer.parseInt(values[0]);
-						weather.runavg_list = new double[weather.days_in_runavg];
 					} catch(NumberFormatException e) {
 						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Days in Runavg : Could not convert string to integer." + e.getMessage());
 					}
@@ -348,7 +365,7 @@ public class SW_WEATHER {
 		this.data = true;
 	}
 
-	public void onWrite(Path WeatherSetupIn) throws IOException {
+	protected void onWrite(Path WeatherSetupIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Weather setup parameters");
@@ -376,18 +393,18 @@ public class SW_WEATHER {
 		}
 	}
 
-	public WEATHER getWeather() {
+	protected WEATHER getWeather() {
 		return this.weather;
 	}
-	public void SW_WTH_clear_runavg_list() {
+	protected void SW_WTH_clear_runavg_list() {
 		weather.runavg_list = null;
 	}
-	public void SW_WTH_init() {
+	protected void SW_WTH_init() {
 		/* =================================================== */
 		/* nothing to initialize */
 		/* this is a stub to make all objects more consistent */
 	}
-	public void SW_WTH_new_year() {
+	protected void SW_WTH_new_year() {
 		SW_WEATHER_2DAYS wn = weather.now;
 		int year = SW_Model.getYear();
 		int Today = Defines.Today;
@@ -420,10 +437,10 @@ public class SW_WEATHER {
 
 		firsttime = false;
 	}
-	public void SW_WTH_end_day() {
+	protected void SW_WTH_end_day() {
 		_update_yesterday();
 	}
-	public void SW_WTH_new_day() {
+	protected void SW_WTH_new_day() {
 		/* =================================================== */
 		/* guarantees that today's weather will not be invalid
 		 * via _todays_weth()
@@ -478,12 +495,12 @@ public class SW_WEATHER {
 		}
 	}
 	
-	private void _clear_runavg() {
+	protected void _clear_runavg() {
 		for(int i=0; i<weather.days_in_runavg; i++) {
 			weather.runavg_list[i] = 0;
 		}
 	}
-	private double _runavg_temp(double avg) {
+	protected double _runavg_temp(double avg) {
 		int cnt=0, numdays;
 		double sum = 0.;
 		
@@ -498,7 +515,7 @@ public class SW_WEATHER {
 		tail = (tail<(weather.days_in_runavg - 1)) ? tail+1 : 0;
 		return ((cnt>0) ? sum/cnt : WTH_MISSING);
 	}
-	private void _update_yesterday() {
+	protected void _update_yesterday() {
 		int Today=Defines.Today;
 		int Yesterday = Defines.Yesterday;
 		SW_WEATHER_2DAYS wn = weather.now;
@@ -516,7 +533,7 @@ public class SW_WEATHER {
 		wn.snowloss[Yesterday] = wn.snowloss[Today];
 	}
 	
-	private void _clear_hist_weather() {
+	protected void _clear_hist_weather() {
 		weather.dysum.onClear();
 		weather.wksum.onClear();
 		weather.mosum.onClear();
@@ -526,7 +543,7 @@ public class SW_WEATHER {
 		weather.yravg.onClear();
 	}
 
-	public SW_WEATHER_2DAYS getNow() {
+	protected SW_WEATHER_2DAYS getNow() {
 		return weather.now;
 	}
 }

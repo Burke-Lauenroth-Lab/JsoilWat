@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SW_MODEL {
+	public static class MODEL_INPUT_DATA {
+		public int startYear,
+		endYear,
+		startstart,
+		endend;
+		public boolean isNorth;
+	}
 	/* Private Member Variables */
 	private int /* controlling dates for model run */
 	startyr, /* beginning year for model run */
@@ -40,22 +47,22 @@ public class SW_MODEL {
 	private int nLineIsNorth=7;
 	private boolean data;
 	
-	public SW_MODEL() {
+	protected SW_MODEL() {
 		Times.Time_init();
 		this.newweek=this.newmonth=this.newyear=false;
 		this.data = false;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.data = false;
-		this.setStartYear(0);
-		this.setEndYear(0);
-		this.setFirstDayOfFirstYear(0);
-		this.setEndDayOfEndYear(0);
-		this.setIsNorth(true);
+		//this.setStartYear(0);
+		//this.setEndYear(0);
+		//this.setFirstDayOfFirstYear(0);
+		//this.setEndDayOfEndYear(0);
+		//this.setIsNorth(true);
 	}
 	
-	public void onSetDefault() {
+	/*public void onSetDefault() {
 		this.data = true;
 		this.setStartYear(1982);
 		this.setEndYear(1986);
@@ -63,9 +70,9 @@ public class SW_MODEL {
 		this.setEndDayOfEndYear(365);
 		this.setIsNorth(true);
 		this.daymid = (this.isIsNorth()) ? Times.DAYMID_NORTH : Times.DAYMID_SOUTH;
-	}
+	}*/
 	
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			if(this.startyr < 0)
@@ -82,7 +89,7 @@ public class SW_MODEL {
 		}
 	}
 	
-	public void SW_MDL_new_year() {
+	protected void SW_MDL_new_year() {
 		_prevweek=_prevmonth/*=_prevyear*/=_notime;
 		int year = this.year;
 		Times.Time_new_year(year);
@@ -90,7 +97,7 @@ public class SW_MODEL {
 		this.lastdoy = (year == this.endyr) ? this.endend : Times.Time_lastDOY();
 	}
 	
-	public void SW_MDL_new_day() {
+	protected void SW_MDL_new_day() {
 		/* =================================================== */
 		/* sets the output period elements of SW_Model
 		 * based on the current day.
@@ -117,9 +124,17 @@ public class SW_MODEL {
 		} else
 			this.newweek = false;
 	}
+	protected void onSetInput(MODEL_INPUT_DATA yearsIn) {
+		this.startyr = yearsIn.startYear;
+		this.endyr = yearsIn.endYear;
+		this.startstart = yearsIn.startstart;
+		this.endend = yearsIn.endend;
+		this.isnorth = yearsIn.isNorth;
+		this.daymid = (this.isIsNorth()) ? Times.DAYMID_NORTH : Times.DAYMID_SOUTH;
+		this.data = true;
+	}
 	
-	
-	public void onRead(Path YearsIn) throws IOException {
+	protected void onRead(Path YearsIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(YearsIn, StandardCharsets.UTF_8);
 		boolean FirstEnd = false, endString = false; //used if FDOFY or EDOEY are not present
@@ -187,7 +202,7 @@ public class SW_MODEL {
 		this.data = true;
 	}
 	
-	public void onWrite(Path YearsIn) throws IOException {
+	protected void onWrite(Path YearsIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Model time definition file");
@@ -207,10 +222,10 @@ public class SW_MODEL {
 			f.LogError(LogFileIn.LogMode.ERROR, "swYears onWriteYears : No Data.");
 		}
 	}
-	public int getYearsInSimulation() {
+	protected int getYearsInSimulation() {
 		return getEndYear() - getStartYear() + 1;
 	}
-	public int getDaysInSimulation() {
+	protected int getDaysInSimulation() {
 		int n=0;
 		
 		for(int i=this.getStartYear(); i<=this.getEndYear(); i++)
@@ -218,86 +233,86 @@ public class SW_MODEL {
 		return n;
 	}
 
-	public int getStartYear() {
+	protected int getStartYear() {
 		return startyr;
 	}
-	public void setStartYear(int nStartYear) {
+	protected void setStartYear(int nStartYear) {
 		this.startyr = nStartYear;
 	}
 	
-	public int getEndYear() {
+	protected int getEndYear() {
 		return endyr;
 	}
-	public void setEndYear(int nEndYear) {
+	protected void setEndYear(int nEndYear) {
 		this.endyr = nEndYear;
 	}
 
-	public int getFirstDayOfFirstYear() {
+	protected int getFirstDayOfFirstYear() {
 		return startstart;
 	}
-	public void setFirstDayOfFirstYear(int nFirstDayOfFirstYear) {
+	protected void setFirstDayOfFirstYear(int nFirstDayOfFirstYear) {
 		this.startstart = nFirstDayOfFirstYear;
 	}
 
-	public int getEndDayOfEndYear() {
+	protected int getEndDayOfEndYear() {
 		return endend;
 	}
-	public void setEndDayOfEndYear(int nEndDayOfEndYear) {
+	protected void setEndDayOfEndYear(int nEndDayOfEndYear) {
 		this.endend = nEndDayOfEndYear;
 	}
 
-	public boolean isIsNorth() {
+	protected boolean isIsNorth() {
 		return isnorth;
 	}
-	public void setIsNorth(boolean bIsNorth) {
+	protected void setIsNorth(boolean bIsNorth) {
 		this.isnorth = bIsNorth;
 	}
 	
-	public int getFirstdoy() {
+	protected int getFirstdoy() {
 		return this.firstdoy;
 	}
 	
-	public int getLastdoy() {
+	protected int getLastdoy() {
 		return this.lastdoy;
 	}
 	
-	public boolean get_newweek() {
+	protected boolean get_newweek() {
 		return this.newweek;
 	}
-	public boolean get_newmonth() {
+	protected boolean get_newmonth() {
 		return this.newmonth;
 	}
-	public boolean get_newyear() {
+	protected boolean get_newyear() {
 		return this.newyear;
 	}
 	
-	public int getYear() {
+	protected int getYear() {
 		return this.year;
 	}
-	public int getMonth() {
+	protected int getMonth() {
 		return this.month;
 	}
-	public int getWeek() {
+	protected int getWeek() {
 		return this.week;
 	}
-	public int getDOY() {
+	protected int getDOY() {
 		return this.doy;
 	}
 	
-	public void setYear(int year) {
+	protected void setYear(int year) {
 		this.year = year;
 	}
-	public void setMonth(int month) {
+	protected void setMonth(int month) {
 		this.month = month;
 	}
-	public void setWeek(int week) {
+	protected void setWeek(int week) {
 		this.week = week;
 	}
-	public void setDOY(int doy) {
+	protected void setDOY(int doy) {
 		this.doy = doy;
 	}
 	
-	public boolean get_HasData() {
+	protected boolean get_HasData() {
 		return this.data;
 	}
 }

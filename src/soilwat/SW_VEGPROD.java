@@ -11,37 +11,57 @@ import soilwat.LogFileIn.LogMode;
 import soilwat.Times.Months;
 
 public class SW_VEGPROD {
-	public class VegetationComposition {
-		public double grasses;
+	public static class VegetationComposition {
+		public double grass;
+		public double shrub;
+		public double tree;
+		public double forb;
+		public double bareGround;
+		public void onClear() {
+			this.grass=this.shrub=this.tree=this.forb=this.bareGround=0;
+		}
+		public void onSet(double grassFrac, double shrubFrac, double treeFrac, double forbFrac, double baregroundFrac) {
+			this.grass = grassFrac;
+			this.tree = treeFrac;
+			this.shrub = shrubFrac;
+			this.forb = forbFrac;
+			this.bareGround = baregroundFrac;
+		}
+	}
+	public static class Albedo {
+		public double grass;
 		public double shrubs;
 		public double trees;
 		public double forbs;
 		public double bareGround;
 		public void onClear() {
-			this.grasses=this.shrubs=this.trees=this.forbs=this.bareGround=0;
+			this.grass=this.shrubs=this.trees=this.forbs=this.bareGround=0;
+		}
+		public void onSet(double grass, double shrub, double tree, double forb, double bareGround) {
+			this.grass = grass;
+			this.shrubs = shrub;
+			this.trees = tree;
+			this.forbs = forb;
+			this.bareGround = bareGround;
 		}
 	}
-	public class Albedo {
+	public static class CoverPercent {
 		public double grasses;
-		public double shrubs;
-		public double trees;
-		public double forbs;
-		public double bareGround;
+		public double shrub;
+		public double tree;
+		public double forb;
 		public void onClear() {
-			this.grasses=this.shrubs=this.trees=this.forbs=this.bareGround=0;
+			this.grasses=this.shrub=this.tree=this.forb=0;
+		}
+		public void onSet(double grass, double shrub, double tree, double forb) {
+			this.grasses = grass;
+			this.shrub = shrub;
+			this.tree = tree;
+			this.forb = forb;
 		}
 	}
-	public class CoverPercent {
-		public double grasses;
-		public double shrubs;
-		public double trees;
-		public double forbs;
-		public void onClear() {
-			this.grasses=this.shrubs=this.trees=this.forbs=0;
-		}
-	}
-	public class CanopyHeight {
-		private class Params {
+	public static class CanopyHeight {
+		public class Params {
 			public double xinflec;
 			public double yinflec;
 			public double range;
@@ -49,6 +69,13 @@ public class SW_VEGPROD {
 			public double canopyHeight;
 			public void onClear() {
 				this.xinflec=this.yinflec=this.range=this.slope=this.canopyHeight=0;
+			}
+			public void onSet(double xinflec, double yinflec, double range, double slope, double canopyHeight) {
+				this.xinflec = xinflec;
+				this.yinflec = yinflec;
+				this.range = range;
+				this.slope = slope;
+				this.canopyHeight = canopyHeight;
 			}
 		}
 		public Params grasses;
@@ -68,7 +95,7 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
-	public class VegetationInterceptionParameters {
+	public static class VegetationInterceptionParameters {
 		public class Params {
 			public double a;
 			public double b;
@@ -76,6 +103,12 @@ public class SW_VEGPROD {
 			public double d;
 			public void onClear() {
 				this.a=this.b=this.c=this.d=0;
+			}
+			public void onSet(double a, double b, double c, double d) {
+				this.a = a;
+				this.b = b;
+				this.c = c;
+				this.d = d;
 			}
 		}
 		public Params grasses;
@@ -95,7 +128,7 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
-	public class LitterInterceptionParameters {
+	public static class LitterInterceptionParameters {
 		public class Params {
 			public double a;
 			public double b;
@@ -103,6 +136,12 @@ public class SW_VEGPROD {
 			public double d;
 			public void onClear() {
 				this.a=this.b=this.c=this.d=0;
+			}
+			public void onSet(double a, double b, double c, double d) {
+				this.a = a;
+				this.b = b;
+				this.c = c;
+				this.d = d;
 			}
 		}
 		public Params grasses;
@@ -122,7 +161,7 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
-	public class EsTpartitioning {
+	public static class EsTpartitioning {
 		public double grasses;
 		public double shrubs;
 		public double trees;
@@ -130,8 +169,14 @@ public class SW_VEGPROD {
 		public void onClear() {
 			this.grasses=this.shrubs=this.trees=this.forbs=0;
 		}
+		public void onSet(double grass, double shrub, double tree, double forb) {
+			this.grasses = grass;
+			this.shrubs = shrub;
+			this.trees = tree;
+			this.forbs = forb;
+		}
 	}
-	public class EsParamLimit {
+	public static class EsParamLimit {
 		public double grasses;
 		public double shrubs;
 		public double trees;
@@ -139,8 +184,14 @@ public class SW_VEGPROD {
 		public void onClear() {
 			this.grasses=this.shrubs=this.trees=this.forbs=0;
 		}
+		public void onSet(double grass, double shrub, double tree, double forb) {
+			this.grasses = grass;
+			this.shrubs = shrub;
+			this.trees = tree;
+			this.forbs = forb;
+		}
 	}
-	public class Shade {
+	public static class Shade {
 		public class Params {
 			public double shadeScale;
 			public double shadeMaximalDeadBiomass;
@@ -150,6 +201,14 @@ public class SW_VEGPROD {
 			public double slope;
 			public void onClear() {
 				this.shadeScale=this.shadeMaximalDeadBiomass=this.xinflec=this.yinflec=this.range=this.slope=0;
+			}
+			public void onSet(double shadeScale, double shadeMaximalDeadBiomass, double xinflec, double yinflec, double range, double slope) {
+				this.shadeScale = shadeScale;
+				this.shadeMaximalDeadBiomass = shadeMaximalDeadBiomass;
+				this.xinflec = xinflec;
+				this.yinflec = yinflec;
+				this.range = range;
+				this.slope = slope;
 			}
 		}
 		public Params grasses;
@@ -169,7 +228,7 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
-	public class HydraulicRedistribution {
+	public static class HydraulicRedistribution {
 		public class Params {
 			public boolean flag;
 			public double maxCondRoot;
@@ -178,6 +237,12 @@ public class SW_VEGPROD {
 			public void onClear() {
 				this.flag=false;
 				this.maxCondRoot=this.swp50=this.shapeCond=0;
+			}
+			public void onSet(boolean flag, double maxCondRoot, double swp50, double shapeCond) {
+				this.flag = flag;
+				this.maxCondRoot = maxCondRoot;
+				this.swp50 = swp50;
+				this.shapeCond = shapeCond;
 			}
 		}
 		public Params grasses;
@@ -197,7 +262,7 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
-	public class CriticalSWP {
+	public static class CriticalSWP {
 		public double grasses;
 		public double shrubs;
 		public double trees;
@@ -205,9 +270,15 @@ public class SW_VEGPROD {
 		public void onClear() {
 			this.grasses=this.shrubs=this.trees=this.forbs=0;
 		}
+		public void onSet(double grass, double shrub, double tree, double forb) {
+			this.grasses = grass;
+			this.shrubs = shrub;
+			this.trees = tree;
+			this.forbs = forb;
+		}
 	}
-	public class MonthlyProductionValues {
-		private class Params {
+	public static class MonthlyProductionValues {
+		public class Params {
 			public double[] litter = new double[Times.MAX_MONTHS];
 			public double[] biomass = new double[Times.MAX_MONTHS];
 			public double[] percLive = new double[Times.MAX_MONTHS];
@@ -219,6 +290,69 @@ public class SW_VEGPROD {
 			}
 			public String getString(int month) {
 				return String.valueOf(this.litter[month])+"\t"+String.valueOf(this.biomass[month])+"\t"+String.valueOf(this.percLive[month])+"\t"+String.valueOf(this.lai_conv[month]);
+			}
+			public void onSetMonth(int month, double litter, double biomass, double percLive, double lai_conv) {
+				month--;
+				this.litter[month]=litter;
+				this.biomass[month]=biomass;
+				this.percLive[month]=percLive;
+				this.lai_conv[month]=lai_conv;
+			}
+			public void onSetLitter(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
+				this.litter[0] = m1;
+				this.litter[1] = m2;
+				this.litter[2] = m3;
+				this.litter[3] = m4;
+				this.litter[4] = m5;
+				this.litter[5] = m6;
+				this.litter[6] = m7;
+				this.litter[7] = m8;
+				this.litter[8] = m9;
+				this.litter[9] = m10;
+				this.litter[10] = m11;
+				this.litter[11] = m12;
+			}
+			public void onSetBiomass(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
+				this.biomass[0] = m1;
+				this.biomass[1] = m2;
+				this.biomass[2] = m3;
+				this.biomass[3] = m4;
+				this.biomass[4] = m5;
+				this.biomass[5] = m6;
+				this.biomass[6] = m7;
+				this.biomass[7] = m8;
+				this.biomass[8] = m9;
+				this.biomass[9] = m10;
+				this.biomass[10] = m11;
+				this.biomass[11] = m12;
+			}
+			public void onSetPercLive(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
+				this.percLive[0] = m1;
+				this.percLive[1] = m2;
+				this.percLive[2] = m3;
+				this.percLive[3] = m4;
+				this.percLive[4] = m5;
+				this.percLive[5] = m6;
+				this.percLive[6] = m7;
+				this.percLive[7] = m8;
+				this.percLive[8] = m9;
+				this.percLive[9] = m10;
+				this.percLive[10] = m11;
+				this.percLive[11] = m12;
+			}
+			public void onSetLai_conv(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
+				this.lai_conv[0] = m1;
+				this.lai_conv[1] = m2;
+				this.lai_conv[2] = m3;
+				this.lai_conv[3] = m4;
+				this.lai_conv[4] = m5;
+				this.lai_conv[5] = m6;
+				this.lai_conv[6] = m7;
+				this.lai_conv[7] = m8;
+				this.lai_conv[8] = m9;
+				this.lai_conv[9] = m10;
+				this.lai_conv[10] = m11;
+				this.lai_conv[11] = m12;
 			}
 		}
 		public Params grasses;
@@ -238,8 +372,8 @@ public class SW_VEGPROD {
 			this.forbs.onClear();
 		}
 	}
-	public class DailyVegProd {
-		public class Params {
+	protected class DailyVegProd {
+		protected class Params {
 			public double[] litter_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly litter values (g/m**2)    */
 			public double[] biomass_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of monthly aboveground biomass (g/m**2) */
 			public double[] biolive_daily = new double[Times.MAX_DAYS+1]; /* daily interpolation of biomass * pct_live               */
@@ -258,17 +392,17 @@ public class SW_VEGPROD {
 				}
 			}
 		}
-		public Params grass;
-		public Params shrub;
-		public Params tree;
-		public Params forb;
-		public DailyVegProd() {
+		protected Params grass;
+		protected Params shrub;
+		protected Params tree;
+		protected Params forb;
+		protected DailyVegProd() {
 			this.grass = new Params();
 			this.shrub = new Params();
 			this.tree = new Params();
 			this.forb = new Params();
 		}
-		public void onClear() {
+		protected void onClear() {
 			this.grass.onClear();
 			this.shrub.onClear();
 			this.tree.onClear();
@@ -371,19 +505,19 @@ public class SW_VEGPROD {
 			this.criticalSWP.trees *= -10;
 			this.criticalSWP.forbs *= -10;
 			
-			double fraction_sum = this.vegComp.grasses + this.vegComp.shrubs + this.vegComp.trees + this.vegComp.forbs + this.vegComp.bareGround;
+			double fraction_sum = this.vegComp.grass + this.vegComp.shrub + this.vegComp.tree + this.vegComp.forb + this.vegComp.bareGround;
 			if (!Defines.EQ(fraction_sum, 1.0)) {
 				f.LogError(LogFileIn.LogMode.ERROR, String.format("Fractions of vegetation components were normalized, "+
 						"sum of fractions (%5.4f) != 1.0.\nNew coefficients are:", fraction_sum));
-				this.vegComp.grasses /= fraction_sum;
-				this.vegComp.shrubs /= fraction_sum;
-				this.vegComp.trees /= fraction_sum;
+				this.vegComp.grass /= fraction_sum;
+				this.vegComp.shrub /= fraction_sum;
+				this.vegComp.tree /= fraction_sum;
 				this.vegComp.bareGround /= fraction_sum;
-				this.vegComp.forbs /= fraction_sum;
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Grassland fraction : %5.4f", this.vegComp.grasses));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Shrubland fraction : %5.4f", this.vegComp.shrubs));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Forest/tree fraction : %5.4f", this.vegComp.trees));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  FORB fraction : %5.4f", this.vegComp.forbs));
+				this.vegComp.forb /= fraction_sum;
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Grassland fraction : %5.4f", this.vegComp.grass));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Shrubland fraction : %5.4f", this.vegComp.shrub));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Forest/tree fraction : %5.4f", this.vegComp.tree));
+				f.LogError(LogFileIn.LogMode.ERROR, String.format("  FORB fraction : %5.4f", this.vegComp.forb));
 				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Bare Ground fraction : %5.4f", this.vegComp.bareGround));
 			}
 			SW_VPD_init();
@@ -409,10 +543,10 @@ public class SW_VEGPROD {
 					if(values.length != 5)
 						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : VegetationComposition : Expected 5 Values read "+String.valueOf(values.length));
 					try {
-						this.vegComp.grasses = Double.parseDouble(values[0]);
-						this.vegComp.shrubs = Double.parseDouble(values[1]);
-						this.vegComp.trees = Double.parseDouble(values[2]);
-						this.vegComp.forbs = Double.parseDouble(values[3]);
+						this.vegComp.grass = Double.parseDouble(values[0]);
+						this.vegComp.shrub = Double.parseDouble(values[1]);
+						this.vegComp.tree = Double.parseDouble(values[2]);
+						this.vegComp.forb = Double.parseDouble(values[3]);
 						this.vegComp.bareGround = Double.parseDouble(values[4]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : VegetationComposition : Could not convert string to double. " + e.getMessage());
@@ -422,7 +556,7 @@ public class SW_VEGPROD {
 					if(values.length != 5)
 						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Albedo : Expected 5 Values read "+String.valueOf(values.length));
 					try {
-						this.albedo.grasses = Double.parseDouble(values[0]);
+						this.albedo.grass = Double.parseDouble(values[0]);
 						this.albedo.shrubs = Double.parseDouble(values[1]);
 						this.albedo.trees = Double.parseDouble(values[2]);
 						this.albedo.forbs = Double.parseDouble(values[3]);
@@ -436,9 +570,9 @@ public class SW_VEGPROD {
 						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Cover Percent : Expected 4 Values read "+String.valueOf(values.length));
 					try {
 						this.cover.grasses = Double.parseDouble(values[0]);
-						this.cover.shrubs = Double.parseDouble(values[1]);
-						this.cover.trees = Double.parseDouble(values[2]);
-						this.cover.forbs = Double.parseDouble(values[3]);
+						this.cover.shrub = Double.parseDouble(values[1]);
+						this.cover.tree = Double.parseDouble(values[2]);
+						this.cover.forb = Double.parseDouble(values[3]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogFileIn.LogMode.ERROR, "ProductionIn onRead : Cover Percent : Could not convert string to double. " + e.getMessage());
 					}
@@ -823,18 +957,18 @@ public class SW_VEGPROD {
 			lines.add("");
 			lines.add("# ---- Composition of vegetation type components (0-1; must add up to 1)");
 			lines.add("# Grasses	Shrubs		Trees		Forbs		Bare Ground");
-			lines.add(String.valueOf(this.vegComp.grasses)+"\t"+String.valueOf(this.vegComp.shrubs)+"\t"+String.valueOf(this.vegComp.trees)+"\t"+String.valueOf(this.vegComp.forbs)+"\t"+String.valueOf(this.vegComp.bareGround));
+			lines.add(String.valueOf(this.vegComp.grass)+"\t"+String.valueOf(this.vegComp.shrub)+"\t"+String.valueOf(this.vegComp.tree)+"\t"+String.valueOf(this.vegComp.forb)+"\t"+String.valueOf(this.vegComp.bareGround));
 			lines.add("");
 			lines.add("");
 			lines.add("# ---- Albedo");
 			lines.add("# Grasses	Shrubs		Trees		Forbs		Bare Ground");
-			lines.add(String.valueOf(this.albedo.grasses)+"\t"+String.valueOf(this.albedo.shrubs)+"\t"+String.valueOf(this.albedo.trees)+"\t"+String.valueOf(this.albedo.forbs)+"\t"+String.valueOf(this.albedo.bareGround)+
+			lines.add(String.valueOf(this.albedo.grass)+"\t"+String.valueOf(this.albedo.shrubs)+"\t"+String.valueOf(this.albedo.trees)+"\t"+String.valueOf(this.albedo.forbs)+"\t"+String.valueOf(this.albedo.bareGround)+
 					"\t# albedo:	(Houldcroft et al. 2009) MODIS snowfree 'grassland', 'open shrub', ‘evergreen needle forest’ with MODIS albedo aggregated over pure IGBP cells where NDVI is greater than the 98th percentile NDVI");
 			lines.add("");
 			lines.add("");
 			lines.add("# ---- % Cover: divide standing LAI by this to get % cover");
 			lines.add("# Grasses	Shrubs		Trees		Forbs");
-			lines.add(String.valueOf(this.cover.grasses)+"\t"+String.valueOf(this.cover.shrubs)+"\t"+String.valueOf(this.cover.trees)+"\t"+String.valueOf(this.cover.forbs));
+			lines.add(String.valueOf(this.cover.grasses)+"\t"+String.valueOf(this.cover.shrub)+"\t"+String.valueOf(this.cover.tree)+"\t"+String.valueOf(this.cover.forb));
 			lines.add("");
 			lines.add("");
 			lines.add("# -- Canopy height (cm) parameters either constant through season or as tanfunc with respect to biomass (g/m^2)");
@@ -992,28 +1126,28 @@ public class SW_VEGPROD {
 	private void SW_VPD_init() {
 		int doy; /* base1 */
 
-		if (Defines.GT(vegComp.grasses, 0.)) {
+		if (Defines.GT(vegComp.grass, 0.)) {
 			Times.interpolate_monthlyValues(monthlyProd.grasses.litter, daily.grass.litter_daily);
 			Times.interpolate_monthlyValues(monthlyProd.grasses.biomass, daily.grass.biomass_daily);
 			Times.interpolate_monthlyValues(monthlyProd.grasses.percLive, daily.grass.pct_live_daily);
 			Times.interpolate_monthlyValues(monthlyProd.grasses.lai_conv, daily.grass.lai_conv_daily);
 		}
 
-		if (Defines.GT(vegComp.shrubs, 0.)) {
+		if (Defines.GT(vegComp.shrub, 0.)) {
 			Times.interpolate_monthlyValues(monthlyProd.shrubs.litter, daily.shrub.litter_daily);
 			Times.interpolate_monthlyValues(monthlyProd.shrubs.biomass, daily.shrub.biomass_daily);
 			Times.interpolate_monthlyValues(monthlyProd.shrubs.percLive, daily.shrub.pct_live_daily);
 			Times.interpolate_monthlyValues(monthlyProd.shrubs.lai_conv, daily.shrub.lai_conv_daily);
 		}
 
-		if (Defines.GT(vegComp.trees, 0.)) {
+		if (Defines.GT(vegComp.tree, 0.)) {
 			Times.interpolate_monthlyValues(monthlyProd.trees.litter, daily.tree.litter_daily);
 			Times.interpolate_monthlyValues(monthlyProd.trees.biomass, daily.tree.biomass_daily);
 			Times.interpolate_monthlyValues(monthlyProd.trees.percLive, daily.tree.pct_live_daily);
 			Times.interpolate_monthlyValues(monthlyProd.trees.lai_conv, daily.tree.lai_conv_daily);
 		}
 
-		if (Defines.GT(vegComp.forbs, 0.)) {
+		if (Defines.GT(vegComp.forb, 0.)) {
 			Times.interpolate_monthlyValues(monthlyProd.forbs.litter, daily.forb.litter_daily);
 			Times.interpolate_monthlyValues(monthlyProd.forbs.biomass, daily.forb.biomass_daily);
 			Times.interpolate_monthlyValues(monthlyProd.forbs.percLive, daily.forb.pct_live_daily);
@@ -1021,7 +1155,7 @@ public class SW_VEGPROD {
 		}
 
 		for (doy = 1; doy <= Times.MAX_DAYS; doy++) {
-			if (Defines.GT(vegComp.grasses, 0.)) {
+			if (Defines.GT(vegComp.grass, 0.)) {
 				lai_standing = daily.grass.biomass_daily[doy] / daily.grass.lai_conv_daily[doy];
 				daily.grass.pct_cover_daily[doy] = lai_standing / cover.grasses;
 				if (Defines.GT(canopy.grasses.canopyHeight, 0.)) {
@@ -1046,9 +1180,9 @@ public class SW_VEGPROD {
 				daily.grass.total_agb_daily[doy] = 0.;
 			}
 
-			if (Defines.GT(vegComp.shrubs, 0.)) {
+			if (Defines.GT(vegComp.shrub, 0.)) {
 				lai_standing = daily.shrub.biomass_daily[doy] / daily.shrub.lai_conv_daily[doy];
-				daily.shrub.pct_cover_daily[doy] = lai_standing / cover.shrubs;
+				daily.shrub.pct_cover_daily[doy] = lai_standing / cover.shrub;
 				if (Defines.GT(canopy.shrubs.canopyHeight, 0.)) {
 					daily.shrub.veg_height_daily[doy] = canopy.shrubs.canopyHeight;
 				} else {
@@ -1071,9 +1205,9 @@ public class SW_VEGPROD {
 				daily.shrub.total_agb_daily[doy] = 0.;
 			}
 
-			if (Defines.GT(vegComp.trees, 0.)) {
+			if (Defines.GT(vegComp.tree, 0.)) {
 				lai_standing = daily.tree.biomass_daily[doy] / daily.tree.lai_conv_daily[doy];
-				daily.tree.pct_cover_daily[doy] = lai_standing / cover.trees;
+				daily.tree.pct_cover_daily[doy] = lai_standing / cover.tree;
 				if (Defines.GT(canopy.trees.canopyHeight, 0.)) {
 					daily.tree.veg_height_daily[doy] = canopy.trees.canopyHeight;
 				} else {
@@ -1096,9 +1230,9 @@ public class SW_VEGPROD {
 				daily.tree.total_agb_daily[doy] = 0.;
 			}
 
-			if (Defines.GT(vegComp.forbs, 0.)) {
+			if (Defines.GT(vegComp.forb, 0.)) {
 				lai_standing = daily.forb.biomass_daily[doy] / daily.forb.lai_conv_daily[doy];
-				daily.forb.pct_cover_daily[doy] = lai_standing / cover.forbs;
+				daily.forb.pct_cover_daily[doy] = lai_standing / cover.forb;
 				if (Defines.GT(canopy.forbs.canopyHeight, 0.)) {
 					daily.forb.veg_height_daily[doy] = canopy.forbs.canopyHeight;
 				} else {
@@ -1132,19 +1266,19 @@ public class SW_VEGPROD {
 
 		f.LogError(LogMode.NOTE, String.format("Grassland component\t= %1.2f\n"+
 				"\tAlbedo\t= %1.2f\n"+
-				"\tHydraulic redistribution flag\t= %b\n", vegComp.grasses, albedo.grasses, hydraulicRedistribution.grasses.flag));
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.grass, albedo.grass, hydraulicRedistribution.grasses.flag));
 
 		f.LogError(LogMode.NOTE, String.format("Shrubland component\t= %1.2f\n"+
 				"\tAlbedo\t= %1.2f\n"+
-				"\tHydraulic redistribution flag\t= %b\n", vegComp.shrubs, albedo.shrubs, hydraulicRedistribution.shrubs.flag));
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.shrub, albedo.shrubs, hydraulicRedistribution.shrubs.flag));
 
 		f.LogError(LogMode.NOTE, String.format("Forest-Tree component\t= %1.2f\n"+
 				"\tAlbedo\t= %1.2f\n"+
-				"\tHydraulic redistribution flag\t= %b\n", vegComp.trees, albedo.trees, hydraulicRedistribution.trees.flag));
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.tree, albedo.trees, hydraulicRedistribution.trees.flag));
 
 		f.LogError(LogMode.NOTE, String.format("FORB component\t= %1.2f\n"+
 				"\tAlbedo\t= %1.2f\n"+
-				"\tHydraulic redistribution flag\t= %b\n", vegComp.forbs, albedo.forbs, hydraulicRedistribution.forbs.flag));
+				"\tHydraulic redistribution flag\t= %b\n", vegComp.forb, albedo.forbs, hydraulicRedistribution.forbs.flag));
 
 		f.LogError(LogMode.NOTE, String.format("Bare Ground component\t= %1.2f\n"+
 				"\tAlbedo\t= %1.2f\n", vegComp.bareGround, albedo.bareGround));

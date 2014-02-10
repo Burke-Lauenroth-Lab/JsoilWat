@@ -28,7 +28,7 @@ public class SW_SKY {
 	
 	private boolean data;
 	
-	public SW_SKY() {
+	protected SW_SKY() {
 		this.data = false;
 		
 		this.cloudcov = new double[Times.MAX_MONTHS];
@@ -44,7 +44,7 @@ public class SW_SKY {
 		this.snow_density_daily = new double[Times.MAX_DAYS+1];
 	}
 	
-	public void onSetDefault() {
+	protected void onSetDefault() {
 		this.data = true;
 		cloudcov = new double[] {71,61,61,51,41,31,23,23,31,41,61,61};
 		windspeed = new double[] {1.3,2.9,3.3,3.8,3.8,3.8,3.3,3.3,2.9,1.3,1.3,1.3};
@@ -53,7 +53,7 @@ public class SW_SKY {
 		snow_density = new double[] {213.7,241.6,261,308,398.1,464.5,0,0,0,140,161.6,185.1};
 	}
 	
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		if(this.data) {
 			SW_SKY_init();
 			return true;
@@ -61,7 +61,7 @@ public class SW_SKY {
 			return false;
 	}
 		
-	public void onRead(Path CloudIn) throws IOException {
+	protected void onRead(Path CloudIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(CloudIn, StandardCharsets.UTF_8);
 		int lineno=0;
@@ -103,7 +103,7 @@ public class SW_SKY {
 		this.data = true;
 	}
 	
-	public void onWrite(Path CloudIn) throws IOException {
+	protected void onWrite(Path CloudIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
@@ -140,8 +140,9 @@ public class SW_SKY {
 		}
 	}
 	
-	public void onClear() {
-		for(int i=0; i<(Times.MAX_DAYS+1); i++) {
+	protected void onClear() {
+		this.data = false;
+		/*for(int i=0; i<(Times.MAX_DAYS+1); i++) {
 			if(i<Times.MAX_MONTHS) {
 				this.cloudcov[i]=0;
 				this.windspeed[i]=0;
@@ -154,10 +155,10 @@ public class SW_SKY {
 			this.r_humidity_daily[i] = 0;
 			this.transmission_daily[i] = 0;
 			this.snow_density_daily[i] = 0;
-		}
+		}*/
 	}
 	
-	public void SW_SKY_init() {
+	protected void SW_SKY_init() {
 		Times.interpolate_monthlyValues(this.cloudcov, this.cloudcov_daily);
 		Times.interpolate_monthlyValues(this.windspeed, this.windspeed_daily);
 		Times.interpolate_monthlyValues(this.r_humidity, this.r_humidity_daily);
@@ -165,88 +166,88 @@ public class SW_SKY {
 		Times.interpolate_monthlyValues(this.snow_density, this.snow_density_daily);
 	}
 	
-	public double[] getCloudcov_daily() {
+	protected double[] getCloudcov_daily() {
 		return cloudcov_daily;
 	}
 	
-	public double getCloudcov_daily(int doy) {
+	protected double getCloudcov_daily(int doy) {
 		return cloudcov_daily[doy];
 	}
 
-	public void setCloudcov_daily(double[] cloudcov_daily) {
+	protected void setCloudcov_daily(double[] cloudcov_daily) {
 		if(cloudcov_daily.length == Times.MAX_DAYS+1)
 			this.cloudcov_daily = cloudcov_daily;
 	}
 	
-	public void setCloudcov_daily(double cloudcov_daily, int doy) {
+	protected void setCloudcov_daily(double cloudcov_daily, int doy) {
 		this.cloudcov_daily[doy] = cloudcov_daily;
 	}
 
-	public double[] getWindspeed_daily() {
+	protected double[] getWindspeed_daily() {
 		return windspeed_daily;
 	}
 	
-	public double getWindspeed_daily(int doy) {
+	protected double getWindspeed_daily(int doy) {
 		return windspeed_daily[doy];
 	}
 
-	public void setWindspeed_daily(double[] windspeed_daily) {
+	protected void setWindspeed_daily(double[] windspeed_daily) {
 		if(windspeed_daily.length == Times.MAX_DAYS+1)
 			this.windspeed_daily = windspeed_daily;
 	}
 	
-	public void setWindspeed_daily(double windspeed_daily, int doy) {
+	protected void setWindspeed_daily(double windspeed_daily, int doy) {
 		this.windspeed_daily[doy] = windspeed_daily;
 	}
 
-	public double[] getR_humidity_daily_daily() {
+	protected double[] getR_humidity_daily_daily() {
 		return r_humidity_daily;
 	}
 	
-	public double getR_humidity_daily(int doy) {
+	protected double getR_humidity_daily(int doy) {
 		return r_humidity_daily[doy];
 	}
 
-	public void setR_humidity_daily(double[] r_humidity_daily) {
+	protected void setR_humidity_daily(double[] r_humidity_daily) {
 		if(r_humidity_daily.length == Times.MAX_DAYS+1)
 			this.r_humidity_daily = r_humidity_daily;
 	}
 	
-	public void setR_humidity_daily(double r_humidity_daily, int doy) {
+	protected void setR_humidity_daily(double r_humidity_daily, int doy) {
 		this.r_humidity_daily[doy] = r_humidity_daily;
 	}
 
-	public double[] getTransmission_daily() {
+	protected double[] getTransmission_daily() {
 		return transmission_daily;
 	}
 	
-	public double getTransmission_daily(int doy) {
+	protected double getTransmission_daily(int doy) {
 		return transmission_daily[doy];
 	}
 
-	public void setTransmission_daily(double[] transmission_daily) {
+	protected void setTransmission_daily(double[] transmission_daily) {
 		if(transmission_daily.length == Times.MAX_DAYS+1)
 			this.transmission_daily = transmission_daily;
 	}
 	
-	public void setTransmissiony_daily(double transmission_daily, int doy) {
+	protected void setTransmissiony_daily(double transmission_daily, int doy) {
 		this.transmission_daily[doy] = transmission_daily;
 	}
 	
-	public double[] getSnow_density_daily() {
+	protected double[] getSnow_density_daily() {
 		return snow_density_daily;
 	}
 	
-	public double getSnow_density_daily(int doy) {
+	protected double getSnow_density_daily(int doy) {
 		return snow_density_daily[doy];
 	}
 
-	public void setSnow_density_daily(double[] snow_density_daily) {
+	protected void setSnow_density_daily(double[] snow_density_daily) {
 		if(snow_density_daily.length == Times.MAX_DAYS+1)
 			this.snow_density_daily = snow_density_daily;
 	}
 	
-	public void setSnow_density_daily(double snow_density_daily, int doy) {
+	protected void setSnow_density_daily(double snow_density_daily, int doy) {
 		this.snow_density_daily[doy] = snow_density_daily;
 	}
 	

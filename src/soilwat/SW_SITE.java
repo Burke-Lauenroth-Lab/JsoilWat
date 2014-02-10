@@ -10,12 +10,17 @@ import java.util.List;
 import soilwat.LogFileIn.LogMode;
 
 public class SW_SITE {
-	public class SWC {
+	public static class SWC {
 		public double swc_min=0; /* lower bound on swc.          */
 		public double swc_init=0; /* initialization value for swc */
 		public double swc_wet=0; /* value for a "wet" day,       */
+		public void onSet(double swc_min, double swc_init, double swc_wet) {
+			this.swc_min = swc_min;
+			this.swc_init = swc_init;
+			this.swc_wet = swc_wet;
+		}
 	}
-	public class Model {
+	public static class Model {
 		public class Flags {
 			public boolean reset_yr;		/* 1: reset values at start of each year */
 			public boolean deepdrain;	/* 1: allow drainage into deepest layer  */
@@ -30,36 +35,70 @@ public class SW_SITE {
 			this.flags = new Flags();
 			this.coefficients = new Coefficients();
 		}
+		public void onSet(boolean reset, boolean deepdrain, double petMultiplier, double percentRunoff) {
+			this.flags.reset_yr = reset;
+			this.flags.deepdrain = deepdrain;
+			this.coefficients.petMultiplier = petMultiplier;
+			this.coefficients.percentRunoff = percentRunoff;
+		}
 	}
-	public class Snow {
+	public static class Snow {
 		public double TminAccu2;
 		public double TmaxCrit;
 		public double lambdasnow;
 		public double RmeltMin;
 		public double RmeltMax;
+		public void onSet(double TminAccu2, double TmaxCrit, double lambdasnow, double RmeltMin, double RmeltMax) {
+			this.TminAccu2 = TminAccu2;
+			this.TmaxCrit = TmaxCrit;
+			this.lambdasnow = lambdasnow;
+			this.RmeltMin = RmeltMin;
+			this.RmeltMax = RmeltMax;
+		}
 	}
-	public class Drainage {
+	public static class Drainage {
 		public double slow_drain_coeff;
+		public void onSet(double slow_drain_coeff) {
+			this.slow_drain_coeff = slow_drain_coeff;
+		}
 	}
-	public class Evaporation {
+	public static class Evaporation {
 		public double xinflec;
 		public double slope;
 		public double yinflec;
 		public double range;
+		public void onSet(double rate_shift, double rate_slope, double inflection_point, double range) {
+			this.xinflec=rate_shift;
+			this.slope = rate_slope;
+			this.yinflec = inflection_point;
+			this.range = range;
+		}
 	}
-	public class Transpiration {
+	public static class Transpiration {
 		public double xinflec;
 		public double slope;
 		public double yinflec;
 		public double range;
+		public void onSet(double rate_shift, double rate_shape, double inflection_point, double range) {
+			this.xinflec=rate_shift;
+			this.slope = rate_shape;
+			this.yinflec = inflection_point;
+			this.range = range;
+		}
 	}
-	public class Intrinsic {
+	public static class Intrinsic {
 		public double latitude;
 		public double altitude;
 		public double slope;
 		public double aspect;
+		public void onSet(double latitude, double altitude, double slope, double aspect) {
+			this.latitude = latitude;
+			this.altitude = altitude;
+			this.slope = slope;
+			this.aspect = aspect;
+		}
 	}
-	public class SoilTemperature {
+	public static class SoilTemperature {
 		public double bmLimiter;
 		public double t1Param1;
 		public double t1Param2;
@@ -71,10 +110,24 @@ public class SW_SITE {
 		public double stDeltaX;
 		public double stMaxDepth;
 		public boolean use_soil_temp;	/* whether or not to do soil_temperature calculations */
+		public void onSet(double bmLimiter, double t1Param1, double t1Param2, double t1Param3, double csParam1,
+				double csParam2, double shParam, double meanAirTemp, double stDeltaX, double stMaxDepth, boolean use_soil_temp) {
+			this.bmLimiter=bmLimiter;
+			this.t1Param1=t1Param1;
+			this.t1Param2=t1Param2;
+			this.t1Param3=t1Param3;
+			this.csParam1=csParam1;
+			this.csParam2=csParam2;
+			this.shParam=shParam;
+			this.meanAirTemp=meanAirTemp;
+			this.stDeltaX=stDeltaX;
+			this.stMaxDepth=stMaxDepth;
+			this.use_soil_temp=use_soil_temp;
+		}
 	}
 	/* transpiration regions  shallow, moderately shallow,  */
 	/* deep and very deep. units are in layer numbers. */
-	public class TranspirationRegions {
+	public static class TranspirationRegions {
 		private int[][] table;
 		private int nTranspRgn;
 		public final int MAX_TRANSP_REGIONS = 4;
@@ -148,7 +201,7 @@ public class SW_SITE {
 	private SW_VEGPROD SW_VegProd;
 	private SW_SOILS SW_Soils;
 	
-	public SW_SITE(SW_VEGPROD SW_VegProd, SW_SOILS SW_Soils) {
+	protected SW_SITE(SW_VEGPROD SW_VegProd, SW_SOILS SW_Soils) {
 		this.swc = new SWC();
 		this.model = new Model();
 		this.snow = new Snow();
@@ -163,12 +216,12 @@ public class SW_SITE {
 		this.SW_Soils = SW_Soils;
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		this.data = false;
 		this.transpirationRegions.onClear();
 	}
 	
-	public boolean onVerify() {
+	protected boolean onVerify() {
 		SW_Soils.getLayersInfo().n_transp_rgn = transpirationRegions.get_nRegions();
 		_init_site_info();
 		if(EchoInits)
@@ -178,7 +231,7 @@ public class SW_SITE {
 		return true;
 	}
 	
-	public void onRead(Path siteIn) throws IOException {
+	protected void onRead(Path siteIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(siteIn, StandardCharsets.UTF_8);
 		this.nFileItemsRead=0;
@@ -467,7 +520,7 @@ public class SW_SITE {
 		this.data = true;
 	}
 
-	public void onWrite(Path siteIn) throws IOException {
+	protected void onWrite(Path siteIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# ---- SWC limits ----");
@@ -549,36 +602,45 @@ public class SW_SITE {
 		}
 	}
 	
-	public boolean getDeepdrain() {
+	protected boolean getDeepdrain() {
 		return this.model.flags.deepdrain;
 	}
 
-	public SWC getSWC() {
+	protected SWC getSWC() {
 		return this.swc;
 	}
-	public Model getModel() {
+	protected Model getModel() {
 		return this.model;
 	}
-	public Snow getSnow() {
+	protected Snow getSnow() {
 		return this.snow;
 	}
-	public Drainage getDrainage() {
+	protected Drainage getDrainage() {
 		return this.drainage;
 	}
-	public Evaporation getEvaporation() {
+	protected Evaporation getEvaporation() {
 		return this.evaporation;
 	}
-	public Transpiration getTranspiration() {
+	protected Transpiration getTranspiration() {
 		return this.transpiration;
 	}
-	public Intrinsic getIntrinsic() {
+	protected Intrinsic getIntrinsic() {
 		return this.intrinsic;
 	}
-	public SoilTemperature getSoilTemperature() {
+	protected SoilTemperature getSoilTemperature() {
 		return this.soilTemperature;
 	}
-	public TranspirationRegions getTranspirationRegions() {
+	protected TranspirationRegions getTranspirationRegions() {
 		return this.transpirationRegions;
+	}
+	protected boolean get_echoinits() {
+		return this.EchoInits;
+	}
+	protected void set_echoinits(boolean echo) {
+		this.EchoInits = echo;
+	}
+	protected int get_stNRGR() {
+		return this.stNRGR;
 	}
 	
 	private void _init_site_info() {
@@ -840,15 +902,5 @@ public class SW_SITE {
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("\n------------ End of Site Parameters ------------------\n"));
 		//fflush(logfp);
 
-	}
-	
-	public int get_stNRGR() {
-		return this.stNRGR;
-	}
-	public boolean get_echoinits() {
-		return this.EchoInits;
-	}
-	public void set_echoinits(boolean echo) {
-		this.EchoInits = echo;
 	}
 }
