@@ -228,7 +228,7 @@ public class SW_WEATHER {
 		this.firsttime = true;
 	}
 	
-	protected void onSetDefault(Path ProjectDirectory) {
+	/*protected void onSetDefault(Path ProjectDirectory) {
 		this.data = true;
 		this.firsttime = true;
 		this.weth_found = false;
@@ -246,7 +246,7 @@ public class SW_WEATHER {
 		this.nFileItemsRead=nFileItems;
 		tail=0;
 		SW_Markov.setPpt_events(0);
-	}
+	}*/
 
 	protected boolean onVerify() {
 		LogFileIn f = LogFileIn.getInstance();
@@ -287,9 +287,26 @@ public class SW_WEATHER {
 			weather.scale_temp_max[i] = weatherSetupIn.scale_temp_max[i];
 			weather.scale_temp_min[i] = weatherSetupIn.scale_temp_min[i];
 		}
+		this.data = true;
+	}
+	protected void onGetInput(WEATHER_INPUT_DATA weatherSetupIn) {
+		weatherSetupIn.use_snow = weather.use_snow;
+		weatherSetupIn.pct_snowdrift = weather.pct_snowdrift;
+		weatherSetupIn.pct_snowRunoff = weather.pct_snowRunoff;
+		weatherSetupIn.use_markov = weather.use_markov;
+		weatherSetupIn.yr.setFirst(weather.yr.getFirst());
+		weatherSetupIn.days_in_runavg = weather.days_in_runavg;
+		for(int i=0; i<Times.MAX_MONTHS; i++) {
+			weatherSetupIn.scale_precip[i] = weather.scale_precip[i];
+			weatherSetupIn.scale_temp_max[i] = weather.scale_temp_max[i];
+			weatherSetupIn.scale_temp_min[i] = weather.scale_temp_min[i];
+		}
 	}
 	protected void onSetWeatherHist(SW_WEATHER_HISTORY hist) {
 		this.hist = hist;
+	}
+	protected void onGetWeatherHist(SW_WEATHER_HISTORY hist) {
+		hist = this.hist;
 	}
 	protected void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws IOException {
 		this.nFileItemsRead=0;

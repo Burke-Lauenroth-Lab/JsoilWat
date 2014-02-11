@@ -195,7 +195,7 @@ public class SW_SOILS {
 		//Copy over all layers - could improve
 		double dmin=0.0,dmax;
 		layersInfo.n_layers=soilsIn.nLayers;
-		for(int i=0; i<Defines.MAX_LAYERS; i++) {
+		for(int i=0; i<layersInfo.n_layers; i++) {
 			dmax = soilsIn.layers[i].depth;
 			this.layers[i].depth = dmax;
 			this.layers[i].width = dmax-dmin;
@@ -217,6 +217,23 @@ public class SW_SOILS {
 			this.layers[i].sTemp = soilsIn.layers[i].sTemp;
 		}
 		this.data = true;
+	}
+	protected void onGetInput(SoilsIn soilsIn) {
+		soilsIn.nLayers = layersInfo.n_layers;
+		for(int i=0; i<layersInfo.n_layers; i++) {
+			soilsIn.layers[i].depth = this.layers[i].depth;
+			soilsIn.layers[i].soilMatric_density = this.layers[i].soilMatric_density;
+			soilsIn.layers[i].fractionVolBulk_gravel = this.layers[i].fractionVolBulk_gravel;
+			soilsIn.layers[i].evap_coeff = this.layers[i].evap_coeff;
+			soilsIn.layers[i].transp_coeff_grass = this.layers[i].transp_coeff_grass;
+			soilsIn.layers[i].transp_coeff_shrub = this.layers[i].transp_coeff_shrub;
+			soilsIn.layers[i].transp_coeff_tree = this.layers[i].transp_coeff_tree;
+			soilsIn.layers[i].transp_coeff_forb = this.layers[i].transp_coeff_forb;
+			soilsIn.layers[i].fractionWeightMatric_sand = this.layers[i].fractionWeightMatric_sand;
+			soilsIn.layers[i].fractionWeightMatric_clay = this.layers[i].fractionWeightMatric_clay;
+			soilsIn.layers[i].impermeability = this.layers[i].impermeability;
+			soilsIn.layers[i].sTemp = this.layers[i].sTemp;
+		}
 	}
 	protected void onRead(Path soilsIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();

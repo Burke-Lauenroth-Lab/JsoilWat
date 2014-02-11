@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import soilwat.Defines.ObjType;
+import soilwat.InputData.OutputIn;
 import soilwat.LogFileIn.LogMode;
 
 public class SW_OUTPUT {
@@ -637,10 +638,35 @@ public class SW_OUTPUT {
 		tOffset = true;
 	}
 	
-	public boolean onVerify(boolean deepdrain) {
+	protected boolean onVerify(boolean deepdrain, Path OutputDirectory) {
 		LogFileIn f = LogFileIn.getInstance();
 		if(data) {
+			//Set the outputs for the Periods
 			for (OutKey k : OutKey.values()) {
+				for (int i = 0; i < numPeriods; i++) {
+					if (SW_Output[k.idx()].get_PeriodUse(i)) {
+						String temp = SW_Output[k.idx()].filename_prefix+".";
+						switch (i) {
+						case 0:
+							temp+="dy";
+							SW_Output[k.idx()].file_dy = OutputDirectory.resolve(temp);
+							break;
+						case 1:
+							temp+="wk";
+							SW_Output[k.idx()].file_wk = OutputDirectory.resolve(temp);
+							break;
+						case 2:
+							temp+="mo";
+							SW_Output[k.idx()].file_mo = OutputDirectory.resolve(temp);
+							break;
+						case 3:
+							temp+="yr";
+							SW_Output[k.idx()].file_yr = OutputDirectory.resolve(temp);
+							break;
+						}
+					}
+				}
+				
 				if(k==OutKey.eSW_NoKey || k==OutKey.eSW_LastKey)
 					continue;
 				
@@ -679,7 +705,7 @@ public class SW_OUTPUT {
 		}
 	}
 	
-	public void onClear() {
+	protected void onClear() {
 		for(int i=0; i<numPeriods; i++) {
 			SW_Output[i].onClear();
 		}
@@ -692,7 +718,57 @@ public class SW_OUTPUT {
 		this.data = false;
 	}
 	
-	public void onRead(Path OutputSetupIn, Path OutputDirectory) throws IOException {
+	protected void onSetInput(OutputIn out) {
+		this._sep = out.outsep;
+		if(out.TimeSteps[0] || out.TimeSteps[1] || out.TimeSteps[2] || out.TimeSteps[3]) {
+			this.useTimeStep = true;
+			this.timeStep[0] = out.TimeSteps[0];
+			this.timeStep[1] = out.TimeSteps[1];
+			this.timeStep[2] = out.TimeSteps[2];
+			this.timeStep[3] = out.TimeSteps[3];
+			for(int i=0; i<SW_OUTNKEYS; i++)//Go through the OUTs set the use Period flags
+				this.SW_Output[i].usePeriods = this.timeStep;
+		} else {
+			this.useTimeStep = false;
+		}
+		for (OutKey k : OutKey.values()) {
+			if(!useTimeStep) {
+				this.timeStep[out.outputs[k.idx()].periodColumn.idx()] = true;
+				SW_Output[k.idx()].usePeriods[out.outputs[k.idx()].periodColumn.idx()] = true;
+				SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
+			}
+			//Set the values		
+			SW_Output[k.idx()].mykey = k;
+			SW_Output[k.idx()].myobj = k.objType();
+			SW_Output[k.idx()].sumtype = out.outputs[k.idx()].sumtype;
+			SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
+			SW_Output[k.idx()].filename_prefix = out.outputs[k.idx()].filename_prefix;
+			SW_Output[k.idx()].first_orig = out.outputs[k.idx()].first_orig;
+			SW_Output[k.idx()].last_orig = out.outputs[k.idx()].last_orig;
+		}
+		this.data = true;
+	}
+	
+	protected void onGetInput(OutputIn out) {
+		out.outsep = this._sep;
+		if(this.useTimeStep) {
+			out.TimeSteps[0] = this.timeStep[0];
+			out.TimeSteps[1] = this.timeStep[1];
+			out.TimeSteps[2] = this.timeStep[2];
+			out.TimeSteps[3] = this.timeStep[3];
+		}
+		for (OutKey k : OutKey.values()) {
+			//Set the values		
+			out.outputs[k.idx()].mykey = k;
+			out.outputs[k.idx()].sumtype = SW_Output[k.idx()].sumtype;
+			out.outputs[k.idx()].periodColumn = SW_Output[k.idx()].periodColumn;
+			out.outputs[k.idx()].filename_prefix = SW_Output[k.idx()].filename_prefix;
+			out.outputs[k.idx()].first_orig = SW_Output[k.idx()].first_orig;
+			out.outputs[k.idx()].last_orig = SW_Output[k.idx()].last_orig;
+		}
+	}
+	
+	protected void onRead(Path OutputSetupIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(OutputSetupIn, StandardCharsets.UTF_8);
 		
@@ -756,37 +832,12 @@ public class SW_OUTPUT {
 				if (SW_Output[k.idx()].last_orig == 0) {
 					f.LogError(LogMode.ERROR, "OutputSetupIn onRead : Invalid ending day");
 				}
-				
-				//Set the outputs for the Periods
-				for (int i = 0; i < numPeriods; i++) {
-					if (SW_Output[k.idx()].get_PeriodUse(i)) {
-						String temp = values[5]+".";
-						switch (i) {
-						case 0:
-							temp+="dy";
-							SW_Output[k.idx()].file_dy = OutputDirectory.resolve(temp);
-							break;
-						case 1:
-							temp+="wk";
-							SW_Output[k.idx()].file_wk = OutputDirectory.resolve(temp);
-							break;
-						case 2:
-							temp+="mo";
-							SW_Output[k.idx()].file_mo = OutputDirectory.resolve(temp);
-							break;
-						case 3:
-							temp+="yr";
-							SW_Output[k.idx()].file_yr = OutputDirectory.resolve(temp);
-							break;
-						}
-					}
-				}
 			}
 		}
 		this.data = true;
 	}
 	
-	public void onWrite(Path OutputSetupIn) throws IOException {
+	protected void onWrite(Path OutputSetupIn) throws IOException {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Output setup file for SOILWAT v4 compiled on Mac OS X (20100202)");
@@ -871,12 +922,12 @@ public class SW_OUTPUT {
 		}
 	}
 	
-	public void onWriteOutputs() throws IOException {
+	protected void onWriteOutputs() throws IOException {
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			SW_Output[i].onWrite(_sep);
 	}
 	
-	public void onOutputsAlloc() {
+	protected void onOutputsAlloc() {
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			SW_Output[i].onAlloc();
 	}
@@ -893,7 +944,7 @@ public class SW_OUTPUT {
 		tOffset=true;
 	}
 	
-	public void SW_OUT_new_year() {
+	protected void SW_OUT_new_year() {
 		for(int k=0; k < SW_OUTNKEYS; k++) {
 			if(!SW_Output[k].use)
 				continue;
@@ -908,7 +959,7 @@ public class SW_OUTPUT {
 		}
 	}
 	
-	public void SW_OUT_sum_today(Defines.ObjType otyp) {
+	protected void SW_OUT_sum_today(Defines.ObjType otyp) {
 		/* =================================================== */
 		/* adds today's output values to week, month and year
 		 * accumulators and puts today's values in yesterday's
@@ -987,7 +1038,7 @@ public class SW_OUTPUT {
 		}
 	}
 
-	public void SW_OUT_write_today() {
+	protected void SW_OUT_write_today() {
 		/* --------------------------------------------------- */
 		/* all output values must have been summed, averaged or
 		 * otherwise completed before this is called [now done

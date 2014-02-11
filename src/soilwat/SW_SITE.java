@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import soilwat.InputData.SiteIn;
 import soilwat.LogFileIn.LogMode;
 
 public class SW_SITE {
@@ -229,6 +230,39 @@ public class SW_SITE {
 		if(SW_Soils.get_echoinits())
 			SW_Soils._echo_inputs("");
 		return true;
+	}
+	
+	protected void onSetInput(SiteIn siteIn) {
+		this.swc.onSet(siteIn.swcLimits.swc_min, siteIn.swcLimits.swc_init, siteIn.swcLimits.swc_wet);
+		this.model.onSet(siteIn.modelFlagsCoef.flags.reset_yr, siteIn.modelFlagsCoef.flags.deepdrain, siteIn.modelFlagsCoef.coefficients.petMultiplier, siteIn.modelFlagsCoef.coefficients.percentRunoff);
+		this.snow.onSet(siteIn.snowSimParams.TminAccu2, siteIn.snowSimParams.TmaxCrit, siteIn.snowSimParams.lambdasnow, siteIn.snowSimParams.RmeltMin, siteIn.snowSimParams.RmeltMax);
+		this.drainage.onSet(siteIn.drainageCoef.slow_drain_coeff);
+		this.evaporation.onSet(siteIn.evaporationCoef.xinflec, siteIn.evaporationCoef.slope, siteIn.evaporationCoef.yinflec, siteIn.evaporationCoef.range);
+		this.transpiration.onSet(siteIn.transpCoef.xinflec, siteIn.transpCoef.slope, siteIn.transpCoef.yinflec, siteIn.transpCoef.range);
+		this.intrinsic.onSet(siteIn.siteIntrinsicParams.latitude, siteIn.siteIntrinsicParams.altitude, siteIn.siteIntrinsicParams.slope, siteIn.siteIntrinsicParams.aspect);
+		SoilTemperature t = siteIn.soilTempConst;
+		this.soilTemperature.onSet(t.bmLimiter, t.t1Param1, t.t1Param2, t.t1Param3, t.csParam1, t.csParam2, t.shParam, t.meanAirTemp, t.stDeltaX, t.stMaxDepth, t.use_soil_temp);
+		this.transpirationRegions.onClear();
+		for(int i=0; i<siteIn.transpRegions.nTranspRgn; i++) {
+			this.transpirationRegions.set(i+1, transpirationRegions.getRegion(i));
+		}
+		this.data = true;
+	}
+	
+	protected void onGetInput(SiteIn siteIn) {
+		siteIn.swcLimits.onSet(this.swc.swc_min, this.swc.swc_init, this.swc.swc_wet);
+		siteIn.modelFlagsCoef.onSet(this.model.flags.reset_yr, this.model.flags.deepdrain, this.model.coefficients.petMultiplier, this.model.coefficients.percentRunoff);
+		siteIn.snowSimParams.onSet(this.snow.TminAccu2, this.snow.TmaxCrit, this.snow.lambdasnow, this.snow.RmeltMin, this.snow.RmeltMax);
+		siteIn.drainageCoef.onSet(this.drainage.slow_drain_coeff);
+		siteIn.evaporationCoef.onSet(this.evaporation.xinflec, this.evaporation.slope, this.evaporation.yinflec, this.evaporation.range);
+		siteIn.transpCoef.onSet(this.transpiration.xinflec, this.transpiration.slope, this.transpiration.yinflec, this.transpiration.range);
+		siteIn.siteIntrinsicParams.onSet(this.intrinsic.latitude, this.intrinsic.altitude, this.intrinsic.slope, this.intrinsic.aspect);
+		SoilTemperature t = this.soilTemperature;
+		siteIn.soilTempConst.onSet(t.bmLimiter, t.t1Param1, t.t1Param2, t.t1Param3, t.csParam1, t.csParam2, t.shParam, t.meanAirTemp, t.stDeltaX, t.stMaxDepth, t.use_soil_temp);
+		siteIn.transpRegions.onClear();
+		for(int i=0; i<this.transpirationRegions.nTranspRgn; i++) {
+			siteIn.transpRegions.set(i+1, transpirationRegions.getRegion(i));
+		}
 	}
 	
 	protected void onRead(Path siteIn) throws IOException {
@@ -669,10 +703,10 @@ public class SW_SITE {
 			trsum_grass += lyr.transp_coeff_grass;
 			
 			/* calculate soil water content at SWPcrit for each vegetation type */
-			lyr.swcBulk_atSWPcrit_forb = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().forbs, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
-			lyr.swcBulk_atSWPcrit_tree = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().trees, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
-			lyr.swcBulk_atSWPcrit_shrub = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().shrubs, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
-			lyr.swcBulk_atSWPcrit_grass = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().grasses, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_forb = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().forb, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_tree = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().tree, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_shrub = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().shrub, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
+			lyr.swcBulk_atSWPcrit_grass = SW_SOILWATER.SW_SWPmatric2VWCBulk(lyr.fractionVolBulk_gravel, SW_VegProd.getCriticalSWP().grass, lyr.psisMatric, lyr.binverseMatric, lyr.thetasMatric) * lyr.width;
 			
 			/* Find which transpiration region the current soil layer
 			 * is in and check validity of result. Region bounds are

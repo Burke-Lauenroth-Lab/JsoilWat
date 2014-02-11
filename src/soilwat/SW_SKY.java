@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import soilwat.InputData.CloudIn;
+
 public class SW_SKY {
 	private final String[] comments = new String[]{"# (site:	002_-119.415_39.046	), sky cover (sunrise-sunset),%,Climate Atlas of the US,http://cdo.ncdc.noaa.gov/cgi-bin/climaps/climaps.pl",
 			"# Wind speed (m/s),Climate Atlas of the US,http://cdo.ncdc.noaa.gov/cgi-bin/climaps/climaps.pl",
@@ -60,7 +62,27 @@ public class SW_SKY {
 		} else
 			return false;
 	}
-		
+	
+	protected void onSetInput(CloudIn cloudIn) {
+		for(int i=0; i<Times.MAX_MONTHS; i++) {
+			this.cloudcov[i] = cloudIn.cloudcov[i];
+			this.windspeed[i] = cloudIn.windspeed[i];
+			this.r_humidity[i] = cloudIn.r_humidity[i];
+			this.transmission[i] = cloudIn.transmission[i];
+			this.snow_density[i] = cloudIn.snow_density[i];
+		}
+	}
+	
+	protected void onGetInput(CloudIn cloudIn) {
+		for(int i=0; i<Times.MAX_MONTHS; i++) {
+			cloudIn.cloudcov[i] = this.cloudcov[i];
+			cloudIn.windspeed[i] = this.windspeed[i];
+			cloudIn.r_humidity[i] = this.r_humidity[i];
+			cloudIn.transmission[i] = this.transmission[i];
+			cloudIn.snow_density[i] = this.snow_density[i];
+		}
+	}
+	
 	protected void onRead(Path CloudIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(CloudIn, StandardCharsets.UTF_8);

@@ -133,7 +133,13 @@ public class SW_MODEL {
 		this.daymid = (this.isIsNorth()) ? Times.DAYMID_NORTH : Times.DAYMID_SOUTH;
 		this.data = true;
 	}
-	
+	protected void onGetInput(MODEL_INPUT_DATA yearsIn) {
+		yearsIn.startYear = this.startyr;
+		yearsIn.endYear = this.endyr;
+		yearsIn.startstart=this.startstart;
+		yearsIn.endend = this.endend;
+		yearsIn.isNorth = this.isnorth;
+	}
 	protected void onRead(Path YearsIn) throws IOException {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(YearsIn, StandardCharsets.UTF_8);

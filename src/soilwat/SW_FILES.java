@@ -300,6 +300,24 @@ public class SW_FILES {
 		this.pOutputSetupIn = Paths.get(filesIn.OutputSetupIn);
 		this.data = true;
 	}
+	protected void onGetInput(FILES_INPUT_DATA filesIn) {
+		filesIn.ProjectDirectory = this.pProjectDirectory.toString();
+		filesIn.FilesIn = this.pFilesIn.toString();
+		filesIn.YearsIn = this.pYearsIn.toString();
+		filesIn.LogFile = this.pLogFile.toString();
+		filesIn.SiteParametersIn = this.pSiteParametersIn.toString();
+		filesIn.SoilsIn = this.pSoilsIn.toString();
+		filesIn.WeatherSetupIn = this.pWeatherSetupIn.toString();
+		filesIn.WeatherPathAndPrefix = this.pWeatherPath.toString()+ "/" + this.sWeatherPrefix;
+		filesIn.MarkovProbabilityIn = this.pMarkovProbabilityIn.toString();
+		filesIn.MarkovCovarianceIn = this.pMarkovCovarianceIn.toString();
+		filesIn.CloudIn = this.pCloudIn.toString();
+		filesIn.PlantProductivityIn = this.pPlantProductivityIn.toString();
+		filesIn.EstablishmentIn = this.pEstablishmentIn.toString();
+		filesIn.SWCSetupIn = this.pSWCSetupIn.toString();
+		filesIn.OutputDirectory = this.pOutputDirectory.toString();
+		filesIn.OutputSetupIn = this.pOutputSetupIn.toString();
+	}
 	/* Public Functions */
 	protected void onRead(String swFiles) throws IOException{
 		this.pFilesIn = Paths.get(swFiles);

@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import soilwat.InputData.EstabIn;
 import soilwat.LogFileIn.LogMode;
 
 //NEED SW_LAYER_INFO
@@ -145,8 +147,9 @@ public class SW_VEGESTAB {
 	}
 	
 	protected void onClear() {
-		this.data = false;
+		this.tempPath.clear();
 		this.params.clear();
+		this.data = false;
 		this.yravg.days = null;
 		this.yravg.days = null;
 	}
@@ -163,7 +166,31 @@ public class SW_VEGESTAB {
 		for(int i=0; i<this.count;i++)
 			_checkit(modelDOY, i);
 	}
-	
+	protected void onSetInput(EstabIn estabIn) {
+		this.use = estabIn.use;
+		for (String spp : estabIn.estabFiles) {
+			tempPath.add(Paths.get(spp));
+		}
+		if(use) {
+			int i=0;
+			for (SPP_INPUT_DATA spp : estabIn.spps) {
+				this.onSetSPP(spp, estabIn.estabFiles.get(i));
+				i++;
+			}
+		}
+	}
+	protected void onGetInput(EstabIn estabIn) {
+		estabIn.use = this.use;
+		estabIn.estabFiles.clear();
+		estabIn.spps.clear();
+		if(use) {
+			for(int i=0; i<this.count; i++) {
+				estabIn.estabFiles.add(tempPath.get(i).toString());
+				estabIn.spps.add(new SPP_INPUT_DATA());
+				onGetSPP(estabIn.spps.get(i), this.params.get(i));
+			}
+		}
+	}
 	protected void onRead(Path estabIn, Path prjDir) throws IOException {
 		int lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
@@ -227,7 +254,45 @@ public class SW_VEGESTAB {
 			f.LogError(LogMode.WARN, "EstabIn onWrite : onWrite : No data.");
 		}
 	}
-	
+	private void onSetSPP(SPP_INPUT_DATA spp, String sppFileName) {
+		this.params.add(new SW_VEGESTAB_INFO());
+		this.count = this.params.size();
+		SW_VEGESTAB_INFO v = this.params.get(this.count-1);
+		v.sppFileName = sppFileName;
+		
+		v.sppName = spp.sppName;
+		v.soilLayerParams.estab_lyrs = spp.soilLayerParams.estab_lyrs;
+		v.soilLayerParams.bars[SW_GERM_BARS] = spp.soilLayerParams.bars[SW_GERM_BARS];
+		v.soilLayerParams.bars[SW_ESTAB_BARS] = spp.soilLayerParams.bars[SW_ESTAB_BARS];
+		v.timingParams.min_pregerm_days = spp.timingParams.min_pregerm_days;
+		v.timingParams.max_pregerm_days = spp.timingParams.max_pregerm_days;
+		v.timingParams.min_wetdays_for_germ = spp.timingParams.min_wetdays_for_germ;
+		v.timingParams.max_drydays_postgerm = spp.timingParams.max_drydays_postgerm;
+		v.timingParams.min_wetdays_for_estab = spp.timingParams.min_wetdays_for_estab;
+		v.timingParams.min_days_germ2estab = spp.timingParams.min_days_germ2estab;
+		v.timingParams.max_days_germ2estab = spp.timingParams.max_days_germ2estab;
+		v.tempParams.min_temp_germ = spp.tempParams.min_temp_germ;
+		v.tempParams.max_temp_germ = spp.tempParams.max_temp_germ;
+		v.tempParams.min_temp_estab = spp.tempParams.min_temp_estab;
+		v.tempParams.max_temp_estab = spp.tempParams.max_temp_estab;
+	}
+	private void onGetSPP(SPP_INPUT_DATA spp, SW_VEGESTAB_INFO v) {
+		spp.sppName = v.sppName;
+		spp.soilLayerParams.estab_lyrs = v.soilLayerParams.estab_lyrs;
+		spp.soilLayerParams.bars[SW_GERM_BARS] = v.soilLayerParams.bars[SW_GERM_BARS];
+		spp.soilLayerParams.bars[SW_ESTAB_BARS] = v.soilLayerParams.bars[SW_ESTAB_BARS];
+		spp.timingParams.min_pregerm_days = v.timingParams.min_pregerm_days;
+		spp.timingParams.max_pregerm_days = v.timingParams.max_pregerm_days;
+		spp.timingParams.min_wetdays_for_germ = v.timingParams.min_wetdays_for_germ;
+		spp.timingParams.max_drydays_postgerm = v.timingParams.max_drydays_postgerm;
+		spp.timingParams.min_wetdays_for_estab = v.timingParams.min_wetdays_for_estab;
+		spp.timingParams.min_days_germ2estab = v.timingParams.min_days_germ2estab;
+		spp.timingParams.max_days_germ2estab = v.timingParams.max_days_germ2estab;
+		spp.tempParams.min_temp_germ = v.tempParams.min_temp_germ;
+		spp.tempParams.max_temp_germ = v.tempParams.max_temp_germ;
+		spp.tempParams.min_temp_estab = v.tempParams.min_temp_estab;
+		spp.tempParams.max_temp_estab = v.tempParams.max_temp_estab;
+	}
 	private void _read_spp(Path sppFile) throws IOException {
 		int nitems=15, lineno=0;
 		

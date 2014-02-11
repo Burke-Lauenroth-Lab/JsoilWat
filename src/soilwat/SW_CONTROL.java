@@ -30,6 +30,14 @@ public class SW_CONTROL {
 		SW_Weather.setSoilWater(SW_SoilWater);
 	}
 	
+	public void onSetInput(InputData data) {
+		
+	}
+	
+	public void onGetInput(InputData data) {
+		
+	}
+	
 	public void onReadInputs(String swFiles) {
 		try {
 			SW_Files.onRead(swFiles);
@@ -42,7 +50,7 @@ public class SW_CONTROL {
 			SW_Site.onRead(SW_Files.getSiteParametersIn(true));
 			SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
 			SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
-			SW_Output.onRead(SW_Files.getOutputSetupIn(true), SW_Files.getOutputDirectory(true));
+			SW_Output.onRead(SW_Files.getOutputSetupIn(true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -91,7 +99,7 @@ public class SW_CONTROL {
 		SW_Soils.onVerify(SW_Site.getDeepdrain()) &&
 		SW_Site.onVerify() &&
 		SW_SoilWater.onVerify() &&
-		SW_Output.onVerify(SW_Site.getDeepdrain()) &&
+		SW_Output.onVerify(SW_Site.getDeepdrain(), SW_Files.getOutputDirectory(true)) &&
 		SW_VegEstab.onVerify();
 	}
 	

@@ -629,6 +629,19 @@ public class SW_SOILWATER {
 		soilwat.filePrefix = swcSetupIn.filePrefix;
 		soilwat.yr.setFirst(swcSetupIn.yr.getFirst());
 		soilwat.method = swcSetupIn.method;
+		this.data = true;
+	}
+	protected void onGetInput(SWC_INPUT_DATA swcSetupIn) {
+		swcSetupIn.hist_use = soilwat.hist_use;
+		swcSetupIn.filePrefix = soilwat.filePrefix;
+		swcSetupIn.yr.setFirst(soilwat.yr.getFirst());
+		swcSetupIn.method = soilwat.method;
+	}
+	protected void onSetHist(SW_SOILWAT_HISTORY hist) {
+		this.hist = hist;
+	}
+	protected void onGetHist(SW_SOILWAT_HISTORY hist) {
+		hist = this.hist;
 	}
 	protected void onReadHist(Path WeatherHistoryFolder) {
 		//We only read the sw hist if hist_use is set and
