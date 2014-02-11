@@ -71,6 +71,7 @@ public class SW_SKY {
 			this.transmission[i] = cloudIn.transmission[i];
 			this.snow_density[i] = cloudIn.snow_density[i];
 		}
+		this.data = true;
 	}
 	
 	protected void onGetInput(CloudIn cloudIn) {
@@ -276,84 +277,84 @@ public class SW_SKY {
 	
 	
 	
-	public double[] getCloudcov() {
+	protected double[] getCloudcov() {
 		return cloudcov;
 	}
 	
-	public double getCloudcov(Times.Months month) {
+	protected double getCloudcov(Times.Months month) {
 		return cloudcov[month.ordinal()];
 	}
 
-	public void setCloudcov(double[] cloudcov) {
+	protected void setCloudcov(double[] cloudcov) {
 		if(cloudcov.length == Times.MAX_MONTHS)
 			this.cloudcov = cloudcov;
 	}
 	
-	public void setCloudcov(double cloudcov, Times.Months month) {
+	protected void setCloudcov(double cloudcov, Times.Months month) {
 		this.cloudcov[month.ordinal()] = cloudcov;
 	}
 
-	public double[] getWindspeed() {
+	protected double[] getWindspeed() {
 		return windspeed;
 	}
 	
-	public double getWindspeed(Times.Months month) {
+	protected double getWindspeed(Times.Months month) {
 		return windspeed[month.ordinal()];
 	}
 
-	public void setWindspeed(double[] windspeed) {
+	protected void setWindspeed(double[] windspeed) {
 		if(windspeed.length == Times.MAX_MONTHS)
 			this.windspeed = windspeed;
 	}
 	
-	public void setWindspeed(double windspeed, Times.Months month) {
+	protected void setWindspeed(double windspeed, Times.Months month) {
 		this.windspeed[month.ordinal()] = windspeed;
 	}
 
-	public double[] getR_humidity() {
+	protected double[] getR_humidity() {
 		return r_humidity;
 	}
 	
-	public double getR_humidity(Times.Months month) {
+	protected double getR_humidity(Times.Months month) {
 		return r_humidity[month.ordinal()];
 	}
 
-	public void setR_humidity(double[] r_humidity) {
+	protected void setR_humidity(double[] r_humidity) {
 		if(r_humidity.length == Times.MAX_MONTHS)
 			this.r_humidity = r_humidity;
 	}
 	
-	public void setR_humidity(double r_humidity, Times.Months month) {
+	protected void setR_humidity(double r_humidity, Times.Months month) {
 		this.r_humidity[month.ordinal()] = r_humidity;
 	}
 	
-	public double[] getTransmission() {
+	protected double[] getTransmission() {
 		return transmission;
 	}
 	
-	public double getTransmission(Times.Months month) {
+	protected double getTransmission(Times.Months month) {
 		return transmission[month.ordinal()];
 	}
 
-	public void setTransmission(double[] transmission) {
+	protected void setTransmission(double[] transmission) {
 		if(transmission.length == Times.MAX_MONTHS)
 			this.transmission = transmission;
 	}
 	
-	public void setTransmission(double transmission, Times.Months month) {
+	protected void setTransmission(double transmission, Times.Months month) {
 		this.transmission[month.ordinal()] = transmission;
 	}
 
-	public double[] getSnow_density() {
+	protected double[] getSnow_density() {
 		return snow_density;
 	}
 
-	public void setSnow_density(double[] snow_density) {
+	protected void setSnow_density(double[] snow_density) {
 		if(snow_density.length == Times.MAX_MONTHS)
 			this.snow_density = snow_density;
 	}
 	
-	public void setSnow_density(double snow_density, Times.Months month) {
+	protected void setSnow_density(double snow_density, Times.Months month) {
 		this.snow_density[month.ordinal()] = snow_density;
 	}
 	

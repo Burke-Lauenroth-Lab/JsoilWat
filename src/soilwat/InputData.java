@@ -129,72 +129,72 @@ public class InputData {
 		public void onSetCloudCov(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
 			cloudcov[0] = m1;
 			cloudcov[1] = m2;
-			cloudcov[3] = m3;
-			cloudcov[4] = m4;
-			cloudcov[5] = m5;
-			cloudcov[6] = m6;
-			cloudcov[7] = m7;
-			cloudcov[8] = m8;
-			cloudcov[9] = m9;
-			cloudcov[10] = m10;
-			cloudcov[11] = m11;
-			cloudcov[12] = m12;
+			cloudcov[2] = m3;
+			cloudcov[3] = m4;
+			cloudcov[4] = m5;
+			cloudcov[5] = m6;
+			cloudcov[6] = m7;
+			cloudcov[7] = m8;
+			cloudcov[8] = m9;
+			cloudcov[9] = m10;
+			cloudcov[10] = m11;
+			cloudcov[11] = m12;
 		}
 		public void onSetWindspeed(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
 			windspeed[0] = m1;
 			windspeed[1] = m2;
-			windspeed[3] = m3;
-			windspeed[4] = m4;
-			windspeed[5] = m5;
-			windspeed[6] = m6;
-			windspeed[7] = m7;
-			windspeed[8] = m8;
-			windspeed[9] = m9;
-			windspeed[10] = m10;
-			windspeed[11] = m11;
-			windspeed[12] = m12;
+			windspeed[2] = m3;
+			windspeed[3] = m4;
+			windspeed[4] = m5;
+			windspeed[5] = m6;
+			windspeed[6] = m7;
+			windspeed[7] = m8;
+			windspeed[8] = m9;
+			windspeed[9] = m10;
+			windspeed[10] = m11;
+			windspeed[11] = m12;
 		}
 		public void onSetRhumidity(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
 			r_humidity[0] = m1;
 			r_humidity[1] = m2;
-			r_humidity[3] = m3;
-			r_humidity[4] = m4;
-			r_humidity[5] = m5;
-			r_humidity[6] = m6;
-			r_humidity[7] = m7;
-			r_humidity[8] = m8;
-			r_humidity[9] = m9;
-			r_humidity[10] = m10;
-			r_humidity[11] = m11;
-			r_humidity[12] = m12;
+			r_humidity[2] = m3;
+			r_humidity[3] = m4;
+			r_humidity[4] = m5;
+			r_humidity[5] = m6;
+			r_humidity[6] = m7;
+			r_humidity[7] = m8;
+			r_humidity[8] = m9;
+			r_humidity[9] = m10;
+			r_humidity[10] = m11;
+			r_humidity[11] = m12;
 		}
 		public void onSetTransmission(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
 			transmission[0] = m1;
 			transmission[1] = m2;
-			transmission[3] = m3;
-			transmission[4] = m4;
-			transmission[5] = m5;
-			transmission[6] = m6;
-			transmission[7] = m7;
-			transmission[8] = m8;
-			transmission[9] = m9;
-			transmission[10] = m10;
-			transmission[11] = m11;
-			transmission[12] = m12;
+			transmission[2] = m3;
+			transmission[3] = m4;
+			transmission[4] = m5;
+			transmission[5] = m6;
+			transmission[6] = m7;
+			transmission[7] = m8;
+			transmission[8] = m9;
+			transmission[9] = m10;
+			transmission[10] = m11;
+			transmission[11] = m12;
 		}
 		public void onSetSnowDensity(double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9, double m10, double m11, double m12) {
 			snow_density[0] = m1;
 			snow_density[1] = m2;
-			snow_density[3] = m3;
-			snow_density[4] = m4;
-			snow_density[5] = m5;
-			snow_density[6] = m6;
-			snow_density[7] = m7;
-			snow_density[8] = m8;
-			snow_density[9] = m9;
-			snow_density[10] = m10;
-			snow_density[11] = m11;
-			snow_density[12] = m12;
+			snow_density[2] = m3;
+			snow_density[3] = m4;
+			snow_density[4] = m5;
+			snow_density[5] = m6;
+			snow_density[6] = m7;
+			snow_density[7] = m8;
+			snow_density[8] = m9;
+			snow_density[9] = m10;
+			snow_density[10] = m11;
+			snow_density[11] = m12;
 		}
 	}
 	
@@ -212,7 +212,7 @@ public class InputData {
 	public SW_SOILWAT_HISTORY swcHist = new SW_SOILWAT_HISTORY();
 	
 	public InputData() {
-		
+		this.weatherSetupIn.yr = new SW_TIMES();
 	}
 	
 	public void onSetDefaults() {
@@ -257,6 +257,7 @@ public class InputData {
 		Arrays.fill(weatherSetupIn.scale_temp_min, 0);
 		
 		//SOILS//
+		soilsIn.nLayers = 8;
 		soilsIn.layers[0].onSet(5,1.43,0,0.8122,0.0333,0.1336,0.0333,0.1336,0.5100,0.1500,0,0.1860);
 		soilsIn.layers[1].onSet(10,1.41,0,0.1534,0.0333,0.0936,0.0333,0.0936,0.4400,0.2600,0,0.3719);
 		soilsIn.layers[2].onSet(20,1.39,0,0.0344,0.0667,0.1762,0.0667,0.1762,0.3500,0.4100,0,0.7438);
@@ -321,30 +322,30 @@ public class InputData {
 		prodIn.monthlyProd.forb.onSetPercLive(0.06, 0.08, 0.20, 0.33, 0.57, 0.55, 0.5, 0.46, 0.32, 0.15, 0.08, 0.06);
 		prodIn.monthlyProd.forb.onSetLai_conv(372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372);
 		
-		outputSetupIn.outputs[OutKey.eSW_Temp.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_WEEK, 1, 365, "temp_air");
-		outputSetupIn.outputs[OutKey.eSW_Precip.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_MONTH, 1, 365, "precip");
-		outputSetupIn.outputs[OutKey.eSW_SoilInf.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_YEAR, 1, 365, "infiltration");
-		outputSetupIn.outputs[OutKey.eSW_Runoff.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_WEEK, 1, 365, "runoff");
-		outputSetupIn.outputs[OutKey.eSW_VWCBulk.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_MONTH, 1, 365, "vwc_bulk");
-		outputSetupIn.outputs[OutKey.eSW_VWCMatric.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_YEAR, 1, 365, "vwc_matric");
-		outputSetupIn.outputs[OutKey.eSW_SWCBulk.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_DAY, 1, 365, "swc_bulk");
-		outputSetupIn.outputs[OutKey.eSW_SWABulk.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_MONTH, 1, 365, "swa_bulk");
-		outputSetupIn.outputs[OutKey.eSW_SWAMatric.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_YEAR, 1, 365, "swa_matric");
-		outputSetupIn.outputs[OutKey.eSW_SWPMatric.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_WEEK, 1, 365, "swp_matric");
-		outputSetupIn.outputs[OutKey.eSW_SurfaceWater.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_DAY, 1, 365, "surface_water");
-		outputSetupIn.outputs[OutKey.eSW_Transp.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_YEAR, 1, 365, "transp");
-		outputSetupIn.outputs[OutKey.eSW_EvapSoil.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 365, "evap_soil");
-		outputSetupIn.outputs[OutKey.eSW_EvapSurface.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_WEEK, 1, 365, "evap_surface");
-		outputSetupIn.outputs[OutKey.eSW_Interception.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_MONTH, 1, 365, "interception");
-		outputSetupIn.outputs[OutKey.eSW_LyrDrain.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 365, "percolation");
-		outputSetupIn.outputs[OutKey.eSW_HydRed.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_WEEK, 1, 365, "hydred");
-		outputSetupIn.outputs[OutKey.eSW_AET.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_YEAR, 1, 365, "aet");
-		outputSetupIn.outputs[OutKey.eSW_PET.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 365, "pet");
-		outputSetupIn.outputs[OutKey.eSW_WetDays.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 365, "wetdays");
-		outputSetupIn.outputs[OutKey.eSW_SnowPack.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_WEEK, 1, 365, "snowpack");
-		outputSetupIn.outputs[OutKey.eSW_DeepSWC.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_MONTH, 1, 365, "deep_drain");
-		outputSetupIn.outputs[OutKey.eSW_SoilTemp.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_MONTH, 1, 365, "temp_soil");
-		outputSetupIn.outputs[OutKey.eSW_Estab.idx()].onSet(true, OutSum.eSW_Off, OutPeriod.SW_YEAR, 1, 365, "estab");
+		outputSetupIn.outputs[OutKey.eSW_Temp.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_WEEK, 1, 366, "temp_air");
+		outputSetupIn.outputs[OutKey.eSW_Precip.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_MONTH, 1, 366, "precip");
+		outputSetupIn.outputs[OutKey.eSW_SoilInf.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_YEAR, 1, 366, "infiltration");
+		outputSetupIn.outputs[OutKey.eSW_Runoff.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_WEEK, 1, 366, "runoff");
+		outputSetupIn.outputs[OutKey.eSW_VWCBulk.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_MONTH, 1, 366, "vwc_bulk");
+		outputSetupIn.outputs[OutKey.eSW_VWCMatric.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_YEAR, 1, 366, "vwc_matric");
+		outputSetupIn.outputs[OutKey.eSW_SWCBulk.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_DAY, 1, 366, "swc_bulk");
+		outputSetupIn.outputs[OutKey.eSW_SWABulk.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_MONTH, 1, 366, "swa_bulk");
+		outputSetupIn.outputs[OutKey.eSW_SWAMatric.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_YEAR, 1, 366, "swa_matric");
+		outputSetupIn.outputs[OutKey.eSW_SWPMatric.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_WEEK, 1, 366, "swp_matric");
+		outputSetupIn.outputs[OutKey.eSW_SurfaceWater.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_DAY, 1, 366, "surface_water");
+		outputSetupIn.outputs[OutKey.eSW_Transp.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_YEAR, 1, 366, "transp");
+		outputSetupIn.outputs[OutKey.eSW_EvapSoil.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 366, "evap_soil");
+		outputSetupIn.outputs[OutKey.eSW_EvapSurface.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_WEEK, 1, 366, "evap_surface");
+		outputSetupIn.outputs[OutKey.eSW_Interception.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_MONTH, 1, 366, "interception");
+		outputSetupIn.outputs[OutKey.eSW_LyrDrain.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 366, "percolation");
+		outputSetupIn.outputs[OutKey.eSW_HydRed.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_WEEK, 1, 366, "hydred");
+		outputSetupIn.outputs[OutKey.eSW_AET.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_YEAR, 1, 366, "aet");
+		outputSetupIn.outputs[OutKey.eSW_PET.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 366, "pet");
+		outputSetupIn.outputs[OutKey.eSW_WetDays.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_DAY, 1, 366, "wetdays");
+		outputSetupIn.outputs[OutKey.eSW_SnowPack.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_WEEK, 1, 366, "snowpack");
+		outputSetupIn.outputs[OutKey.eSW_DeepSWC.idx()].onSet(true, OutSum.eSW_Sum, OutPeriod.SW_MONTH, 1, 366, "deep_drain");
+		outputSetupIn.outputs[OutKey.eSW_SoilTemp.idx()].onSet(true, OutSum.eSW_Avg, OutPeriod.SW_MONTH, 1, 366, "temp_soil");
+		outputSetupIn.outputs[OutKey.eSW_Estab.idx()].onSet(true, OutSum.eSW_Off, OutPeriod.SW_YEAR, 1, 366, "estab");
 		outputSetupIn.TimeSteps[OutPeriod.SW_DAY.idx()] = true;
 		outputSetupIn.TimeSteps[OutPeriod.SW_YEAR.idx()] = true;
 		
@@ -367,7 +368,6 @@ public class InputData {
 		cloudIn.onSetRhumidity(61.0, 61.0, 61.0, 51.0, 51.0, 51.0, 41.0, 41.0, 51.0, 51.0, 61.0, 61.0);
 		cloudIn.onSetTransmission(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
 		cloudIn.onSetSnowDensity(213.7, 241.6, 261.0, 308.0, 398.1, 464.5, 0.0, 0.0, 0.0, 140.0, 161.6, 185.1);
-		
 		
 		weatherHist.onSetYear(1982, WeatherHistoryData_temp.tempMax[0], WeatherHistoryData_temp.tempMin[0],  WeatherHistoryData_ppt.ppt[0]);
 		weatherHist.onSetYear(1983, WeatherHistoryData_temp.tempMax[1], WeatherHistoryData_temp.tempMin[1],  WeatherHistoryData_ppt.ppt[1]);

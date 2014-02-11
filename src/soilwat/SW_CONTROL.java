@@ -31,11 +31,35 @@ public class SW_CONTROL {
 	}
 	
 	public void onSetInput(InputData data) {
-		
+		SW_Files.onSetInput(data.filesIn);
+		SW_Model.onSetInput(data.yearsIn);
+		SW_Sky.onSetInput(data.cloudIn);
+		SW_Weather.onSetInput(data.weatherSetupIn);
+		SW_Weather.onSetWeatherHist(data.weatherHist);
+		SW_VegProd.onSetInput(data.prodIn);
+		SW_Soils.onSetInput(data.soilsIn);
+		SW_Site.onSetInput(data.siteIn);
+		SW_SoilWater.onSetInput(data.swcSetupIn);
+		if(data.swcSetupIn.hist_use)
+			SW_SoilWater.onSetHist(data.swcHist);
+		SW_VegEstab.onSetInput(data.estabIn);
+		SW_Output.onSetInput(data.outputSetupIn);
 	}
 	
 	public void onGetInput(InputData data) {
-		
+		SW_Files.onGetInput(data.filesIn);
+		SW_Model.onGetInput(data.yearsIn);
+		SW_Sky.onGetInput(data.cloudIn);
+		SW_Weather.onGetInput(data.weatherSetupIn);
+		SW_Weather.onGetWeatherHist(data.weatherHist);
+		SW_VegProd.onGetInput(data.prodIn);
+		SW_Soils.onGetInput(data.soilsIn);
+		SW_Site.onGetInput(data.siteIn);
+		SW_SoilWater.onGetInput(data.swcSetupIn);
+		if(data.swcSetupIn.hist_use)
+			SW_SoilWater.onGetHist(data.swcHist);
+		SW_VegEstab.onGetInput(data.estabIn);
+		SW_Output.onGetInput(data.outputSetupIn);
 	}
 	
 	public void onReadInputs(String swFiles) {

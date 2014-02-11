@@ -244,7 +244,7 @@ public class SW_SITE {
 		this.soilTemperature.onSet(t.bmLimiter, t.t1Param1, t.t1Param2, t.t1Param3, t.csParam1, t.csParam2, t.shParam, t.meanAirTemp, t.stDeltaX, t.stMaxDepth, t.use_soil_temp);
 		this.transpirationRegions.onClear();
 		for(int i=0; i<siteIn.transpRegions.nTranspRgn; i++) {
-			this.transpirationRegions.set(i+1, transpirationRegions.getRegion(i));
+			this.transpirationRegions.set(i+1, siteIn.transpRegions.getRegion(i)-1);
 		}
 		this.data = true;
 	}
@@ -261,7 +261,7 @@ public class SW_SITE {
 		siteIn.soilTempConst.onSet(t.bmLimiter, t.t1Param1, t.t1Param2, t.t1Param3, t.csParam1, t.csParam2, t.shParam, t.meanAirTemp, t.stDeltaX, t.stMaxDepth, t.use_soil_temp);
 		siteIn.transpRegions.onClear();
 		for(int i=0; i<this.transpirationRegions.nTranspRgn; i++) {
-			siteIn.transpRegions.set(i+1, transpirationRegions.getRegion(i));
+			siteIn.transpRegions.set(i+1, transpirationRegions.getRegion(i)+1);
 		}
 	}
 	

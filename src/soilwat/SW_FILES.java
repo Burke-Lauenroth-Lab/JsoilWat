@@ -74,7 +74,7 @@ public class SW_FILES {
 		this.data = false;
 		this.verified = false;
 	}
-	protected void onSetDefault() {
+	/*protected void onSetDefault() {
 		this.pProjectDirectory = Paths.get("");//should get the current working directory
 		this.pOutputDirectory = Paths.get("Output/");
 		this.pWeatherPath = Paths.get("Input/data_39.0625_-119.4375/");
@@ -94,7 +94,7 @@ public class SW_FILES {
 		this.pOutputSetupIn = Paths.get("Input/outsetup_v27.in");
 		this.data = true;
 		this.verified = false;
-	}
+	}*/
 	
 	protected void onClear() {
 		this.data = false;

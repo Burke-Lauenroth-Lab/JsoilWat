@@ -287,6 +287,7 @@ public class SW_WEATHER {
 			weather.scale_temp_max[i] = weatherSetupIn.scale_temp_max[i];
 			weather.scale_temp_min[i] = weatherSetupIn.scale_temp_min[i];
 		}
+		this.nFileItemsRead = nFileItems;
 		this.data = true;
 	}
 	protected void onGetInput(WEATHER_INPUT_DATA weatherSetupIn) {

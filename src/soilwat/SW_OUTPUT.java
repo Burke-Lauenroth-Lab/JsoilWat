@@ -643,6 +643,9 @@ public class SW_OUTPUT {
 		if(data) {
 			//Set the outputs for the Periods
 			for (OutKey k : OutKey.values()) {
+				if(k==OutKey.eSW_NoKey || k==OutKey.eSW_LastKey)
+					continue;
+				
 				for (int i = 0; i < numPeriods; i++) {
 					if (SW_Output[k.idx()].get_PeriodUse(i)) {
 						String temp = SW_Output[k.idx()].filename_prefix+".";
@@ -666,9 +669,6 @@ public class SW_OUTPUT {
 						}
 					}
 				}
-				
-				if(k==OutKey.eSW_NoKey || k==OutKey.eSW_LastKey)
-					continue;
 				
 				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
 				/* Check validity of output key */
@@ -732,19 +732,21 @@ public class SW_OUTPUT {
 			this.useTimeStep = false;
 		}
 		for (OutKey k : OutKey.values()) {
-			if(!useTimeStep) {
-				this.timeStep[out.outputs[k.idx()].periodColumn.idx()] = true;
-				SW_Output[k.idx()].usePeriods[out.outputs[k.idx()].periodColumn.idx()] = true;
+			if(k != OutKey.eSW_NoKey && k != OutKey.eSW_LastKey) {
+				if(!useTimeStep) {
+					this.timeStep[out.outputs[k.idx()].periodColumn.idx()] = true;
+					SW_Output[k.idx()].usePeriods[out.outputs[k.idx()].periodColumn.idx()] = true;
+					SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
+				}
+				//Set the values		
+				SW_Output[k.idx()].mykey = k;
+				SW_Output[k.idx()].myobj = k.objType();
+				SW_Output[k.idx()].sumtype = out.outputs[k.idx()].sumtype;
 				SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
+				SW_Output[k.idx()].filename_prefix = out.outputs[k.idx()].filename_prefix;
+				SW_Output[k.idx()].first_orig = out.outputs[k.idx()].first_orig;
+				SW_Output[k.idx()].last_orig = out.outputs[k.idx()].last_orig;
 			}
-			//Set the values		
-			SW_Output[k.idx()].mykey = k;
-			SW_Output[k.idx()].myobj = k.objType();
-			SW_Output[k.idx()].sumtype = out.outputs[k.idx()].sumtype;
-			SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
-			SW_Output[k.idx()].filename_prefix = out.outputs[k.idx()].filename_prefix;
-			SW_Output[k.idx()].first_orig = out.outputs[k.idx()].first_orig;
-			SW_Output[k.idx()].last_orig = out.outputs[k.idx()].last_orig;
 		}
 		this.data = true;
 	}
@@ -758,13 +760,15 @@ public class SW_OUTPUT {
 			out.TimeSteps[3] = this.timeStep[3];
 		}
 		for (OutKey k : OutKey.values()) {
-			//Set the values		
-			out.outputs[k.idx()].mykey = k;
-			out.outputs[k.idx()].sumtype = SW_Output[k.idx()].sumtype;
-			out.outputs[k.idx()].periodColumn = SW_Output[k.idx()].periodColumn;
-			out.outputs[k.idx()].filename_prefix = SW_Output[k.idx()].filename_prefix;
-			out.outputs[k.idx()].first_orig = SW_Output[k.idx()].first_orig;
-			out.outputs[k.idx()].last_orig = SW_Output[k.idx()].last_orig;
+			if(k != OutKey.eSW_NoKey && k != OutKey.eSW_LastKey) {
+				//Set the values		
+				out.outputs[k.idx()].mykey = k;
+				out.outputs[k.idx()].sumtype = SW_Output[k.idx()].sumtype;
+				out.outputs[k.idx()].periodColumn = SW_Output[k.idx()].periodColumn;
+				out.outputs[k.idx()].filename_prefix = SW_Output[k.idx()].filename_prefix;
+				out.outputs[k.idx()].first_orig = SW_Output[k.idx()].first_orig;
+				out.outputs[k.idx()].last_orig = SW_Output[k.idx()].last_orig;
+			}
 		}
 	}
 	

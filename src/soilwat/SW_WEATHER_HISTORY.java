@@ -30,14 +30,14 @@ public class SW_WEATHER_HISTORY {
 		private int nDaysInYear;
 		private boolean data;
 		
-		public SW_WEATHER_HIST() {
+		public SW_WEATHER_HIST(int year) {
 			this.temp_max = new double[Times.MAX_DAYS];
 			this.temp_min = new double[Times.MAX_DAYS];
 			this.temp_avg = new double[Times.MAX_DAYS];
 			this.ppt = new double[Times.MAX_DAYS];
 			this.temp_month_avg = new double[Times.MAX_MONTHS];
 			this.temp_year_avg = 0;	
-			this.nYear = 0;
+			this.nYear = year;
 			this.nDaysInYear = 0;
 			this.data = false;
 		}
@@ -167,7 +167,7 @@ public class SW_WEATHER_HISTORY {
 		if(yearToIndex.containsKey(year)) {
 			idx = yearToIndex.get(year);
 		} else {
-			SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST();
+			SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST(year);
 			this.weatherHist.add(weathHist);
 			idx = this.weatherHist.indexOf(weathHist);
 			this.yearToIndex.put(year, idx);
@@ -225,7 +225,7 @@ public class SW_WEATHER_HISTORY {
 						}
 					}
 				} else {
-					SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST();
+					SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST(year);
 					weathHist.onRead(WeatherHistoryFile, year);
 					this.weatherHist.add(weathHist);
 					this.yearToIndex.put(year, this.weatherHist.indexOf(weathHist));
