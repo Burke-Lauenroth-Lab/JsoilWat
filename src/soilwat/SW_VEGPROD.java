@@ -551,7 +551,12 @@ public class SW_VEGPROD {
 		this.shade.shrub.onSet(prodIn.shade.shrub.shadeScale, prodIn.shade.shrub.shadeMaximalDeadBiomass, prodIn.shade.shrub.xinflec, prodIn.shade.shrub.yinflec, prodIn.shade.shrub.range, prodIn.shade.shrub.slope);
 		this.shade.tree.onSet(prodIn.shade.tree.shadeScale, prodIn.shade.tree.shadeMaximalDeadBiomass, prodIn.shade.tree.xinflec, prodIn.shade.tree.yinflec, prodIn.shade.tree.range, prodIn.shade.tree.slope);
 		this.shade.forb.onSet(prodIn.shade.forb.shadeScale, prodIn.shade.forb.shadeMaximalDeadBiomass, prodIn.shade.forb.xinflec, prodIn.shade.forb.yinflec, prodIn.shade.forb.range, prodIn.shade.forb.slope);
+		this.hydraulicRedistribution.grass.onSet(prodIn.hydraulicRedist.grass.flag, prodIn.hydraulicRedist.grass.maxCondRoot, prodIn.hydraulicRedist.grass.swp50, prodIn.hydraulicRedist.grass.shapeCond);
+		this.hydraulicRedistribution.shrub.onSet(prodIn.hydraulicRedist.shrub.flag, prodIn.hydraulicRedist.shrub.maxCondRoot, prodIn.hydraulicRedist.shrub.swp50, prodIn.hydraulicRedist.shrub.shapeCond);
+		this.hydraulicRedistribution.tree.onSet(prodIn.hydraulicRedist.tree.flag, prodIn.hydraulicRedist.tree.maxCondRoot, prodIn.hydraulicRedist.tree.swp50, prodIn.hydraulicRedist.tree.shapeCond);
+		this.hydraulicRedistribution.forb.onSet(prodIn.hydraulicRedist.forb.flag, prodIn.hydraulicRedist.forb.maxCondRoot, prodIn.hydraulicRedist.forb.swp50, prodIn.hydraulicRedist.forb.shapeCond);
 		this.criticalSWP.onSet(prodIn.criticalSWP.grass, prodIn.criticalSWP.shrub, prodIn.criticalSWP.tree, prodIn.criticalSWP.forb);
+		
 		
 		this.monthlyProd.grass.onSetLitter(prodIn.monthlyProd.grass.litter[0], prodIn.monthlyProd.grass.litter[1], prodIn.monthlyProd.grass.litter[2], prodIn.monthlyProd.grass.litter[3], prodIn.monthlyProd.grass.litter[4], prodIn.monthlyProd.grass.litter[5],
 				prodIn.monthlyProd.grass.litter[6], prodIn.monthlyProd.grass.litter[7], prodIn.monthlyProd.grass.litter[8], prodIn.monthlyProd.grass.litter[9], prodIn.monthlyProd.grass.litter[10], prodIn.monthlyProd.grass.litter[11]);
@@ -613,6 +618,10 @@ public class SW_VEGPROD {
 		prodIn.shade.shrub.onSet(this.shade.shrub.shadeScale, this.shade.shrub.shadeMaximalDeadBiomass, this.shade.shrub.xinflec, this.shade.shrub.yinflec, this.shade.shrub.range, this.shade.shrub.slope);
 		prodIn.shade.tree.onSet(this.shade.tree.shadeScale, this.shade.tree.shadeMaximalDeadBiomass, this.shade.tree.xinflec, this.shade.tree.yinflec, this.shade.tree.range, this.shade.tree.slope);
 		prodIn.shade.forb.onSet(this.shade.forb.shadeScale, this.shade.forb.shadeMaximalDeadBiomass, this.shade.forb.xinflec, this.shade.forb.yinflec, this.shade.forb.range, this.shade.forb.slope);
+		prodIn.hydraulicRedist.grass.onSet(this.hydraulicRedistribution.grass.flag, this.hydraulicRedistribution.grass.maxCondRoot, this.hydraulicRedistribution.grass.swp50, this.hydraulicRedistribution.grass.shapeCond);
+		prodIn.hydraulicRedist.shrub.onSet(this.hydraulicRedistribution.shrub.flag, this.hydraulicRedistribution.shrub.maxCondRoot, this.hydraulicRedistribution.shrub.swp50, this.hydraulicRedistribution.shrub.shapeCond);
+		prodIn.hydraulicRedist.tree.onSet(this.hydraulicRedistribution.tree.flag, this.hydraulicRedistribution.tree.maxCondRoot, this.hydraulicRedistribution.tree.swp50, this.hydraulicRedistribution.tree.shapeCond);
+		prodIn.hydraulicRedist.forb.onSet(this.hydraulicRedistribution.forb.flag, this.hydraulicRedistribution.forb.maxCondRoot, this.hydraulicRedistribution.forb.swp50, this.hydraulicRedistribution.forb.shapeCond);
 		prodIn.criticalSWP.onSet(this.criticalSWP.grass, this.criticalSWP.shrub, this.criticalSWP.tree, this.criticalSWP.forb);
 		
 		prodIn.monthlyProd.grass.onSetLitter(this.monthlyProd.grass.litter[0], this.monthlyProd.grass.litter[1], this.monthlyProd.grass.litter[2], this.monthlyProd.grass.litter[3], this.monthlyProd.grass.litter[4], this.monthlyProd.grass.litter[5],

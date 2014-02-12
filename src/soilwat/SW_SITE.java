@@ -175,7 +175,7 @@ public class SW_SITE {
 			if(nTranspRgn > 0) {
 				String sTable = "";
 				for(int i=0;i<nTranspRgn;i++) {
-					sTable+="\t"+String.valueOf(i+1)+"\t"+String.valueOf(table[i][1])+"\n";
+					sTable+="\t"+String.valueOf(i+1)+"\t"+String.valueOf(table[i][1]+1)+"\n";
 				}
 				return sTable;
 			} else

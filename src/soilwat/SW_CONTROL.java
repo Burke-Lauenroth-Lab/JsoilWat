@@ -1,6 +1,7 @@
 package soilwat;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import soilwat.Defines.ObjType;
 
@@ -75,6 +76,33 @@ public class SW_CONTROL {
 			SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
 			SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
 			SW_Output.onRead(SW_Files.getOutputSetupIn(true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void onWriteOutputs(String ProjectDirectory) {
+		SW_Files.setProjectDirectory(Paths.get(ProjectDirectory));
+		SW_Files.onCreateFiles();
+		SW_Files.onVerify();
+		try {
+			SW_Files.onWrite();
+			SW_Model.onWrite(SW_Files.getYearsIn(true));
+			SW_Sky.onWrite(SW_Files.getCloudIn(true));
+			SW_Weather.onWrite(SW_Files.getWeatherSetupIn(true));
+			//if(SW_Weather.getWeather().use_markov) {
+			//	SW_Weather.getMarkov().
+			//}
+			SW_Weather.onWriteHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
+			SW_VegProd.onWrite(SW_Files.getPlantProductivityIn(true));
+			SW_Soils.onWrite(SW_Files.getSoilsIn(true));
+			SW_Site.onWrite(SW_Files.getSiteParametersIn(true));
+			SW_SoilWater.onWrite(SW_Files.getSWCSetupIn(true));
+			if(SW_SoilWater.getSoilWat().hist_use) {
+				SW_SoilWater.onWriteHistory(SW_Files.getWeatherPath(true), SW_SoilWater.getSoilWat().filePrefix);
+			}
+			SW_VegEstab.onWrite(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
+			SW_Output.onWrite(SW_Files.getOutputSetupIn(true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

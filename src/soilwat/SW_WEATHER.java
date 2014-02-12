@@ -410,6 +410,10 @@ public class SW_WEATHER {
 			f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherIn : No data from files or default.");
 		}
 	}
+	
+	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+		this.hist.onWrite(WeatherHistoryFolder, prefix);
+	}
 
 	protected WEATHER getWeather() {
 		return this.weather;
@@ -563,5 +567,9 @@ public class SW_WEATHER {
 
 	protected SW_WEATHER_2DAYS getNow() {
 		return weather.now;
+	}
+	
+	protected SW_MARKOV getMarkov() {
+		return this.SW_Markov;
 	}
 }

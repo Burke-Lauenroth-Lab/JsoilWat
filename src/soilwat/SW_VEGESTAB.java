@@ -138,7 +138,7 @@ public class SW_VEGESTAB {
 			}
 			if(EchoInits)
 				_echo_inits();
-			}
+		}
 		return true;
 	}
 	
@@ -275,6 +275,8 @@ public class SW_VEGESTAB {
 		v.tempParams.max_temp_germ = spp.tempParams.max_temp_germ;
 		v.tempParams.min_temp_estab = spp.tempParams.min_temp_estab;
 		v.tempParams.max_temp_estab = spp.tempParams.max_temp_estab;
+		
+		this.data = true;
 	}
 	private void onGetSPP(SPP_INPUT_DATA spp, SW_VEGESTAB_INFO v) {
 		spp.sppName = v.sppName;

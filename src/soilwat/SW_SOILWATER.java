@@ -733,6 +733,9 @@ public class SW_SOILWATER {
 			f.LogError(LogMode.WARN, "SwcSetupIn : onWrite : No data.");
 		}
 	}
+	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+		this.hist.onWrite(WeatherHistoryFolder, prefix);
+	}
 	protected void SW_SWC_water_flow() {
 		/* =================================================== */
 		/* Adjust SWC according to historical (measured) data
