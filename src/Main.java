@@ -14,7 +14,7 @@ public class Main {
 		//sim.onReadInputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
 		sim.onStartModel(true);
 	}
-	/*public static void main(String[] args) {
+	/*public static void main(String[] args) {40
 		LogFileIn f = LogFileIn.getInstance();
 		FilesIn files = new FilesIn();
 		CloudIn cloud = new CloudIn();

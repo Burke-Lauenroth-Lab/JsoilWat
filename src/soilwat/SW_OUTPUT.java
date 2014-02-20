@@ -452,6 +452,7 @@ public class SW_OUTPUT {
 				}
 			}
 		}
+//		
 //		public boolean get_PeriodUse(OutPeriod pd) {
 //			return usePeriods[pd.idx()];
 //		}
@@ -593,7 +594,18 @@ public class SW_OUTPUT {
 			"/* soil temperature from each soil layer (in celsius) */",
 			"/* */",
 			"/* yearly establishment results */"};
-		
+		protected double[][] get_dy_data() {
+			return dy_data;
+		}
+		protected double[][] get_wk_data() {
+			return wk_data;
+		}
+		protected double[][] get_mo_data() {
+			return mo_data;
+		}
+		protected double[][] get_yr_data() {
+			return yr_data;
+		}
 		public String toString() {
 			return String.format("%13s %7s   %6s      %2s     %3s %15s      %s", mykey.key(),sumtype.key(),periodColumn.key(),this.first_orig, this.last_orig==366?"end":this.last_orig,filename_prefix, comments[mykey.idx()]);
 		}
@@ -1687,11 +1699,27 @@ public class SW_OUTPUT {
 		f.LogError(LogMode.NOTE, outconfig);
 	}
 	
-	public boolean get_echoinits() {
+	protected boolean get_echoinits() {
 		return this.EchoInits;
 	}
 	
-	public void set_echoinits(boolean echo) {
+	protected void set_echoinits(boolean echo) {
 		this.EchoInits = echo;
+	}
+	
+	protected double[][] get_data(OutKey key, OutPeriod period) {
+		SW_OUT out = this.SW_Output[key.idx()];
+		switch (period) {
+		case SW_DAY:
+			return out.get_dy_data();
+		case SW_WEEK:
+			return out.get_wk_data();
+		case SW_MONTH:
+			return out.get_mo_data();
+		case SW_YEAR:
+			return out.get_yr_data();
+		default:
+			return null;
+		}
 	}
 }

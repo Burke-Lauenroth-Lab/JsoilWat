@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import soilwat.Defines.ObjType;
+import soilwat.SW_OUTPUT.OutKey;
+import soilwat.SW_OUTPUT.OutPeriod;
+import soilwat.SW_WEATHER.WEATHER;
 
 public class SW_CONTROL {
 	private SW_FILES SW_Files;
@@ -29,6 +32,10 @@ public class SW_CONTROL {
 		SW_VegEstab = new SW_VEGESTAB(SW_Weather, SW_SoilWater, SW_Model, SW_Soils);
 		SW_Output = new SW_OUTPUT(SW_Soils, SW_SoilWater, SW_Model, SW_Weather, SW_VegEstab);
 		SW_Weather.setSoilWater(SW_SoilWater);
+	}
+	
+	public double[][] onGetOutput(OutKey key, OutPeriod period) {
+		return SW_Output.get_data(key, period);
 	}
 	
 	public void onSetInput(InputData data) {
@@ -143,9 +150,10 @@ public class SW_CONTROL {
 	}
 		
 	private boolean onVerify() {
+		WEATHER w = SW_Weather.getWeather();
 		return SW_Files.onVerify() &&
 		SW_Model.onVerify() &&
-		SW_Sky.onVerify() &&
+		SW_Sky.onVerify(w.scale_skyCover, w.scale_wind, w.scale_rH, w.scale_transmissivity) &&
 		SW_Weather.onVerify() &&
 		SW_VegProd.onVerify() &&
 		SW_Soils.onVerify(SW_Site.getDeepdrain()) &&

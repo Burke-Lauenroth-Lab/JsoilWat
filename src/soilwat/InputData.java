@@ -88,18 +88,18 @@ public class InputData {
 		TranspirationRegions transpRegions = new TranspirationRegions();
 	}
 	public static class ProdIn {
-		VegetationComposition vegComp = new VegetationComposition();
-		Albedo albedo = new Albedo();
-		CoverPercent coverPercent = new CoverPercent();
-		CanopyHeight canopyHeight = new CanopyHeight();
-		VegetationInterceptionParameters vegIntercParams = new VegetationInterceptionParameters();
-		LitterInterceptionParameters litterIntercParams = new LitterInterceptionParameters();
-		EsTpartitioning esTpart = new EsTpartitioning();
-		EsParamLimit esLimit = new EsParamLimit();
-		Shade shade = new Shade();
-		HydraulicRedistribution hydraulicRedist = new HydraulicRedistribution();
-		CriticalSWP criticalSWP = new CriticalSWP();
-		MonthlyProductionValues monthlyProd = new MonthlyProductionValues();
+		public VegetationComposition vegComp = new VegetationComposition();
+		public Albedo albedo = new Albedo();
+		public CoverPercent coverPercent = new CoverPercent();
+		public CanopyHeight canopyHeight = new CanopyHeight();
+		public VegetationInterceptionParameters vegIntercParams = new VegetationInterceptionParameters();
+		public LitterInterceptionParameters litterIntercParams = new LitterInterceptionParameters();
+		public EsTpartitioning esTpart = new EsTpartitioning();
+		public EsParamLimit esLimit = new EsParamLimit();
+		public Shade shade = new Shade();
+		public HydraulicRedistribution hydraulicRedist = new HydraulicRedistribution();
+		public CriticalSWP criticalSWP = new CriticalSWP();
+		public MonthlyProductionValues monthlyProd = new MonthlyProductionValues();
 	}
 	public static class OutputIn {
 		public String outsep = "\t";
@@ -255,6 +255,10 @@ public class InputData {
 		Arrays.fill(weatherSetupIn.scale_precip, 1);
 		Arrays.fill(weatherSetupIn.scale_temp_max, 0);
 		Arrays.fill(weatherSetupIn.scale_temp_min, 0);
+		Arrays.fill(weatherSetupIn.scale_skyCover, 0);
+		Arrays.fill(weatherSetupIn.scale_wind, 1);
+		Arrays.fill(weatherSetupIn.scale_rH, 0);
+		Arrays.fill(weatherSetupIn.scale_transmissivity, 1);
 		
 		//SOILS//
 		soilsIn.nLayers = 8;

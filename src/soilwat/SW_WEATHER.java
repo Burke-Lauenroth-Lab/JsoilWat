@@ -84,6 +84,10 @@ public class SW_WEATHER {
 		public int days_in_runavg;
 		public SW_TIMES yr;		
 		public double[] scale_precip = new double[Times.MAX_MONTHS], scale_temp_max = new double[Times.MAX_MONTHS], scale_temp_min = new double[Times.MAX_MONTHS];
+		public double[] scale_skyCover = new double[Times.MAX_MONTHS], scale_wind = new double[Times.MAX_MONTHS], scale_rH = new double[Times.MAX_MONTHS], scale_transmissivity = new double[Times.MAX_MONTHS];
+		public String get_MonthlyScaling_toString(int month) {
+			return String.format("%4s\t%5f\t%5f\t%5f\t%8f\t%5f\t%5f\t%14f", String.valueOf(month+1),scale_precip[month],scale_temp_max[month],scale_temp_min[month],scale_skyCover[month],scale_wind[month],scale_rH[month],scale_transmissivity[month]);
+		}
 	}
 
 	protected static class WEATHER extends WEATHER_INPUT_DATA {
@@ -286,6 +290,10 @@ public class SW_WEATHER {
 			weather.scale_precip[i] = weatherSetupIn.scale_precip[i];
 			weather.scale_temp_max[i] = weatherSetupIn.scale_temp_max[i];
 			weather.scale_temp_min[i] = weatherSetupIn.scale_temp_min[i];
+			weather.scale_skyCover[i] = weatherSetupIn.scale_skyCover[i];
+			weather.scale_wind[i] = weatherSetupIn.scale_wind[i];
+			weather.scale_rH[i] = weatherSetupIn.scale_rH[i];
+			weather.scale_transmissivity[i] = weatherSetupIn.scale_transmissivity[i];
 		}
 		this.nFileItemsRead = nFileItems;
 		this.data = true;
@@ -301,6 +309,10 @@ public class SW_WEATHER {
 			weatherSetupIn.scale_precip[i] = weather.scale_precip[i];
 			weatherSetupIn.scale_temp_max[i] = weather.scale_temp_max[i];
 			weatherSetupIn.scale_temp_min[i] = weather.scale_temp_min[i];
+			weatherSetupIn.scale_skyCover[i] = weather.scale_skyCover[i];
+			weatherSetupIn.scale_wind[i] = weather.scale_wind[i];
+			weatherSetupIn.scale_rH[i] = weather.scale_rH[i];
+			weatherSetupIn.scale_transmissivity[i] = weather.scale_transmissivity[i];
 		}
 	}
 	protected void onSetWeatherHist(SW_WEATHER_HISTORY hist) {
@@ -370,6 +382,10 @@ public class SW_WEATHER {
 						weather.scale_precip[month] = Double.parseDouble(values[1]);
 						weather.scale_temp_max[month] = Double.parseDouble(values[2]);
 						weather.scale_temp_min[month] = Double.parseDouble(values[3]);
+						weather.scale_skyCover[month] = Double.parseDouble(values[4]);
+						weather.scale_wind[month] = Double.parseDouble(values[5]);
+						weather.scale_rH[month] = Double.parseDouble(values[6]);
+						weather.scale_transmissivity[month] = Double.parseDouble(values[7]);
 					} catch(NumberFormatException e) {
 						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Monthly scaling parameters : Could not convert line:"+String.valueOf(this.nFileItemsRead)+". " + e.getMessage());
 					}
@@ -401,9 +417,13 @@ public class SW_WEATHER {
 			lines.add("# PPT = multiplicative for PPT (scale*ppt).");
 			lines.add("# MaxT = additive for max temp (scale+maxtemp).");
 			lines.add("# MinT = additive for min temp (scale+mintemp).");
-			lines.add("#Mon  PPT  MaxT  MinT");
+			lines.add("# SkyCover = additive for mean monthly sky cover [%]; min(100, max(0, scale + sky cover))");
+			lines.add("# Wind = multiplicative for mean monthly wind speed; max(0, scale * wind speed)");
+			lines.add("# rH = additive for mean monthly relative humidity [%]; min(100, max(0, scale + rel. Humidity))");
+			lines.add("# Transmissivity = multiplicative for mean monthly relative transmissivity; min(1, max(0, scale * transmissivity))");
+			lines.add(String.format("#%3s\t%5s\t%5s\t%5s\t%8s\t%5s\t%5s\t%14s", "Mon","PPT","MaxT","MinT","SkyCover","Wind","rH","Transmissivity"));
 			for(int i=0; i<Times.MAX_MONTHS; i++)
-				lines.add(String.valueOf(i+1)+"\t"+String.valueOf(weather.scale_precip[i])+"\t"+String.valueOf(weather.scale_temp_max[i])+"\t"+String.valueOf(weather.scale_temp_min[i]));
+				lines.add(weather.get_MonthlyScaling_toString(i));
 			Files.write(WeatherSetupIn, lines, StandardCharsets.UTF_8);
 		} else {
 			LogFileIn f = LogFileIn.getInstance();

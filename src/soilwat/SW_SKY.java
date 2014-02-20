@@ -55,9 +55,9 @@ public class SW_SKY {
 		snow_density = new double[] {213.7,241.6,261,308,398.1,464.5,0,0,0,140,161.6,185.1};
 	}
 	
-	protected boolean onVerify() {
+	protected boolean onVerify(double[] scale_sky, double[] scale_wind, double[] scale_rH, double[] scale_transmissivity) {
 		if(this.data) {
-			SW_SKY_init();
+			SW_SKY_init(scale_sky, scale_wind, scale_rH, scale_transmissivity);
 			return true;
 		} else
 			return false;
@@ -181,7 +181,13 @@ public class SW_SKY {
 		}*/
 	}
 	
-	protected void SW_SKY_init() {
+	protected void SW_SKY_init(double[] scale_sky, double[] scale_wind, double[] scale_rH, double[] scale_transmissivity) {
+		for(int i=0; i<Times.MAX_MONTHS; i++) {
+			this.cloudcov[i] = Math.min(100, Math.max(0.0,scale_sky[i]+this.cloudcov[i]));
+			this.windspeed[i] = Math.max(0.0, scale_wind[i] * this.windspeed[i]);
+			this.r_humidity[i] = Math.min(100, Math.max(0.0, scale_rH[i] + this.r_humidity[i]));
+			this.transmission[i] = Math.min(1, Math.max(0.0, scale_transmissivity[i]*transmission[i]));
+		}
 		Times.interpolate_monthlyValues(this.cloudcov, this.cloudcov_daily);
 		Times.interpolate_monthlyValues(this.windspeed, this.windspeed_daily);
 		Times.interpolate_monthlyValues(this.r_humidity, this.r_humidity_daily);
