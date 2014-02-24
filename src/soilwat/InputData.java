@@ -77,15 +77,15 @@ public class InputData {
 		}
 	}
 	public static class SiteIn {
-		SWC swcLimits = new SW_SITE.SWC();
-		Model modelFlagsCoef = new Model();
-		Snow snowSimParams = new Snow();
-		Drainage drainageCoef = new Drainage();
-		Evaporation evaporationCoef = new Evaporation();
-		Transpiration transpCoef = new Transpiration();
-		Intrinsic siteIntrinsicParams = new Intrinsic();
-		SoilTemperature soilTempConst = new SoilTemperature();
-		TranspirationRegions transpRegions = new TranspirationRegions();
+		public SWC swcLimits = new SW_SITE.SWC();
+		public Model modelFlagsCoef = new Model();
+		public Snow snowSimParams = new Snow();
+		public Drainage drainageCoef = new Drainage();
+		public Evaporation evaporationCoef = new Evaporation();
+		public Transpiration transpCoef = new Transpiration();
+		public Intrinsic siteIntrinsicParams = new Intrinsic();
+		public SoilTemperature soilTempConst = new SoilTemperature();
+		public TranspirationRegions transpRegions = new TranspirationRegions();
 	}
 	public static class ProdIn {
 		public VegetationComposition vegComp = new VegetationComposition();
