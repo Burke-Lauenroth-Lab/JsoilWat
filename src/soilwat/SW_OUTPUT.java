@@ -225,7 +225,7 @@ public class SW_OUTPUT {
 		}
 	}
 	
-	private class SW_OUT_TIME {
+	public class SW_OUT_TIME {
 		public int[][] days;
 		public int[][] weeks;
 		public int[][] months;
@@ -1721,5 +1721,9 @@ public class SW_OUTPUT {
 		default:
 			return null;
 		}
+	}
+	
+	protected SW_OUT_TIME get_Timing() {
+		return this.SW_OutTimes;
 	}
 }

@@ -234,8 +234,15 @@ public class SW_MODEL {
 	protected int getDaysInSimulation() {
 		int n=0;
 		
-		for(int i=this.getStartYear(); i<=this.getEndYear(); i++)
-			n+=Times.Time_get_lastdoy_y(i);
+		for(int i=this.getStartYear(); i<=this.getEndYear(); i++) {
+			if(i==this.getStartYear()) {
+				n+=Times.Time_get_lastdoy_y(i) - this.startstart + 1;
+			} else if(i==this.getEndYear()) {
+				n+=this.endend;
+			} else {
+				n+=Times.Time_get_lastdoy_y(i);
+			}
+		}
 		return n;
 	}
 

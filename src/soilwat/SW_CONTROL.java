@@ -7,6 +7,7 @@ import soilwat.Defines.ObjType;
 import soilwat.SW_OUTPUT.OutKey;
 import soilwat.SW_OUTPUT.OutPeriod;
 import soilwat.SW_WEATHER.WEATHER;
+import soilwat.SW_OUTPUT.SW_OUT_TIME;
 
 public class SW_CONTROL {
 	private SW_FILES SW_Files;
@@ -36,6 +37,10 @@ public class SW_CONTROL {
 	
 	public double[][] onGetOutput(OutKey key, OutPeriod period) {
 		return SW_Output.get_data(key, period);
+	}
+	
+	public SW_OUT_TIME onGet_Timing() {
+		return SW_Output.get_Timing();
 	}
 	
 	public void onSetInput(InputData data) {
