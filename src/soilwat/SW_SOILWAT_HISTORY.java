@@ -223,4 +223,15 @@ public class SW_SOILWAT_HISTORY {
 	public double[] getStd_err(int doy) {
 		return this.swcHist.get(yearToIndex.get(nCurrentYear)).std_err[doy];
 	}
+
+	public String[] getHistYears() {
+		String[] temp = new String[yearToIndex.size()];
+		int i=0;
+		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+			Integer key = entry.getKey();
+			temp[i] = key.toString();
+			i++;
+		}
+		return temp;
+	}
 }

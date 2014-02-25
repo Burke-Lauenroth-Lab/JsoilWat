@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -306,5 +307,20 @@ public class SW_WEATHER_HISTORY {
 	}
 	public double get_temp_min(int doy) {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_min[doy];
+	}
+	
+	public String[] getHistYears() {
+		String[] temp = new String[yearToIndex.size()];
+		int i=0;
+		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+			Integer key = entry.getKey();
+			temp[i] = key.toString();
+			i++;
+		}
+		Arrays.sort(temp);
+		return temp;
+	}
+	public int getDays() {
+		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).nDaysInYear;
 	}
 }
