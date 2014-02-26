@@ -45,7 +45,7 @@ public class SW_SOILWAT_HISTORY {
 				this.nDaysInYear = swc.length;
 				this.nLayers = layers;
 				for(int i=0; i<this.nDaysInYear; i++) {
-					for(int j=0; j<layers; i++) {
+					for(int j=0; j<layers; j++) {
 						this.swc[i][j] = swc[i][j];
 						this.std_err[i][j] = std_err[i][j];
 					}
@@ -242,6 +242,14 @@ public class SW_SOILWAT_HISTORY {
 		return this.swcHist.get(yearToIndex.get(nCurrentYear)).std_err[doy];
 	}
 	
+	public double getSWC(int doy, int layer) {
+		return this.swcHist.get(yearToIndex.get(nCurrentYear)).swc[doy][layer];
+	}
+	
+	public double getStd_err(int doy, int layer) {
+		return this.swcHist.get(yearToIndex.get(nCurrentYear)).std_err[doy][layer];
+	}
+	
 	public void setSWC(int doy, int layer, double value) {
 		this.swcHist.get(yearToIndex.get(nCurrentYear)).swc[doy][layer] = value;
 	}
@@ -325,7 +333,7 @@ public class SW_SOILWAT_HISTORY {
 		Iterator<Entry<Integer, Integer>> it = this.yearToIndex.entrySet().iterator();
 		while(it.hasNext()) {
 			Map.Entry<Integer, Integer> pair = (Map.Entry<Integer, Integer>)it.next();
-			this.swcHist.get(pair.getKey()).nLayers = nLayers;
+			this.swcHist.get(pair.getValue()).nLayers = nLayers;
 		}
 	}
 	public boolean data() {
