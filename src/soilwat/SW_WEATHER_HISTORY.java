@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +42,67 @@ public class SW_WEATHER_HISTORY {
 			this.nYear = year;
 			this.nDaysInYear = 0;
 			this.data = false;
+		}
+		
+		public void onSet(int year, double[] ppt, double[] temp_max, double[] temp_min) {
+			this.nYear = year;
+			if((ppt.length == temp_max.length) && (ppt.length == temp_min.length) && (temp_max.length == temp_min.length) && (ppt.length >= 365) && (ppt.length <= 366)) {
+				double acc=0;
+				int k=0,x=0;
+				this.nDaysInYear = ppt.length;
+				for(int i=0; i<this.nDaysInYear; i++) {
+					this.ppt[i] = ppt[i];
+					this.temp_max[i] = temp_max[i];
+					this.temp_min[i] = temp_min[i];
+					this.temp_avg[i] = (this.temp_max[i]+this.temp_min[i])/2.0;
+					acc+=this.temp_avg[i];
+					k++;
+				}
+				this.temp_year_avg = acc/(k+0.0);
+				for(int i=0; i<Times.MAX_MONTHS;i++) {
+					k=31;
+					if(i==8 || i==3 || i==5 || i==10)
+						k=30;// september, april, june, & november all have 30 days...
+					else if (i==1) {
+						k=28;// february has 28 days, except if it's a leap year, in which case it has 29 days...
+						if(Times.isleapyear(this.nYear))
+							k=29;
+					}
+					acc=0;
+					for(int j=0; j<k; j++)
+						acc+=this.temp_avg[j+x];
+					this.temp_month_avg[i] = acc/(k+0.0);
+					x+=k;
+				}
+				this.data = true;
+			}
+			 
+		}
+		
+		public void onCalc() {
+			double acc=0;
+			int k=0,x=0;
+			for(int i=0; i<this.nDaysInYear; i++) {
+				this.temp_avg[i] = (this.temp_max[i]+this.temp_min[i])/2.0;
+				acc+=this.temp_avg[i];
+				k++;
+			}
+			this.temp_year_avg = acc/(k+0.0);
+			for(int i=0; i<Times.MAX_MONTHS;i++) {
+				k=31;
+				if(i==8 || i==3 || i==5 || i==10)
+					k=30;// september, april, june, & november all have 30 days...
+				else if (i==1) {
+					k=28;// february has 28 days, except if it's a leap year, in which case it has 29 days...
+					if(Times.isleapyear(this.nYear))
+						k=29;
+				}
+				acc=0;
+				for(int j=0; j<k; j++)
+					acc+=this.temp_avg[j+x];
+				this.temp_month_avg[i] = acc/(k+0.0);
+				x+=k;
+			}
 		}
 		
 		public void onRead(Path WeatherHistoryFile, int year) throws IOException {
@@ -299,6 +361,7 @@ public class SW_WEATHER_HISTORY {
 			return false;
 		}
 	}
+	
 	public double get_ppt(int doy) {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).ppt[doy];
 	}
@@ -309,7 +372,51 @@ public class SW_WEATHER_HISTORY {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_min[doy];
 	}
 	
-	public String[] getHistYears() {
+	public void set_ppt(int doy, double value) {
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).ppt[doy] = value;
+	}
+	public void set_temp_max(int doy, double value) {
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_max[doy] = value;
+	}
+	public void set_temp_min(int doy, double value) {
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_min[doy] = value;
+	}
+	
+	public void set_day(int doy, double ppt, double temp_max, double temp_min) {
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).ppt[doy] = ppt;
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_max[doy] = temp_max;
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_min[doy] = temp_min;
+	}
+	
+	public void add_year(int year, double[] ppt, double[] temp_max, double[] temp_min) {
+		if(this.yearToIndex.size() < this.weatherHist.size()) {//reuse an object
+			for(int i=0; i<this.weatherHist.size(); i++) {
+				if(!this.yearToIndex.containsValue(i)) {//This object is not used
+					this.weatherHist.get(i).onClear();
+					this.weatherHist.get(i).onSet(year, ppt, temp_max, temp_min);
+					this.yearToIndex.put(year, i);
+					break;
+				}
+			}
+		} else {
+			SW_WEATHER_HIST weathHist = new SW_WEATHER_HIST(year);
+			weathHist.data = true;
+			weathHist.onSet(year, ppt, temp_max, temp_min);
+			this.weatherHist.add(weathHist);
+			this.yearToIndex.put(year, this.weatherHist.indexOf(weathHist));
+		}
+		this.data=true;
+	}
+	
+	public void remove(int year) {
+		this.yearToIndex.remove(year);
+	}
+	
+	public void onCalcData() {
+		this.weatherHist.get(yearToIndex.get(nCurrentYear)).onCalc();
+	}
+	
+	public String[] getHistYearsString() {
 		String[] temp = new String[yearToIndex.size()];
 		int i=0;
 		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
@@ -320,6 +427,17 @@ public class SW_WEATHER_HISTORY {
 		Arrays.sort(temp);
 		return temp;
 	}
+	
+	public List<Integer> getHistYearsInteger() {
+		List<Integer> temp = new ArrayList<Integer>();
+		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+			Integer key = entry.getKey();
+			temp.add(key);
+		}
+		Collections.sort(temp);
+		return temp;
+	}
+	
 	public int getDays() {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).nDaysInYear;
 	}

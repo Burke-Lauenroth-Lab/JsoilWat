@@ -6,11 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 
 public class SW_SOILWAT_HISTORY {
 
@@ -35,6 +37,22 @@ public class SW_SOILWAT_HISTORY {
 			this.nYear = 0;
 			this.nDaysInYear = 0;
 			this.nLayers = 0;
+		}
+		
+		public void onSet(int year, int layers, double[][] swc, double[][] std_err) {
+			this.nYear = year;
+			if((swc.length == std_err.length) && (swc.length >= 365) && (std_err.length <= 366)) {
+				this.nDaysInYear = swc.length;
+				this.nLayers = layers;
+				for(int i=0; i<this.nDaysInYear; i++) {
+					for(int j=0; j<layers; i++) {
+						this.swc[i][j] = swc[i][j];
+						this.std_err[i][j] = std_err[i][j];
+					}
+				}
+				this.data = true;
+			}
+			 
 		}
 		
 		public void onRead(Path swcHistoryFile, int year) throws IOException {
@@ -223,7 +241,45 @@ public class SW_SOILWAT_HISTORY {
 	public double[] getStd_err(int doy) {
 		return this.swcHist.get(yearToIndex.get(nCurrentYear)).std_err[doy];
 	}
+	
+	public void setSWC(int doy, int layer, double value) {
+		this.swcHist.get(yearToIndex.get(nCurrentYear)).swc[doy][layer] = value;
+	}
+	
+	public void setStd_err(int doy, int layer, double value) {
+		this.swcHist.get(yearToIndex.get(nCurrentYear)).std_err[doy][layer] = value;
+	}
+	
+	public void set_day(int doy, int layer, double swc, double std_err) {
+		this.swcHist.get(yearToIndex.get(nCurrentYear)).swc[doy][layer] = swc;
+		this.swcHist.get(yearToIndex.get(nCurrentYear)).std_err[doy][layer] = std_err;
+	}
+	
+	public void add_year(int year, int layers, double[][] swc, double[][] std_error) {
+		if(this.yearToIndex.size() < this.swcHist.size()) {//reuse an object
+			for(int i=0; i<this.swcHist.size(); i++) {
+				if(!this.yearToIndex.containsValue(i)) {//This object is not used
+					this.swcHist.get(i).onClear();
+					this.swcHist.get(i).onSet(year, layers, swc, std_error);
+					this.yearToIndex.put(year, i);
+					break;
+				}
+			}
+		} else {
+			SW_SOILWAT_HIST swcHist = new SW_SOILWAT_HIST();
+			swcHist.nYear = year;
+			swcHist.data = true;
+			swcHist.onSet(year, layers, swc, std_error);
+			this.swcHist.add(swcHist);
+			this.yearToIndex.put(year, this.swcHist.indexOf(swcHist));
+		}
+		this.data=true;
+	}
 
+	public void remove(int year) {
+		this.yearToIndex.remove(year);
+	}
+	
 	public String[] getHistYears() {
 		String[] temp = new String[yearToIndex.size()];
 		int i=0;
@@ -233,5 +289,46 @@ public class SW_SOILWAT_HISTORY {
 			i++;
 		}
 		return temp;
+	}
+	public String[] getHistYearsString() {
+		String[] temp = new String[yearToIndex.size()];
+		int i=0;
+		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+			Integer key = entry.getKey();
+			temp[i] = key.toString();
+			i++;
+		}
+		Arrays.sort(temp);
+		return temp;
+	}
+	
+	public List<Integer> getHistYearsInteger() {
+		List<Integer> temp = new ArrayList<Integer>();
+		if(data) {
+			for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+				Integer key = entry.getKey();
+				temp.add(key);
+			}
+			Collections.sort(temp);
+		}
+		return temp;
+	}
+	
+	public int getDays() {
+		return this.swcHist.get(yearToIndex.get(nCurrentYear)).nDaysInYear;
+	}
+	public int getLayers() {
+		return this.swcHist.get(yearToIndex.get(nCurrentYear)).nLayers;
+	}
+	public void setLayers(int nLayers) {
+		assert nLayers >0 && nLayers<=25;
+		Iterator<Entry<Integer, Integer>> it = this.yearToIndex.entrySet().iterator();
+		while(it.hasNext()) {
+			Map.Entry<Integer, Integer> pair = (Map.Entry<Integer, Integer>)it.next();
+			this.swcHist.get(pair.getKey()).nLayers = nLayers;
+		}
+	}
+	public boolean data() {
+		return this.data;
 	}
 }
