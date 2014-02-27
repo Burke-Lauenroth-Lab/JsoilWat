@@ -769,7 +769,8 @@ public class SW_OUTPUT {
 					SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
 				}
 				//Set the values		
-				SW_Output[k.idx()].mykey = k;
+				SW_Output[k.idx()].mykey = out.outputs[k.idx()].mykey;
+				SW_Output[k.idx()].use = out.outputs[k.idx()].use;
 				SW_Output[k.idx()].myobj = k.objType();
 				SW_Output[k.idx()].sumtype = out.outputs[k.idx()].sumtype;
 				SW_Output[k.idx()].periodColumn = out.outputs[k.idx()].periodColumn;
