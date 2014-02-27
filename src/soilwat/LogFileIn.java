@@ -44,7 +44,7 @@ public class LogFileIn {
 		NOTE, WARN, ERROR, EXIT, FATAL, MAX_ERROR
 	}
 	
-	public void LogError(LogMode mode, String Message) {
+	public void LogError(LogMode mode, String Message) throws Exception {
 		if(pLogFile == null)
 			pLogFile= Paths.get("");
 		Path path = Paths.get(pLogFile.toString());
@@ -73,7 +73,7 @@ public class LogFileIn {
 		}
 		
 		if(mode == LogMode.ERROR | mode == LogMode.EXIT | mode == LogMode.FATAL) {
-			System.exit(-1);
+			throw new Exception(output);
 		}
 	}
 

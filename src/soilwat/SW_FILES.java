@@ -118,7 +118,7 @@ public class SW_FILES {
 		this.pOutputSetupIn = Paths.get("/");
 	}
 	
-	protected boolean onVerify() {
+	protected boolean onVerify() throws Exception {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			//create directories if they do not exist
@@ -161,7 +161,7 @@ public class SW_FILES {
 		}
 	}
 	
-	protected void onCreateFiles() {
+	protected void onCreateFiles() throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
 			if(Files.notExists(pProjectDirectory)) {
@@ -194,6 +194,7 @@ public class SW_FILES {
 			}
 			if(Files.notExists(this.getYearsIn(true))) {
 				try {
+					Files.createDirectories(this.getYearsIn(true).getParent());
 					Files.createFile(this.getYearsIn(true));
 				} catch (IOException e) {
 					f.LogError(LogFileIn.LogMode.ERROR, this.getYearsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
@@ -343,7 +344,7 @@ public class SW_FILES {
 		this.data = true;
 	}
 	
-	protected void onWrite() throws IOException{
+	protected void onWrite() throws Exception{
 		if(this.data && this.verified) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# List of input files for SOILWAT v32");

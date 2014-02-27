@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,10 +51,9 @@ public class SW_SOILWAT_HISTORY {
 				}
 				this.data = true;
 			}
-			 
 		}
 		
-		public void onRead(Path swcHistoryFile, int year) throws IOException {
+		public void onRead(Path swcHistoryFile, int year) throws Exception {
 			LogFileIn f = LogFileIn.getInstance();
 			this.nYear = year;
 			List<String> lines = Files.readAllLines(swcHistoryFile, StandardCharsets.UTF_8);
@@ -89,7 +87,7 @@ public class SW_SOILWAT_HISTORY {
 			this.data = true;
 		}
 		
-		public void onWrite(Path swcHistoryFile, String prefix) throws IOException {
+		public void onWrite(Path swcHistoryFile, String prefix) throws Exception {
 			if(this.data) {
 				List<String> lines = new ArrayList<String>();
 				lines.add("# SWC history for year = "+String.valueOf(this.nYear));
@@ -131,7 +129,7 @@ public class SW_SOILWAT_HISTORY {
 		this.data = false;
 	}
 	
-	public void onRead(Path swcHistoryFile) throws IOException {
+	public void onRead(Path swcHistoryFile) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		int year = 0;
 		try {
@@ -164,14 +162,14 @@ public class SW_SOILWAT_HISTORY {
 		}
 	}
 	
-	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws IOException {
+	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws Exception {
 		for(int i=startYear; i<=endYear; i++) {
 			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)));
 		}
 		this.nCurrentYear=startYear;
 	}
 	
-	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws IOException {
+	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if(yearToIndex.containsKey(year)) {
 			int i = this.yearToIndex.get(year);
@@ -185,7 +183,7 @@ public class SW_SOILWAT_HISTORY {
 		}
 	}
 	
-	public void onWrite(Path WeatherHistoryFolder, String prefix) throws IOException {
+	public void onWrite(Path WeatherHistoryFolder, String prefix) throws Exception {
 		if(this.data) {
 			Iterator<Entry<Integer, Integer>> it = this.yearToIndex.entrySet().iterator();
 			while(it.hasNext()) {

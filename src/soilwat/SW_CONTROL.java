@@ -43,7 +43,7 @@ public class SW_CONTROL {
 		return SW_Output.get_Timing();
 	}
 	
-	public void onSetInput(InputData data) {
+	public void onSetInput(InputData data) throws Exception {
 		SW_Files.onSetInput(data.filesIn);
 		SW_Model.onSetInput(data.yearsIn);
 		SW_Sky.onSetInput(data.cloudIn);
@@ -59,7 +59,7 @@ public class SW_CONTROL {
 		SW_Output.onSetInput(data.outputSetupIn);
 	}
 	
-	public void onGetInput(InputData data) {
+	public void onGetInput(InputData data) throws Exception {
 		SW_Files.onGetInput(data.filesIn);
 		SW_Model.onGetInput(data.yearsIn);
 		SW_Sky.onGetInput(data.cloudIn);
@@ -75,7 +75,7 @@ public class SW_CONTROL {
 		SW_Output.onGetInput(data.outputSetupIn);
 	}
 	
-	public void onReadInputs(String swFiles) {
+	public void onReadInputs(String swFiles) throws Exception {
 		try {
 			SW_Files.onRead(swFiles);
 			SW_Model.onRead(SW_Files.getYearsIn(true));
@@ -93,7 +93,7 @@ public class SW_CONTROL {
 		}
 	}
 	
-	public void onWriteOutputs(String ProjectDirectory) {
+	public void onWriteOutputs(String ProjectDirectory) throws Exception {
 		SW_Files.setProjectDirectory(Paths.get(ProjectDirectory));
 		SW_Files.onCreateFiles();
 		SW_Files.onVerify();
@@ -120,7 +120,7 @@ public class SW_CONTROL {
 		}
 	}
 	
-	public void onStartModel(boolean echo) {
+	public void onStartModel(boolean echo) throws Exception {
 		int year;
 		
 		_set_echo(echo);
@@ -154,7 +154,7 @@ public class SW_CONTROL {
 		LogFileIn.getInstance().onClear();
 	}
 		
-	private boolean onVerify() {
+	private boolean onVerify() throws Exception {
 		WEATHER w = SW_Weather.getWeather();
 		return SW_Files.onVerify() &&
 		SW_Model.onVerify() &&
@@ -168,7 +168,7 @@ public class SW_CONTROL {
 		SW_VegEstab.onVerify();
 	}
 	
-	private void SW_CTL_run_current_year() {
+	private void SW_CTL_run_current_year() throws Exception {
 		/*=======================================================*/
 		_begin_year();
 
@@ -185,7 +185,7 @@ public class SW_CONTROL {
 		SW_Output.SW_OUT_flush();
 	}
 	
-	private void _begin_year() {
+	private void _begin_year() throws Exception {
 		SW_Model.SW_MDL_new_year();
 		SW_Weather.SW_WTH_new_year();
 		SW_SoilWater.SW_SWC_new_year();
@@ -193,18 +193,18 @@ public class SW_CONTROL {
 		SW_Output.SW_OUT_new_year();
 	}
 	
-	private void _begin_day() {
+	private void _begin_day() throws Exception {
 		SW_Model.SW_MDL_new_day();
 		SW_Weather.SW_WTH_new_day();
 	}
 	
-	private void _end_day() {
+	private void _end_day() throws Exception {
 		_collect_values();
 		SW_Weather.SW_WTH_end_day();
 		SW_SoilWater.SW_SWC_end_doy();
 	}
 	
-	private void _collect_values() {
+	private void _collect_values() throws Exception {
 		SW_Output.SW_OUT_sum_today(ObjType.eSWC);
 		SW_Output.SW_OUT_sum_today(ObjType.eWTH);
 		SW_Output.SW_OUT_sum_today(ObjType.eVES);

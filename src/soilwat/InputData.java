@@ -112,6 +112,9 @@ public class InputData {
 			for(int i=0; i<SW_OUTPUT.SW_OUTNKEYS; i++) {
 				outputs[i] = new OUTPUT_INPUT_DATA();
 				outputs[i].mykey = OutKey.fromInt(i);
+				outputs[i].periodColumn = OutPeriod.SW_DAY;
+				outputs[i].sumtype = OutSum.eSW_Off;
+				outputs[i].use = false;
 			}
 		}
 	}
@@ -215,7 +218,7 @@ public class InputData {
 		this.weatherSetupIn.yr = new SW_TIMES();
 	}
 	
-	public void onSetDefaults() {
+	public void onSetDefaults() throws Exception {
 		filesIn.ProjectDirectory = "./";
 		filesIn.OutputDirectory = "Output/";
 		filesIn.WeatherPathAndPrefix = "Input/data_39.0625_-119.4375/weath";

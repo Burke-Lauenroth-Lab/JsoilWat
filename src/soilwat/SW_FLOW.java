@@ -191,7 +191,7 @@ public class SW_FLOW {
 	/* *************************************************** */
 	/*            The Water Flow                           */
 	/* --------------------------------------------------- */
-	public void SW_Water_Flow() {
+	public void SW_Water_Flow() throws Exception {
 		int Today = Defines.Today;
 		int Yesterday = Defines.Yesterday;
 		
@@ -1167,7 +1167,7 @@ public class SW_FLOW {
 		return (Math.exp(par2) * .75);
 	}
 
-	private double transp_weighted_avg(String type, int doy) {
+	private double transp_weighted_avg(String type, int doy) throws Exception {
 		/**********************************************************************
 
 		 PURPOSE: Compute weighted average of soilwater potential to be
@@ -1339,7 +1339,7 @@ public class SW_FLOW {
 		p.transp_forb = 1. - (p.soil_evap_forb);
 	}
 
-	private double pot_soil_evap(String type, int doy) {
+	private double pot_soil_evap(String type, int doy) throws Exception {
 		/**********************************************************************
 		 PURPOSE: Calculate potential bare soil evaporation rate.
 		 See 2.11 in ELM doc.
@@ -1435,7 +1435,7 @@ public class SW_FLOW {
 
 	}
 
-	private void pot_soil_evap_bs(int doy) {
+	private void pot_soil_evap_bs(int doy) throws Exception {
 		/**********************************************************************
 		 PURPOSE: Calculate potential bare soil evaporation rate of bare ground.
 		 See 2.11 in ELM doc.
@@ -1475,7 +1475,7 @@ public class SW_FLOW {
 
 	}
 
-	private double pot_transp(String type, int doy) {
+	private double pot_transp(String type, int doy) throws Exception {
 		/**********************************************************************
 		 PURPOSE: Calculate potential transpiration rate.
 		 See 2.11 in ELM doc.
@@ -1706,7 +1706,7 @@ public class SW_FLOW {
 		}
 	}
 
-	private void remove_from_soil(double[] qty, int nlyrs, double[] coeff, double rate, double[] swcmin) {
+	private void remove_from_soil(double[] qty, int nlyrs, double[] coeff, double rate, double[] swcmin) throws Exception {
 		/**********************************************************************
 		 PURPOSE: Remove water from the soil.  This replaces earlier versions'
 		 call to separate functions for evaporation and transpiration
@@ -1857,7 +1857,7 @@ public class SW_FLOW {
 	}
 
 	private void hydraulic_redistribution(double[] lyrRootCo, double[] hydred, double maxCondroot, double swp50, double shapeCond,
-			double scale) {
+			double scale) throws Exception {
 		/**********************************************************************
 		 PURPOSE:Calculate hydraulic redistribution according to Ryel, Ryel R, Caldwell, Caldwell M, Yoder, Yoder C, Or, Or D, Leffler, Leffler A. 2002. Hydraulic redistribution in a stand of Artemisia tridentata: evaluation of benefits to transpiration assessed with a simulation model. Oecologia 130: 173-184.
 
@@ -1959,7 +1959,7 @@ public class SW_FLOW {
 	 *OUTPUT: none, but places the regression values in stValues struct for use in the soil_temperature function later
 	 */
 	
-	private void soil_temperature_init() {
+	private void soil_temperature_init() throws Exception {
 		
 		double[] bDensity = lyrbDensity;
 		double[] width = lyrWidths;
@@ -2133,7 +2133,7 @@ public class SW_FLOW {
 	 sTemp - soil layer temperatures in celsius
 	*/
 
-	private void soil_temperature(double biomass) {
+	private void soil_temperature(double biomass) throws Exception {
 		
 		double airTemp = SW_Weather.getNow().temp_avg[Defines.Today];
 		double pet = SW_Soilwat.getSoilWat().pet;

@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,7 +109,7 @@ public class SW_SOILS {
 			this.layers[i].onClear();
 	}
 	
-	protected boolean onVerify(boolean siteModelDeepdrain) {
+	protected boolean onVerify(boolean siteModelDeepdrain) throws Exception {
 		boolean fail = false;
 		LogFileIn f = LogFileIn.getInstance();
 		String message = "";
@@ -235,7 +234,7 @@ public class SW_SOILS {
 			soilsIn.layers[i].sTemp = this.layers[i].sTemp;
 		}
 	}
-	protected void onRead(Path soilsIn) throws IOException {
+	protected void onRead(Path soilsIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(soilsIn, StandardCharsets.UTF_8);
 		this.data = false;
@@ -281,7 +280,7 @@ public class SW_SOILS {
 		this.data = true;
 	}
 	
-	protected void onWrite(Path soilsIn) throws IOException {
+	protected void onWrite(Path soilsIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Soil layer definitions");
@@ -318,7 +317,7 @@ public class SW_SOILS {
 		}
 	}
 	
-	protected void water_eqn(double fractionGravel, double sand, double clay, int n) {
+	protected void water_eqn(double fractionGravel, double sand, double clay, int n) throws Exception {
 		double theta33, theta33t, OM = 0., thetasMatric33, thetasMatric33t; /* Saxton et al. auxiliary variables */
 
 		this.layers[n].thetasMatric = -14.2 * sand - 3.7 * clay + 50.5;
@@ -356,7 +355,7 @@ public class SW_SOILS {
 		return widths;
 	}
 	
-	protected void _echo_inputs(String soilsFile) {
+	protected void _echo_inputs(String soilsFile) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		
 		f.LogError(LogFileIn.LogMode.NOTE, String.format("\nLayer Related Values:\n----------------------\n"));

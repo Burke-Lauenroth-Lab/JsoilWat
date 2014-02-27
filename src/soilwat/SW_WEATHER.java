@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -252,7 +251,7 @@ public class SW_WEATHER {
 		SW_Markov.setPpt_events(0);
 	}*/
 
-	protected boolean onVerify() {
+	protected boolean onVerify() throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
 			weather.runavg_list = new double[weather.days_in_runavg];
@@ -276,7 +275,7 @@ public class SW_WEATHER {
 			return false;
 		}
 	}
-	protected void onReadHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+	protected void onReadHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
 		hist.onRead(WeatherHistoryFolder, prefix, weather.yr.getFirst(), SW_Model.getEndYear());
 	}
 	protected void onSetInput(WEATHER_INPUT_DATA weatherSetupIn) {
@@ -315,13 +314,22 @@ public class SW_WEATHER {
 			weatherSetupIn.scale_transmissivity[i] = weather.scale_transmissivity[i];
 		}
 	}
-	protected void onSetWeatherHist(SW_WEATHER_HISTORY hist) {
-		this.hist = hist;
+	protected void onSetWeatherHist(SW_WEATHER_HISTORY history) {
+		List<Integer> years = history.getHistYearsInteger();
+		this.hist.removeAll();
+		for (Integer year : years) {
+			
+			this.hist.add_year(year, history.get_ppt_array(year), history.get_temp_max_array(year), history.get_temp_min_array(year));
+		}
 	}
-	protected void onGetWeatherHist(SW_WEATHER_HISTORY hist) {
-		hist = this.hist;
+	protected void onGetWeatherHist(SW_WEATHER_HISTORY history) {
+		List<Integer> years = this.hist.getHistYearsInteger();
+		history.removeAll();
+		for (Integer year : years) {
+			history.add_year(year, this.hist.get_ppt_array(year), this.hist.get_temp_max_array(year), this.hist.get_temp_min_array(year));
+		}
 	}
-	protected void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws IOException {
+	protected void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws Exception {
 		this.nFileItemsRead=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(WeatherSetupIn, StandardCharsets.UTF_8);
@@ -399,7 +407,7 @@ public class SW_WEATHER {
 		this.data = true;
 	}
 
-	protected void onWrite(Path WeatherSetupIn) throws IOException {
+	protected void onWrite(Path WeatherSetupIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Weather setup parameters");
@@ -431,7 +439,7 @@ public class SW_WEATHER {
 		}
 	}
 	
-	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
 		this.hist.onWrite(WeatherHistoryFolder, prefix);
 	}
 
@@ -446,7 +454,7 @@ public class SW_WEATHER {
 		/* nothing to initialize */
 		/* this is a stub to make all objects more consistent */
 	}
-	protected void SW_WTH_new_year() {
+	protected void SW_WTH_new_year() throws Exception {
 		SW_WEATHER_2DAYS wn = weather.now;
 		int year = SW_Model.getYear();
 		int Today = Defines.Today;
@@ -482,7 +490,7 @@ public class SW_WEATHER {
 	protected void SW_WTH_end_day() {
 		_update_yesterday();
 	}
-	protected void SW_WTH_new_day() {
+	protected void SW_WTH_new_day() throws Exception {
 		/* =================================================== */
 		/* guarantees that today's weather will not be invalid
 		 * via _todays_weth()

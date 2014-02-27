@@ -166,6 +166,15 @@ public class SW_OUTPUT {
 			}
 			throw new IllegalArgumentException();
 		}
+		public static OutPeriod fromInt(int key) {
+			switch (key) {
+			case 0: return SW_DAY;
+			case 1: return SW_WEEK;
+			case 2: return SW_MONTH;
+			case 3: return SW_YEAR;
+			default: return SW_DAY;
+			}
+		}
 		public static OutPeriod fromInteger(int x) {
 			switch (x) {
 			case 0:
@@ -211,6 +220,15 @@ public class SW_OUTPUT {
 		}
 		public String key() {
 			return this.name;
+		}
+		public static OutSum fromInt(int key) {
+			switch (key) {
+			case 0: return eSW_Off;
+			case 1: return eSW_Sum;
+			case 2: return eSW_Avg;
+			case 3: return eSW_Fnl;
+			default: return eSW_Off;
+			}
 		}
 		public static OutSum getEnum(String value) {
 			if(value==null)
@@ -650,7 +668,7 @@ public class SW_OUTPUT {
 		tOffset = true;
 	}
 	
-	protected boolean onVerify(boolean deepdrain, Path OutputDirectory) {
+	protected boolean onVerify(boolean deepdrain, Path OutputDirectory) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if(data) {
 			//Set the outputs for the Periods
@@ -775,6 +793,14 @@ public class SW_OUTPUT {
 			if(k != OutKey.eSW_NoKey && k != OutKey.eSW_LastKey) {
 				//Set the values		
 				out.outputs[k.idx()].mykey = k;
+				
+				out.outputs[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
+				if(k==OutKey.eSW_Estab) {
+					out.outputs[k.idx()].use = SW_VegEstab.get_use();
+				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
+					out.outputs[k.idx()].use = false;
+				}
+
 				out.outputs[k.idx()].sumtype = SW_Output[k.idx()].sumtype;
 				out.outputs[k.idx()].periodColumn = SW_Output[k.idx()].periodColumn;
 				out.outputs[k.idx()].filename_prefix = SW_Output[k.idx()].filename_prefix;
@@ -784,7 +810,7 @@ public class SW_OUTPUT {
 		}
 	}
 	
-	protected void onRead(Path OutputSetupIn) throws IOException {
+	protected void onRead(Path OutputSetupIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(OutputSetupIn, StandardCharsets.UTF_8);
 		
@@ -853,7 +879,7 @@ public class SW_OUTPUT {
 		this.data = true;
 	}
 	
-	protected void onWrite(Path OutputSetupIn) throws IOException {
+	protected void onWrite(Path OutputSetupIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Output setup file for SOILWAT v4 compiled on Mac OS X (20100202)");
@@ -948,7 +974,7 @@ public class SW_OUTPUT {
 			SW_Output[i].onAlloc();
 	}
 	
-	public void SW_OUT_flush() {
+	public void SW_OUT_flush() throws Exception {
 		bFlush = true;
 		tOffset = false;
 		SW_OUT_sum_today(ObjType.eSWC);
@@ -975,7 +1001,7 @@ public class SW_OUTPUT {
 		}
 	}
 	
-	protected void SW_OUT_sum_today(Defines.ObjType otyp) {
+	protected void SW_OUT_sum_today(Defines.ObjType otyp) throws Exception {
 		/* =================================================== */
 		/* adds today's output values to week, month and year
 		 * accumulators and puts today's values in yesterday's
@@ -1054,7 +1080,7 @@ public class SW_OUTPUT {
 		}
 	}
 
-	protected void SW_OUT_write_today() {
+	protected void SW_OUT_write_today() throws Exception {
 		/* --------------------------------------------------- */
 		/* all output values must have been summed, averaged or
 		 * otherwise completed before this is called [now done
@@ -1232,7 +1258,7 @@ public class SW_OUTPUT {
 		return;
 	}
 	
-	private void sumof_wth(SW_WEATHER.WEATHER v, SW_WEATHER.SW_WEATHER_OUTPUTS s, OutKey k) {
+	private void sumof_wth(SW_WEATHER.WEATHER v, SW_WEATHER.SW_WEATHER_OUTPUTS s, OutKey k) throws Exception {
 		int Today = Defines.Today;
 
 		switch(k) {
@@ -1385,7 +1411,7 @@ public class SW_OUTPUT {
 		}
 	}
 
-	private void average_for(ObjType otyp, OutPeriod pd) {
+	private void average_for(ObjType otyp, OutPeriod pd) throws Exception {
 		/* --------------------------------------------------- */
 		/* separates the task of obtaining a periodic average.
 		 * no need to average days, so this should never be
@@ -1608,7 +1634,7 @@ public class SW_OUTPUT {
 		} /* end ForEachKey */
 	}
 	
-	private void collect_sums(ObjType otyp, OutPeriod op) {
+	private void collect_sums(ObjType otyp, OutPeriod op) throws Exception {
 		/* --------------------------------------------------- */
 		SW_SOILWATER.SOILWAT s = SW_SoilWater.getSoilWat();
 		SW_SOILWATER.SW_SOILWAT_OUTPUTS ssum = null;
@@ -1669,7 +1695,7 @@ public class SW_OUTPUT {
 		} /* end ForEachOutKey */
 	}
 	
-	private void _echo_outputs() {
+	private void _echo_outputs() throws Exception {
 		/* --------------------------------------------------- */
 		LogFileIn f = LogFileIn.getInstance();
 		String outconfig ="";

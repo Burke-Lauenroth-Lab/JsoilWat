@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -498,7 +497,7 @@ public class SW_VEGPROD {
 		}
 	}
 	
-	protected boolean onVerify() {
+	protected boolean onVerify() throws Exception {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			
@@ -660,7 +659,7 @@ public class SW_VEGPROD {
 		prodIn.monthlyProd.forb.onSetLai_conv(this.monthlyProd.forb.lai_conv[0], this.monthlyProd.forb.lai_conv[1], this.monthlyProd.forb.lai_conv[2], this.monthlyProd.forb.lai_conv[3], this.monthlyProd.forb.lai_conv[4], this.monthlyProd.forb.lai_conv[5],
 				this.monthlyProd.forb.lai_conv[6], this.monthlyProd.forb.lai_conv[7], this.monthlyProd.forb.lai_conv[8], this.monthlyProd.forb.lai_conv[9], this.monthlyProd.forb.lai_conv[10], this.monthlyProd.forb.lai_conv[11]);
 	}
-	protected void onRead(Path prodIn) throws IOException {
+	protected void onRead(Path prodIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(prodIn, StandardCharsets.UTF_8);
 		int month=0;
@@ -1081,7 +1080,7 @@ public class SW_VEGPROD {
 		this.data = true;
 	}
 
-	protected void onWrite(Path prodIn) throws IOException {
+	protected void onWrite(Path prodIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Plant production data file for SOILWAT");
@@ -1389,7 +1388,7 @@ public class SW_VEGPROD {
 		}
 	}
 	
-	private void _echo_inits() {
+	private void _echo_inits() throws Exception {
 		/* ================================================== */
 		LogFileIn f = LogFileIn.getInstance();
 

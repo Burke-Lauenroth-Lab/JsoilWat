@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -208,7 +207,7 @@ public class SW_SOILWATER {
 			}
 			return tmp;
 		}
-		protected double[] get_swpMatricRow(SW_OUTPUT.OutPeriod pd) {
+		protected double[] get_swpMatricRow(SW_OUTPUT.OutPeriod pd) throws Exception {
 			int nlyr = SW_Soils.getLayersInfo().n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -643,7 +642,7 @@ public class SW_SOILWATER {
 	protected void onGetHist(SW_SOILWAT_HISTORY hist) {
 		hist = this.hist;
 	}
-	protected void onReadHist(Path WeatherHistoryFolder) {
+	protected void onReadHist(Path WeatherHistoryFolder) throws Exception {
 		//We only read the sw hist if hist_use is set and
 		//only grab the years set in setup file.
 		if(soilwat.hist_use)
@@ -652,12 +651,12 @@ public class SW_SOILWATER {
 					hist.onRead(WeatherHistoryFolder, soilwat.filePrefix, SW_Model.getStartYear(), SW_Model.getEndYear());
 				else
 					hist.onRead(WeatherHistoryFolder, soilwat.filePrefix, soilwat.yr.getFirst(), SW_Model.getEndYear());
-			} catch (IOException e) {
+			} catch (Exception e) {
 				LogFileIn f = LogFileIn.getInstance();
 				f.LogError(LogMode.ERROR, "SwcSetupIn onReadHist : Problem.");
 			}
 	}
-	protected void onRead(Path swcSetupIn, Path WeatherHistoryFolder) throws IOException {
+	protected void onRead(Path swcSetupIn, Path WeatherHistoryFolder) throws Exception {
 		int nitems=4, lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(swcSetupIn, StandardCharsets.UTF_8);
@@ -717,7 +716,7 @@ public class SW_SOILWATER {
 		onReadHist(WeatherHistoryFolder);
 		this.data = true;
 	}
-	protected void onWrite(Path swcSetupIn) throws IOException {
+	protected void onWrite(Path swcSetupIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Setup parameters for measured swc");
@@ -733,10 +732,10 @@ public class SW_SOILWATER {
 			f.LogError(LogMode.WARN, "SwcSetupIn : onWrite : No data.");
 		}
 	}
-	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws IOException {
+	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
 		this.hist.onWrite(WeatherHistoryFolder, prefix);
 	}
-	protected void SW_SWC_water_flow() {
+	protected void SW_SWC_water_flow() throws Exception {
 		/* =================================================== */
 		/* Adjust SWC according to historical (measured) data
 		 * if available, compute water flow, and check if swc
@@ -805,7 +804,7 @@ public class SW_SOILWATER {
 			soilwat.swcBulk[Today][SW_Soils.getLayersInfo().deep_lyr] = 0.;
 		}
 	}
-	protected void SW_SWC_adjust_swc(int doy) {
+	protected void SW_SWC_adjust_swc(int doy) throws Exception {
 		/* =================================================== */
 		/* 01/07/02 (cwb) added final loop to guarantee swc > swcBulk_min
 		 */
@@ -908,7 +907,7 @@ public class SW_SOILWATER {
 			return 0.;
 		}
 	}
-	protected static double SW_SWCbulk2SWPmatric(double fractionGravel, double swcBulk, double width, double psisMatric, double thetasMatric, double bMatric, int year, int doy, int lyr) {
+	protected static double SW_SWCbulk2SWPmatric(double fractionGravel, double swcBulk, double width, double psisMatric, double thetasMatric, double bMatric, int year, int doy, int lyr) throws Exception {
 		/**********************************************************************
 		 PURPOSE: Calculate the soil water potential or the soilwater
 		 content of the current layer,

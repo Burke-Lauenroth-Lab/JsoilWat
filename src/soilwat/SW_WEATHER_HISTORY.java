@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,7 +104,7 @@ public class SW_WEATHER_HISTORY {
 			}
 		}
 		
-		public void onRead(Path WeatherHistoryFile, int year) throws IOException {
+		public void onRead(Path WeatherHistoryFile, int year) throws Exception {
 			LogFileIn f = LogFileIn.getInstance();
 			this.nYear = year;
 			List<String> lines = Files.readAllLines(WeatherHistoryFile, StandardCharsets.UTF_8);
@@ -155,7 +154,7 @@ public class SW_WEATHER_HISTORY {
 			this.data = true;
 		}
 		
-		public void onWrite(Path WeatherHistoryFolder, String prefix) throws IOException {
+		public void onWrite(Path WeatherHistoryFolder, String prefix) throws Exception {
 			if(this.data) {
 				List<String> lines = new ArrayList<String>();
 				lines.add("# weather for year = "+this.getYear());
@@ -216,7 +215,7 @@ public class SW_WEATHER_HISTORY {
 		this.data = false;
 	}
 	
-	public void onSetYear(int year, double[] tempMax, double[] tempMin, double[] ppt) {
+	public void onSetYear(int year, double[] tempMax, double[] tempMin, double[] ppt) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if((tempMax.length != tempMin.length) || (tempMax.length != ppt.length) || (tempMin.length != ppt.length)) {
 			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onSet : tempMin tempMax PPT lengths are different from eachother.");
@@ -267,7 +266,7 @@ public class SW_WEATHER_HISTORY {
 		this.data = true;
 	}
 	
-	public void onRead(Path WeatherHistoryFile) throws IOException {
+	public void onRead(Path WeatherHistoryFile) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		int year = 0;
 		try {
@@ -300,13 +299,13 @@ public class SW_WEATHER_HISTORY {
 		}
 	}
 	
-	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws IOException {
+	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws Exception {
 		for(int i=startYear; i<=endYear; i++) {
 			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)));
 		}
 	}
 	
-	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws IOException {
+	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if(yearToIndex.containsKey(year)) {
 			int i = this.yearToIndex.get(year);
@@ -319,7 +318,7 @@ public class SW_WEATHER_HISTORY {
 			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistIn onWrite : Year and Year of Data do not match.");
 		}
 	}
-	public void onWrite(Path WeatherHistoryFolder, String prefix) throws IOException {
+	public void onWrite(Path WeatherHistoryFolder, String prefix) throws Exception {
 		if(this.data) {
 			Iterator<Entry<Integer, Integer>> it = this.yearToIndex.entrySet().iterator();
 			while(it.hasNext()) {
@@ -360,6 +359,16 @@ public class SW_WEATHER_HISTORY {
 		} else {
 			return false;
 		}
+	}
+	
+	public double[] get_ppt_array(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).ppt;
+	}
+	public double[] get_temp_max_array(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).temp_max;
+	}
+	public double[] get_temp_min_array(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).temp_min;
 	}
 	
 	public double get_ppt(int doy) {
@@ -412,6 +421,10 @@ public class SW_WEATHER_HISTORY {
 		this.yearToIndex.remove(year);
 	}
 	
+	public void removeAll() {
+		this.yearToIndex.clear();
+	}
+	
 	public void onCalcData() {
 		this.weatherHist.get(yearToIndex.get(nCurrentYear)).onCalc();
 	}
@@ -440,5 +453,9 @@ public class SW_WEATHER_HISTORY {
 	
 	public int getDays() {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).nDaysInYear;
+	}
+	
+	public boolean data() {
+		return this.data;
 	}
 }

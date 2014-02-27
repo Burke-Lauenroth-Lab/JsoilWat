@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,7 +83,7 @@ public class SW_SKY {
 		}
 	}
 	
-	protected void onRead(Path CloudIn) throws IOException {
+	protected void onRead(Path CloudIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(CloudIn, StandardCharsets.UTF_8);
 		int lineno=0;
@@ -126,7 +125,7 @@ public class SW_SKY {
 		this.data = true;
 	}
 	
-	protected void onWrite(Path CloudIn) throws IOException {
+	protected void onWrite(Path CloudIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();

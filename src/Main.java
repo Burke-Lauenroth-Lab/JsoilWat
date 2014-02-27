@@ -3,16 +3,20 @@ import soilwat.SW_CONTROL;
 
 public class Main {
 	public static void main(String[] args) {
-		InputData test = new InputData();
-		test.onSetDefaults();
-		test.filesIn.ProjectDirectory = "/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/";
-		
-		SW_CONTROL sim = new SW_CONTROL();
-		sim.onSetInput(test);
-		//sim.onWriteOutputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/");
-		//test.filesIn.ProjectDirectory = "/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/";
-		//sim.onReadInputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
-		sim.onStartModel(true);
+		try {
+			InputData test = new InputData();
+			test.onSetDefaults();
+			test.filesIn.ProjectDirectory = "/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/";
+
+			SW_CONTROL sim = new SW_CONTROL();
+			sim.onSetInput(test);
+			//sim.onWriteOutputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/");
+			//test.filesIn.ProjectDirectory = "/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/";
+			//sim.onReadInputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
+			sim.onStartModel(true);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	/*public static void main(String[] args) {40
 		LogFileIn f = LogFileIn.getInstance();

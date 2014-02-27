@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -139,7 +138,7 @@ public class SW_SITE {
 				this.table[i][0] = (i+1);
 			this.nTranspRgn = 0;
 		}
-		public void set(int ndx, int layer) {
+		public void set(int ndx, int layer) throws Exception {
 			if(ndx > 0 && ndx < MAX_TRANSP_REGIONS) {
 				if(ndx <= (this.nTranspRgn+1)) {
 					this.table[ndx-1][1] = layer;
@@ -150,7 +149,7 @@ public class SW_SITE {
 				f.LogError(LogFileIn.LogMode.ERROR, "SW_SITE TranspirationRegions : Index out of bounds");
 			}
 		}
-		public void onVerify() {
+		public void onVerify() throws Exception {
 			for(int r=1; r<this.nTranspRgn; r++) {
 				if(this.table[r-r][1] >= this.table[r][1]) {
 					LogFileIn f = LogFileIn.getInstance();
@@ -222,7 +221,7 @@ public class SW_SITE {
 		this.transpirationRegions.onClear();
 	}
 	
-	protected boolean onVerify() {
+	protected boolean onVerify() throws Exception {
 		SW_Soils.getLayersInfo().n_transp_rgn = transpirationRegions.get_nRegions();
 		_init_site_info();
 		if(EchoInits)
@@ -232,7 +231,7 @@ public class SW_SITE {
 		return true;
 	}
 	
-	protected void onSetInput(SiteIn siteIn) {
+	protected void onSetInput(SiteIn siteIn) throws Exception {
 		this.swc.onSet(siteIn.swcLimits.swc_min, siteIn.swcLimits.swc_init, siteIn.swcLimits.swc_wet);
 		this.model.onSet(siteIn.modelFlagsCoef.flags.reset_yr, siteIn.modelFlagsCoef.flags.deepdrain, siteIn.modelFlagsCoef.coefficients.petMultiplier, siteIn.modelFlagsCoef.coefficients.percentRunoff);
 		this.snow.onSet(siteIn.snowSimParams.TminAccu2, siteIn.snowSimParams.TmaxCrit, siteIn.snowSimParams.lambdasnow, siteIn.snowSimParams.RmeltMin, siteIn.snowSimParams.RmeltMax);
@@ -249,7 +248,7 @@ public class SW_SITE {
 		this.data = true;
 	}
 	
-	protected void onGetInput(SiteIn siteIn) {
+	protected void onGetInput(SiteIn siteIn) throws Exception {
 		siteIn.swcLimits.onSet(this.swc.swc_min, this.swc.swc_init, this.swc.swc_wet);
 		siteIn.modelFlagsCoef.onSet(this.model.flags.reset_yr, this.model.flags.deepdrain, this.model.coefficients.petMultiplier, this.model.coefficients.percentRunoff);
 		siteIn.snowSimParams.onSet(this.snow.TminAccu2, this.snow.TmaxCrit, this.snow.lambdasnow, this.snow.RmeltMin, this.snow.RmeltMax);
@@ -265,7 +264,7 @@ public class SW_SITE {
 		}
 	}
 	
-	protected void onRead(Path siteIn) throws IOException {
+	protected void onRead(Path siteIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(siteIn, StandardCharsets.UTF_8);
 		this.nFileItemsRead=0;
@@ -554,7 +553,7 @@ public class SW_SITE {
 		this.data = true;
 	}
 
-	protected void onWrite(Path siteIn) throws IOException {
+	protected void onWrite(Path siteIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# ---- SWC limits ----");
@@ -677,7 +676,7 @@ public class SW_SITE {
 		return this.stNRGR;
 	}
 	
-	private void _init_site_info() {
+	private void _init_site_info() throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		
 		int r,currentregion;
@@ -894,7 +893,7 @@ public class SW_SITE {
 		}
 	}
 	
-	private void _echo_inputs(String fileSite) {
+	private void _echo_inputs(String fileSite) throws Exception {
 		/* =================================================== */
 		LogFileIn f = LogFileIn.getInstance();
 		

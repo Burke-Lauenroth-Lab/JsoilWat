@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,7 +128,7 @@ public class SW_VEGESTAB {
 		this.SW_Soils = SW_Soils;
 	}
 	
-	protected boolean onVerify() {
+	protected boolean onVerify() throws Exception {
 		if(use) {
 			for(int i=0; i<this.count; i++)
 				_spp_init(i);
@@ -191,7 +190,7 @@ public class SW_VEGESTAB {
 			}
 		}
 	}
-	protected void onRead(Path estabIn, Path prjDir) throws IOException {
+	protected void onRead(Path estabIn, Path prjDir) throws Exception {
 		int lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(estabIn, StandardCharsets.UTF_8);
@@ -230,7 +229,7 @@ public class SW_VEGESTAB {
 		this.data = true;
 	}
 	
-	protected void onWrite(Path estabIn, Path prjDir) throws IOException {
+	protected void onWrite(Path estabIn, Path prjDir) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# list of filenames for which to check establishment");
@@ -295,7 +294,7 @@ public class SW_VEGESTAB {
 		spp.tempParams.min_temp_estab = v.tempParams.min_temp_estab;
 		spp.tempParams.max_temp_estab = v.tempParams.max_temp_estab;
 	}
-	private void _read_spp(Path sppFile) throws IOException {
+	private void _read_spp(Path sppFile) throws Exception {
 		int nitems=15, lineno=0;
 		
 		LogFileIn f = LogFileIn.getInstance();
@@ -458,7 +457,7 @@ public class SW_VEGESTAB {
 		v.data=true;
 	}
 	
-	private void _write_spp(Path sppFile, SW_VEGESTAB_INFO v) throws IOException {
+	private void _write_spp(Path sppFile, SW_VEGESTAB_INFO v) throws Exception {
 		if(v.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add(v.sppName + "\t" + "# 4-char name of species");
@@ -584,7 +583,7 @@ public class SW_VEGESTAB {
 		v.wetdays_for_germ=v.wetdays_for_estab=0;
 	}
 	
-	private void _spp_init(int sppnum) {
+	private void _spp_init(int sppnum) throws Exception {
 		/* =================================================== */
 		/* initializations performed after acquiring parameters
 		 * after read() or some other function call.
@@ -608,7 +607,7 @@ public class SW_VEGESTAB {
 		_sanity_check(sppnum);
 	}
 	
-	private void _sanity_check(int sppnum) {
+	private void _sanity_check(int sppnum) throws Exception {
 		/* =================================================== */
 		LogFileIn f = LogFileIn.getInstance();
 		
@@ -638,7 +637,7 @@ public class SW_VEGESTAB {
 		}
 	}
 	
-	private void _echo_inits() {
+	private void _echo_inits() throws Exception {
 		/* --------------------------------------------------- */
 		LogFileIn f = LogFileIn.getInstance();
 		

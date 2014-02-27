@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,7 +71,7 @@ public class SW_MODEL {
 		this.daymid = (this.isIsNorth()) ? Times.DAYMID_NORTH : Times.DAYMID_SOUTH;
 	}*/
 	
-	protected boolean onVerify() {
+	protected boolean onVerify() throws Exception {
 		if(this.data) {
 			LogFileIn f = LogFileIn.getInstance();
 			if(this.startyr < 0)
@@ -140,7 +139,7 @@ public class SW_MODEL {
 		yearsIn.endend = this.endend;
 		yearsIn.isNorth = this.isnorth;
 	}
-	protected void onRead(Path YearsIn) throws IOException {
+	protected void onRead(Path YearsIn) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(YearsIn, StandardCharsets.UTF_8);
 		boolean FirstEnd = false, endString = false; //used if FDOFY or EDOEY are not present
@@ -208,7 +207,7 @@ public class SW_MODEL {
 		this.data = true;
 	}
 	
-	protected void onWrite(Path YearsIn) throws IOException {
+	protected void onWrite(Path YearsIn) throws Exception {
 		if(this.data) {
 			List<String> lines = new ArrayList<String>();
 			lines.add("# Model time definition file");

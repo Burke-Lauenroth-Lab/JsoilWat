@@ -1,6 +1,5 @@
 package soilwat;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,7 +53,7 @@ public class SW_MARKOV {
 			return false;
 	}
 	
-	public void SW_MKV_today(int doy) {
+	public void SW_MKV_today(int doy) throws Exception {
 		int week;
 		double prob,p,x;
 		
@@ -81,12 +80,12 @@ public class SW_MARKOV {
 		mvnorm(values);
 	}
 		
-	public void onReadMarkov(Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws IOException {
+	public void onReadMarkov(Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws Exception {
 		onReadMarkovCovIn(MarkovCovarianceIn);
 		onReadMarkovProbIn(MarkovProbabilityIn);
 		this.data = true;
 	}
-	private void onReadMarkovProbIn(Path MarkovProbabilityIn) throws IOException {
+	private void onReadMarkovProbIn(Path MarkovProbabilityIn) throws Exception {
 		int nDays = 0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(MarkovProbabilityIn, StandardCharsets.UTF_8);
@@ -116,7 +115,7 @@ public class SW_MARKOV {
 		}
 		
 	}
-	private void onReadMarkovCovIn(Path MarkovCovarianceIn) throws IOException {
+	private void onReadMarkovCovIn(Path MarkovCovarianceIn) throws Exception {
 		int nWeeks = 0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(MarkovCovarianceIn, StandardCharsets.UTF_8);
@@ -147,7 +146,7 @@ public class SW_MARKOV {
 		}
 	}
 	//TODO : onWriteMarkov
-	private void mvnorm(MaxMinRain t) {
+	private void mvnorm(MaxMinRain t) throws Exception {
 		/* --------------------------------------------------- */
 		/* This proc is distilled from a much more general function
 		 * in the original fortran version which was prepared to
