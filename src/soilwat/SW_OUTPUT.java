@@ -699,8 +699,8 @@ public class SW_OUTPUT {
 						}
 					}
 				}
-				
-				SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
+				if(SW_Output[k.idx()].sumtype != null)
+					SW_Output[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
 				/* Check validity of output key */
 				if(k==OutKey.eSW_Estab) {
 					SW_Output[k.idx()].use = SW_VegEstab.get_use();
@@ -708,8 +708,10 @@ public class SW_OUTPUT {
 					SW_Output[k.idx()].periodColumn = OutPeriod.SW_YEAR;
 					SW_Output[k.idx()].last = 366;
 				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
-					SW_Output[k.idx()].use = false;
-					f.LogError(LogMode.NOTE, "OutputSetupIn onRead: Unimplemented output key.");
+					if(SW_Output[k.idx()].use == true) {
+						SW_Output[k.idx()].use = false;
+						f.LogError(LogMode.NOTE, "OutputSetupIn onRead: Unimplemented output key.");
+					}
 					continue;
 				}
 				/* check validity of summary type */
@@ -762,7 +764,7 @@ public class SW_OUTPUT {
 			this.useTimeStep = false;
 		}
 		for (OutKey k : OutKey.values()) {
-			if(k != OutKey.eSW_NoKey && k != OutKey.eSW_LastKey) {
+			if(k != OutKey.eSW_NoKey && k != OutKey.eSW_LastKey && k!=OutKey.eSW_AllVeg && k!=OutKey.eSW_ET && k!=OutKey.eSW_AllWthr && k!=OutKey.eSW_AllH2O) {
 				if(!useTimeStep) {
 					this.timeStep[out.outputs[k.idx()].periodColumn.idx()] = true;
 					SW_Output[k.idx()].usePeriods[out.outputs[k.idx()].periodColumn.idx()] = true;

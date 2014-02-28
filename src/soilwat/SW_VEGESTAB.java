@@ -103,6 +103,7 @@ public class SW_VEGESTAB {
 	private boolean use;//if true use establishment parms and chkestab()
 	private int count; 	//number of species to check
 	private List<Path> tempPath;
+	private Path prjDirPath;
 	private List<SW_VEGESTAB_INFO> params; /* dynamic array of parms for each species */
 	private SW_VEGESTAB_OUTPUTS yrsum, /* conforms to the requirements of the output module */
 								yravg; /* note that there's only one period for output */
@@ -165,7 +166,12 @@ public class SW_VEGESTAB {
 		for(int i=0; i<this.count;i++)
 			_checkit(modelDOY, i);
 	}
+	
 	protected void onSetInput(EstabIn estabIn) {
+		tempPath.clear();
+		this.count = 0;
+		this.params.clear();
+		
 		this.use = estabIn.use;
 		for (String spp : estabIn.estabFiles) {
 			tempPath.add(Paths.get(spp));
@@ -178,22 +184,25 @@ public class SW_VEGESTAB {
 			}
 		}
 	}
+	
 	protected void onGetInput(EstabIn estabIn) {
 		estabIn.use = this.use;
 		estabIn.estabFiles.clear();
 		estabIn.spps.clear();
 		if(use) {
 			for(int i=0; i<this.count; i++) {
-				estabIn.estabFiles.add(tempPath.get(i).toString());
+				estabIn.estabFiles.add(this.prjDirPath.relativize(tempPath.get(i)).toString());
 				estabIn.spps.add(new SPP_INPUT_DATA());
 				onGetSPP(estabIn.spps.get(i), this.params.get(i));
 			}
 		}
 	}
+	
 	protected void onRead(Path estabIn, Path prjDir) throws Exception {
 		int lineno=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(estabIn, StandardCharsets.UTF_8);
+		this.prjDirPath = prjDir;
 		
 		for (String line : lines) {
 			//Skip Comments and empty lines
@@ -274,6 +283,7 @@ public class SW_VEGESTAB {
 		v.tempParams.max_temp_germ = spp.tempParams.max_temp_germ;
 		v.tempParams.min_temp_estab = spp.tempParams.min_temp_estab;
 		v.tempParams.max_temp_estab = spp.tempParams.max_temp_estab;
+		v.data = true;
 		
 		this.data = true;
 	}

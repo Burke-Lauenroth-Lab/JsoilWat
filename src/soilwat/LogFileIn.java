@@ -58,7 +58,7 @@ public class LogFileIn {
 		else if(mode == LogMode.ERROR)
 			output = "ERROR: ";
 		
-		output = output+Message;
+		output += Message+"\n";
 		lines.add(output);
 		
 		try {
@@ -75,6 +75,9 @@ public class LogFileIn {
 		if(mode == LogMode.ERROR | mode == LogMode.EXIT | mode == LogMode.FATAL) {
 			throw new Exception(output);
 		}
+	}
+	public List<String> onGetLog() {
+		return this.lines;
 	}
 
 	public Path getLogFile() {

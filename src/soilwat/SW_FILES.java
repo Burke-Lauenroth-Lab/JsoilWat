@@ -119,43 +119,51 @@ public class SW_FILES {
 	}
 	
 	protected boolean onVerify() throws Exception {
+		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
-			LogFileIn f = LogFileIn.getInstance();
 			//create directories if they do not exist
+			List<String> messages = new ArrayList<String>();
 			if(Files.notExists(pProjectDirectory))
-				f.LogError(LogFileIn.LogMode.ERROR, pProjectDirectory.toString() + " : Directory does not exist.");
+				messages.add(pProjectDirectory.toString() + " : Directory does not exist.");
 			if(Files.notExists(this.getOutputDirectory(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getOutputDirectory(true).toString()+" : Directory does not exist.");
+				messages.add(this.getOutputDirectory(true).toString()+" : Directory does not exist.");
 			if(Files.notExists(getWeatherPath(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, getWeatherPath(true).toString()+" : Directory does not exist.");
+				messages.add( getWeatherPath(true).toString()+" : Directory does not exist.");
 			if(Files.notExists(this.getFilesIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getFilesIn(true).toString()+" : file does not exist.");
+				messages.add(this.getFilesIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getYearsIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getYearsIn(true).toString()+" : file does not exist.");
+				messages.add(this.getYearsIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getSiteParametersIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getSiteParametersIn(true).toString()+" : file does not exist.");
+				messages.add(this.getSiteParametersIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getSoilsIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getSoilsIn(true).toString()+" : file does not exist.");
+				messages.add(this.getSoilsIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getWeatherSetupIn(true))) 
-				f.LogError(LogFileIn.LogMode.ERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist.");
+				messages.add(this.getWeatherSetupIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getMarkovProbabilityIn(true)))
 				f.LogError(LogFileIn.LogMode.NOTE, this.getMarkovProbabilityIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getMarkovCovarianceIn(true)))
 				f.LogError(LogFileIn.LogMode.NOTE, this.getMarkovCovarianceIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getCloudIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getCloudIn(true).toString()+" : file does not exist.");
+				messages.add(this.getCloudIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getPlantProductivityIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getPlantProductivityIn(true).toString()+" : file does not exist.");
+				messages.add(this.getPlantProductivityIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getEstablishmentIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getEstablishmentIn(true).toString()+" : file does not exist.");
+				messages.add(this.getEstablishmentIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getSWCSetupIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getSWCSetupIn(true).toString()+" : file does not exist.");
+				messages.add(this.getSWCSetupIn(true).toString()+" : file does not exist.");
 			if(Files.notExists(this.getOutputSetupIn(true)))
-				f.LogError(LogFileIn.LogMode.ERROR, this.getOutputSetupIn(true).toString()+" : file does not exist.");
+				messages.add(this.getOutputSetupIn(true).toString()+" : file does not exist.");
+			
+			if(messages.size() > 0) {
+				String message = "";
+				for (String s : messages)
+					message += s + "\n";
+				f.LogError(LogFileIn.LogMode.ERROR, message);
+			}
 			this.verified = true;
 			return true;
 		} else {
-			System.out.println("FilesIn : No data to verify.");
+			f.LogError(LogFileIn.LogMode.NOTE, "FilesIn : No data to verify.");
 			this.verified = false;
 			return false;
 		}

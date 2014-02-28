@@ -370,6 +370,9 @@ public class SW_WEATHER_HISTORY {
 	public double[] get_temp_min_array(int year) {
 		return this.weatherHist.get(yearToIndex.get(year)).temp_min;
 	}
+	public double[] get_temp_avg_array(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).temp_avg;
+	}
 	
 	public double get_ppt(int doy) {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).ppt[doy];
@@ -379,6 +382,9 @@ public class SW_WEATHER_HISTORY {
 	}
 	public double get_temp_min(int doy) {
 		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_min[doy];
+	}
+	public double get_temp_avg(int doy) {
+		return this.weatherHist.get(yearToIndex.get(nCurrentYear)).temp_avg[doy];
 	}
 	
 	public void set_ppt(int doy, double value) {

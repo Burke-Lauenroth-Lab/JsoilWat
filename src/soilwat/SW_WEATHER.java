@@ -256,19 +256,27 @@ public class SW_WEATHER {
 		if(this.data) {
 			weather.runavg_list = new double[weather.days_in_runavg];
 			
+			List<String> messages = new ArrayList<String>();
+			
 			if(SW_Model.get_HasData())
 				weather.yr.setLast(SW_Model.getEndYear());
 			if(this.nFileItemsRead != nFileItems)
-				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Too few input lines.");
+				messages.add("WeatherIn onVerify : Too few input lines.");
 			if(!weather.yr.totalSet()) {
 				if(!weather.yr.firstSet())
-					f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Year First Not Set.");
+					messages.add("WeatherIn onVerify : Year First Not Set.");
 				if(!weather.yr.lastSet())
-					f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Year Last Not Set.");
+					messages.add("WeatherIn onVerify : Year Last Not Set.");
 			}
 			if(!weather.use_markov && (SW_Model.getStartYear() < weather.yr.getFirst()))
-				f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onVerify : Model Year ("+String.valueOf(SW_Model.getStartYear())+") starts before Weather Files ("+String.valueOf(weather.yr.getFirst())+")"+
+				messages.add("WeatherIn onVerify : Model Year ("+String.valueOf(SW_Model.getStartYear())+") starts before Weather Files ("+String.valueOf(weather.yr.getFirst())+")"+
 						" and use_Markov=FALSE.\nPlease synchronize the years or setup the Markov Weather Files.");
+			if(messages.size() > 0) {
+				String message = "";
+				for (String s : messages)
+					message += s + "\n";
+				f.LogError(LogFileIn.LogMode.FATAL, message);
+			}
 			return true;
 		} else {
 			f.LogError(LogMode.NOTE, "WeatherIn onVerify : No Data.");
@@ -318,7 +326,6 @@ public class SW_WEATHER {
 		List<Integer> years = history.getHistYearsInteger();
 		this.hist.removeAll();
 		for (Integer year : years) {
-			
 			this.hist.add_year(year, history.get_ppt_array(year), history.get_temp_max_array(year), history.get_temp_min_array(year));
 		}
 	}

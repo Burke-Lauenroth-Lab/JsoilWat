@@ -508,18 +508,18 @@ public class SW_VEGPROD {
 			
 			double fraction_sum = this.vegComp.grass + this.vegComp.shrub + this.vegComp.tree + this.vegComp.forb + this.vegComp.bareGround;
 			if (!Defines.EQ(fraction_sum, 1.0)) {
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("Fractions of vegetation components were normalized, "+
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("Fractions of vegetation components were normalized, "+
 						"sum of fractions (%5.4f) != 1.0.\nNew coefficients are:", fraction_sum));
 				this.vegComp.grass /= fraction_sum;
 				this.vegComp.shrub /= fraction_sum;
 				this.vegComp.tree /= fraction_sum;
 				this.vegComp.bareGround /= fraction_sum;
 				this.vegComp.forb /= fraction_sum;
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Grassland fraction : %5.4f", this.vegComp.grass));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Shrubland fraction : %5.4f", this.vegComp.shrub));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Forest/tree fraction : %5.4f", this.vegComp.tree));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  FORB fraction : %5.4f", this.vegComp.forb));
-				f.LogError(LogFileIn.LogMode.ERROR, String.format("  Bare Ground fraction : %5.4f", this.vegComp.bareGround));
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Grassland fraction : %5.4f", this.vegComp.grass));
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Shrubland fraction : %5.4f", this.vegComp.shrub));
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Forest/tree fraction : %5.4f", this.vegComp.tree));
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  FORB fraction : %5.4f", this.vegComp.forb));
+				f.LogError(LogFileIn.LogMode.NOTE, String.format("  Bare Ground fraction : %5.4f", this.vegComp.bareGround));
 			}
 			SW_VPD_init();
 			if(EchoInits)

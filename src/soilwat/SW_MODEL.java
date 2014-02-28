@@ -54,34 +54,27 @@ public class SW_MODEL {
 	
 	protected void onClear() {
 		this.data = false;
-		//this.setStartYear(0);
-		//this.setEndYear(0);
-		//this.setFirstDayOfFirstYear(0);
-		//this.setEndDayOfEndYear(0);
-		//this.setIsNorth(true);
 	}
 	
-	/*public void onSetDefault() {
-		this.data = true;
-		this.setStartYear(1982);
-		this.setEndYear(1986);
-		this.setFirstDayOfFirstYear(1);
-		this.setEndDayOfEndYear(365);
-		this.setIsNorth(true);
-		this.daymid = (this.isIsNorth()) ? Times.DAYMID_NORTH : Times.DAYMID_SOUTH;
-	}*/
-	
 	protected boolean onVerify() throws Exception {
+		LogFileIn f = LogFileIn.getInstance();
 		if(this.data) {
-			LogFileIn f = LogFileIn.getInstance();
+			List<String> messages = new ArrayList<String>();
 			if(this.startyr < 0)
-				f.LogError(LogFileIn.LogMode.FATAL, "swYears StartYear Negative.");
+				messages.add("swYears StartYear Negative.");
 			if(this.endyr < 0)
-				f.LogError(LogFileIn.LogMode.FATAL, "swYears EndYear Negative.");
+				messages.add("swYears EndYear Negative.");
 			if(this.endyr < this.startyr)
-				f.LogError(LogFileIn.LogMode.FATAL, "swYears StartYear > EndYear Negative.");
+				messages.add("swYears StartYear > EndYear Negative.");
 			if(this.daymid == 0)
-				f.LogError(LogFileIn.LogMode.FATAL, "swYears Day Middle not set.");
+				messages.add("swYears Day Middle not set.");
+			
+			if(messages.size() > 0) {
+				String message = "";
+				for (String s : messages)
+					message += s + "\n";
+				f.LogError(LogFileIn.LogMode.FATAL, message);
+			}
 			return true;
 		} else {
 			return false;

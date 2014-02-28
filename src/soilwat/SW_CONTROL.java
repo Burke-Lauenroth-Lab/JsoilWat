@@ -2,6 +2,7 @@ package soilwat;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 
 import soilwat.Defines.ObjType;
 import soilwat.SW_OUTPUT.OutKey;
@@ -76,48 +77,41 @@ public class SW_CONTROL {
 	}
 	
 	public void onReadInputs(String swFiles) throws Exception {
-		try {
-			SW_Files.onRead(swFiles);
-			SW_Model.onRead(SW_Files.getYearsIn(true));
-			SW_Sky.onRead(SW_Files.getCloudIn(true));
-			SW_Weather.onRead(SW_Files.getWeatherSetupIn(true), SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
-			SW_Weather.onReadHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
-			SW_VegProd.onRead(SW_Files.getPlantProductivityIn(true));
-			SW_Soils.onRead(SW_Files.getSoilsIn(true));
-			SW_Site.onRead(SW_Files.getSiteParametersIn(true));
-			SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
-			SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
-			SW_Output.onRead(SW_Files.getOutputSetupIn(true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		SW_Files.onRead(swFiles);
+		SW_Model.onRead(SW_Files.getYearsIn(true));
+		SW_Sky.onRead(SW_Files.getCloudIn(true));
+		SW_Weather.onRead(SW_Files.getWeatherSetupIn(true), SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
+		SW_Weather.onReadHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
+		SW_VegProd.onRead(SW_Files.getPlantProductivityIn(true));
+		SW_Soils.onRead(SW_Files.getSoilsIn(true));
+		SW_Site.onRead(SW_Files.getSiteParametersIn(true));
+		SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
+		SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
+		SW_Output.onRead(SW_Files.getOutputSetupIn(true));
 	}
 	
 	public void onWriteOutputs(String ProjectDirectory) throws Exception {
 		SW_Files.setProjectDirectory(Paths.get(ProjectDirectory));
 		SW_Files.onCreateFiles();
 		SW_Files.onVerify();
-		try {
-			SW_Files.onWrite();
-			SW_Model.onWrite(SW_Files.getYearsIn(true));
-			SW_Sky.onWrite(SW_Files.getCloudIn(true));
-			SW_Weather.onWrite(SW_Files.getWeatherSetupIn(true));
-			//if(SW_Weather.getWeather().use_markov) {
-			//	SW_Weather.getMarkov().
-			//}
-			SW_Weather.onWriteHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
-			SW_VegProd.onWrite(SW_Files.getPlantProductivityIn(true));
-			SW_Soils.onWrite(SW_Files.getSoilsIn(true));
-			SW_Site.onWrite(SW_Files.getSiteParametersIn(true));
-			SW_SoilWater.onWrite(SW_Files.getSWCSetupIn(true));
-			if(SW_SoilWater.getSoilWat().hist_use) {
-				SW_SoilWater.onWriteHistory(SW_Files.getWeatherPath(true), SW_SoilWater.getSoilWat().filePrefix);
-			}
-			SW_VegEstab.onWrite(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
-			SW_Output.onWrite(SW_Files.getOutputSetupIn(true));
-		} catch (IOException e) {
-			e.printStackTrace();
+		
+		SW_Files.onWrite();
+		SW_Model.onWrite(SW_Files.getYearsIn(true));
+		SW_Sky.onWrite(SW_Files.getCloudIn(true));
+		SW_Weather.onWrite(SW_Files.getWeatherSetupIn(true));
+		//if(SW_Weather.getWeather().use_markov) {
+		//	SW_Weather.getMarkov().
+		//}
+		SW_Weather.onWriteHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
+		SW_VegProd.onWrite(SW_Files.getPlantProductivityIn(true));
+		SW_Soils.onWrite(SW_Files.getSoilsIn(true));
+		SW_Site.onWrite(SW_Files.getSiteParametersIn(true));
+		SW_SoilWater.onWrite(SW_Files.getSWCSetupIn(true));
+		if(SW_SoilWater.getSoilWat().hist_use) {
+			SW_SoilWater.onWriteHistory(SW_Files.getWeatherPath(true), SW_SoilWater.getSoilWat().filePrefix);
 		}
+		SW_VegEstab.onWrite(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
+		SW_Output.onWrite(SW_Files.getOutputSetupIn(true));
 	}
 	
 	public void onStartModel(boolean echo) throws Exception {
@@ -139,6 +133,11 @@ public class SW_CONTROL {
 		}
 	}
 	
+	public List<String> onGetLog() {
+		LogFileIn f = LogFileIn.getInstance();
+		return f.onGetLog();
+	}
+	
 	public void onClear() {
 		SW_Files.onClear();
 		SW_Model.onClear();
@@ -154,7 +153,7 @@ public class SW_CONTROL {
 		LogFileIn.getInstance().onClear();
 	}
 		
-	private boolean onVerify() throws Exception {
+	public boolean onVerify() throws Exception {
 		WEATHER w = SW_Weather.getWeather();
 		return SW_Files.onVerify() &&
 		SW_Model.onVerify() &&
