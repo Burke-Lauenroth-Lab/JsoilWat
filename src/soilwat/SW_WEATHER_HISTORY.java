@@ -303,9 +303,13 @@ public class SW_WEATHER_HISTORY {
 	}
 	
 	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws Exception {
+		if(this.data) {
+			onClear();
+		}
 		for(int i=startYear; i<=endYear; i++) {
 			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)));
 		}
+		this.data = true;
 	}
 	
 	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws Exception {
