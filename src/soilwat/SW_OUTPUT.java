@@ -86,6 +86,10 @@ public class SW_OUTPUT {
 		"/* */",
 		"/* yearly establishment results */"};
 		
+		public String getComment() {
+			return comment[this.idx()];
+		}
+		
 		private OutKey(int index, String name, Defines.ObjType type) {
 			this.index = index;
 			this.name = name;
@@ -267,6 +271,82 @@ public class SW_OUTPUT {
 		public void onClear() {
 			yrow=mrow=drow=wrow=0;
 		}
+		
+		public int get_nColumns(OutPeriod period) {
+			int columns = 0;
+			switch (period) {
+			case SW_DAY:
+				columns = 2;
+				break;
+			case SW_WEEK:
+				columns = 2;
+				break;
+			case SW_MONTH:
+				columns = 2;
+				break;
+			case SW_YEAR:
+				columns = 1;
+				break;
+			}
+			return columns;
+		}
+		
+		public int get_nRows(OutPeriod period) {
+			int rows = 0;
+			switch (period) {
+			case SW_DAY:
+				rows = drow;
+				break;
+			case SW_WEEK:
+				rows = wrow;
+				break;
+			case SW_MONTH:
+				rows = mrow;
+				break;
+			case SW_YEAR:
+				rows = yrow;
+				break;
+			}
+			return rows;
+		}
+		
+		public int timingValue(OutPeriod period, int row, int column) {
+			int value = 0;
+			switch (period) {
+			case SW_DAY:
+				value = days[row][column];
+				break;
+			case SW_WEEK:
+				value = weeks[row][column];
+				break;
+			case SW_MONTH:
+				value = months[row][column];
+				break;
+			case SW_YEAR:
+				value = years[row];
+				break;
+			}
+			return value;
+		}
+		
+		public String[] getColumnNames(OutPeriod period) {
+			String[] value = null;
+			switch (period) {
+			case SW_DAY:
+				value = new String[] {"Year","Day"};
+				break;
+			case SW_WEEK:
+				value = new String[] {"Year","Week"};
+				break;
+			case SW_MONTH:
+				value = new String[] {"Year","Month"};
+				break;
+			case SW_YEAR:
+				value = new String[] {"Year"};
+				break;
+			}
+			return value;
+		}
 	}
 	
 	public static class OUTPUT_INPUT_DATA {
@@ -283,6 +363,10 @@ public class SW_OUTPUT {
 			this.first_orig = start;
 			this.last_orig = end;
 			this.filename_prefix = filenamePrefix;
+		}
+		@Override
+		public String toString() {
+			return this.mykey.toString();
 		}
 	}
 	
@@ -584,34 +668,6 @@ public class SW_OUTPUT {
 				return 0;
 			}
 		}
-		protected final String[] comments = {"/* */",
-			"/* max., min, average temperature (C) */",
-			"/* total precip = sum(rain, snow), rain, snow-fall, snowmelt, and snowloss (cm) */",
-			"/* water to infiltrate in top soil layer (cm), runoff (cm); (not-intercepted rain)+(snowmelt-runoff) */",
-			"/* runoff (cm): total runoff, runoff from ponded water, runoff from snowmelt */",
-			"/* */",
-			"/* bulk volumetric soilwater (cm / layer) */",
-			"/* matric volumetric soilwater (cm / layer) */",
-			"/* bulk soilwater content (cm / cm layer); swc.l1(today) = swc.l1(yesterday)+inf_soil-lyrdrain.l1-transp.l1-evap_soil.l1; swc.li(today) = swc.li(yesterday)+lyrdrain.l(i-1)-lyrdrain.li-transp.li-evap_soil.li; swc.llast(today) = swc.llast(yesterday)+lyrdrain.l(last-1)-deepswc-transp.llast-evap_soil.llast */",
-			"/* bulk available soil water (cm/layer) = swc - wilting point */",
-			"/* matric available soil water (cm/layer) = swc - wilting point */",
-			"/* matric soilwater potential (-bars) */",
-			"/* surface water (cm) */",
-			"/* transpiration from each soil layer (cm): total, trees, shrubs, forbs, grasses */",
-			"/* bare-soil evaporation from each soil layer (cm) */",
-			"/* evaporation (cm): total, trees, shrubs, forbs, grasses, litter, surface water */",
-			"/* intercepted rain (cm): total, trees, shrubs, forbs, grasses, and litter (cm) */",
-			"/* water percolated from each layer (cm) */",
-			"/* hydraulic redistribution from each layer (cm): total, trees, shrubs, forbs, grasses */",
-			"/* */",
-			"/* actual evapotr. (cm) */",
-			"/* potential evaptr (cm) */",
-			"/* days above swc_wet */",
-			"/* snowpack water equivalent (cm), snowdepth (cm); since snowpack is already summed, use avg - sum sums the sums = nonsense */",
-			"/* deep drainage into lowest layer (cm) */",
-			"/* soil temperature from each soil layer (in celsius) */",
-			"/* */",
-			"/* yearly establishment results */"};
 		protected double[][] get_dy_data() {
 			return dy_data;
 		}
@@ -624,8 +680,180 @@ public class SW_OUTPUT {
 		protected double[][] get_yr_data() {
 			return yr_data;
 		}
+		protected String[] getColumnNames() {
+			String[] names = null;
+			switch (mykey) {
+			case eSW_NoKey:
+				break;
+			case eSW_AllWthr:
+				break;
+			case eSW_Temp:
+				names = new String[]{"Max","Min","Average"};
+				break;
+			case eSW_Precip:
+				names = new String[]{"Total","Rain","Snow Fall","Snowmelt","Snow Loss"};
+				break;
+			case eSW_SoilInf:
+				names = new String[]{"Runoff"};
+				break;
+			case eSW_Runoff:
+				names = new String[]{"Total Runoff","Runoff from Ponded Water","Runoff Snowmelt"};
+				break;
+			case eSW_AllH2O:
+				break;
+			case eSW_VWCBulk:
+			case eSW_VWCMatric:
+			case eSW_SWCBulk:
+			case eSW_SWABulk:
+			case eSW_SWAMatric:
+			case eSW_SWPMatric:
+				names = new String[SW_Soils.getLayersInfo().n_layers];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+					names[i] = "Layer "+String.valueOf(i+1);
+				}
+				break;
+			case eSW_SurfaceWater:
+				names = new String[]{"Surface Water"};
+				break;
+			case eSW_Transp:
+				names = new String[SW_Soils.getLayersInfo().n_layers*5];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+					names[i*5+0] = "Total Layer "+String.valueOf(i+1);
+					names[i*5+1] = "Trees Layer "+String.valueOf(i+1);
+					names[i*5+2] = "Shrubs Layer "+String.valueOf(i+1);
+					names[i*5+3] = "Forbs Layer "+String.valueOf(i+1);
+					names[i*5+4] = "Grasses Layer "+String.valueOf(i+1);
+				}
+				break;
+			case eSW_EvapSoil:
+				names = new String[SW_Soils.getLayersInfo().n_evap_lyrs];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_evap_lyrs;i++) {
+					names[i] = "Evaporation Layer "+String.valueOf(i+1);
+				}
+				break;
+			case eSW_EvapSurface:
+				names = new String[]{"Total", "Trees", "Shrubs", "Forbs", "Grasses", "Litter", "Surface Water"};
+				break;
+			case eSW_Interception:
+				names = new String[]{"Total", "Trees", "Shrubs", "Forbs", "Grasses", "Litter"};
+				break;
+			case eSW_LyrDrain:
+				names = new String[SW_Soils.getLayersInfo().n_layers-1];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_layers-1;i++) {
+					names[i] = "Layer "+String.valueOf(i+1);
+				}
+				break;
+			case eSW_HydRed:
+				names = new String[SW_Soils.getLayersInfo().n_layers*5];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+					names[i*5+0] = "Total Layer "+String.valueOf(i+1);
+					names[i*5+1] = "Trees Layer "+String.valueOf(i+1);
+					names[i*5+2] = "Shrubs Layer "+String.valueOf(i+1);
+					names[i*5+3] = "Forbs Layer "+String.valueOf(i+1);
+					names[i*5+4] = "Grasses Layer "+String.valueOf(i+1);
+				}
+				break;
+			case eSW_ET:
+				break;
+			case eSW_AET:
+				names = new String[]{"Actual Evap"};
+				break;
+			case eSW_PET:
+				names = new String[]{"Potential Evap"};
+				break;
+			case eSW_WetDays:
+				names = new String[]{"Days Above SWC_Wet"};
+				break;
+			case eSW_SnowPack:
+				names = new String[]{"Snowpack Water Equivalent","Snowdepth"};
+				break;
+			case eSW_DeepSWC:
+				names = new String[]{"Deep Drainage"};
+				break;
+			case eSW_SoilTemp:
+				names = new String[SW_Soils.getLayersInfo().n_layers];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+					names[i] = "Layer "+String.valueOf(i+1);
+				}
+				break;
+			case eSW_AllVeg:
+				break;
+			case eSW_Estab:
+				names = new String[SW_VegEstab.count()];
+				for(int i=0; i<SW_VegEstab.count();i++) {
+					names[i] = SW_VegEstab.get_INFO(i).sppName;
+				}
+				break;
+			case eSW_LastKey:
+				break;
+			default:
+				break;
+			}
+			return names;
+		}
+		protected String getUnits() {
+			String names = null;
+			switch (mykey) {
+			case eSW_NoKey:
+				break;
+			case eSW_AllWthr:
+				break;
+			case eSW_Temp:
+			case eSW_SoilTemp:
+				names = "Celsius";
+				break;
+			case eSW_Precip:
+			case eSW_SoilInf:
+			case eSW_Runoff:
+				names = "cm";
+				break;
+			case eSW_AllH2O:
+				break;
+			case eSW_VWCBulk:
+			case eSW_VWCMatric:
+			case eSW_SWCBulk:
+			case eSW_SWABulk:
+			case eSW_SWAMatric:
+				names = "cm/layer";
+				break;
+			case eSW_SWPMatric:
+				names = "-bars";
+				break;
+			case eSW_SurfaceWater:
+			case eSW_Transp:
+			case eSW_EvapSoil:
+			case eSW_EvapSurface:
+			case eSW_Interception:
+			case eSW_LyrDrain:
+			case eSW_HydRed:
+				names = "cm";
+				break;
+			case eSW_ET:
+				break;
+			case eSW_AET:
+			case eSW_PET:
+				names = "cm";
+				break;
+			case eSW_WetDays:
+				names = "days";
+				break;
+			case eSW_SnowPack:
+			case eSW_DeepSWC:
+				names = "cm";
+				break;
+			case eSW_AllVeg:
+				break;
+			case eSW_Estab:
+				names = "days";
+			case eSW_LastKey:
+				break;
+			default:
+				break;
+			}
+			return names;
+		}
 		public String toString() {
-			return String.format("%13s %7s   %6s      %2s     %3s %15s      %s", mykey.key(),sumtype.key(),periodColumn.key(),this.first_orig, this.last_orig==366?"end":this.last_orig,filename_prefix, comments[mykey.idx()]);
+			return String.format("%13s %7s   %6s      %2s     %3s %15s      %s", mykey.key(),sumtype.key(),periodColumn.key(),this.first_orig, this.last_orig==366?"end":this.last_orig,filename_prefix, mykey.getComment());
 		}
 	}
 	
@@ -1754,5 +1982,20 @@ public class SW_OUTPUT {
 	
 	protected SW_OUT_TIME get_Timing() {
 		return this.SW_OutTimes;
+	}
+	
+	protected String[] get_ColumnNames(OutKey key) {
+		SW_OUT out = this.SW_Output[key.idx()];
+		return out.getColumnNames();
+	}
+	
+	protected String get_Unit(OutKey key) {
+		SW_OUT out = this.SW_Output[key.idx()];
+		return out.getUnits();
+	}
+	
+	protected int get_nColumns(OutKey key) {
+		SW_OUT out = this.SW_Output[key.idx()];
+		return out.get_nColumns();
 	}
 }

@@ -44,6 +44,18 @@ public class SW_CONTROL {
 		return SW_Output.get_Timing();
 	}
 	
+	public int onGet_nColumns(OutKey key) {
+		return SW_Output.get_nColumns(key);
+	}
+	
+	public String[] onGet_OutputColumnNames(OutKey key) {
+		return SW_Output.get_ColumnNames(key);
+	}
+	
+	public String onGet_Unit(OutKey key) {
+		return SW_Output.get_Unit(key);
+	}
+	
 	public void onSetInput(InputData data) throws Exception {
 		SW_Files.onSetInput(data.filesIn);
 		SW_Model.onSetInput(data.yearsIn);
