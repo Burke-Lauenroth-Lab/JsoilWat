@@ -756,10 +756,10 @@ public class SW_OUTPUT {
 			case eSW_ET:
 				break;
 			case eSW_AET:
-				names = new String[]{"Actual Evap"};
+				names = new String[]{"Actual Evaporation"};
 				break;
 			case eSW_PET:
-				names = new String[]{"Potential Evap"};
+				names = new String[]{"Potential Evaporation"};
 				break;
 			case eSW_WetDays:
 				names = new String[]{"Days Above SWC_Wet"};
