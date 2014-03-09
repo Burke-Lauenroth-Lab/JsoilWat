@@ -123,9 +123,10 @@ public class SW_SOILWATER {
 		protected void onClear() {
 			snowdepth=surfaceWater=surfaceWater_evap=pet=aet=litter_evap=tree_evap=forb_evap=shrub_evap=grass_evap=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=0;
+			snowpack[0]=snowpack[1]=0;
 			for(int i=0; i<Defines.MAX_LAYERS; i++) {
 				is_wet[i]=false;
-				snowpack[i]=transpiration_tree[i]=transpiration_forb[i]=transpiration_shrub[i]=transpiration_grass[i]=0;
+				transpiration_tree[i]=transpiration_forb[i]=transpiration_shrub[i]=transpiration_grass[i]=0;
 				evaporation[i]=drain[i]=hydred_tree[i]=hydred_forb[i]=hydred_shrub[i]=hydred_grass[i]=sTemp[i]=0;
 				swcBulk[Defines.Yesterday][i]=0;
 				swcBulk[Defines.Today][i] =0;

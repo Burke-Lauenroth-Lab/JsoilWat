@@ -682,6 +682,7 @@ public class SW_OUTPUT {
 		}
 		protected String[] getColumnNames() {
 			String[] names = null;
+			int nlyr;
 			switch (mykey) {
 			case eSW_NoKey:
 				break;
@@ -717,12 +718,13 @@ public class SW_OUTPUT {
 				break;
 			case eSW_Transp:
 				names = new String[SW_Soils.getLayersInfo().n_layers*5];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
-					names[i*5+0] = "Total Layer "+String.valueOf(i+1);
-					names[i*5+1] = "Trees Layer "+String.valueOf(i+1);
-					names[i*5+2] = "Shrubs Layer "+String.valueOf(i+1);
-					names[i*5+3] = "Forbs Layer "+String.valueOf(i+1);
-					names[i*5+4] = "Grasses Layer "+String.valueOf(i+1);
+				nlyr = SW_Soils.getLayersInfo().n_layers;
+				for(int i=0;i<nlyr;i++) {
+					names[i+(nlyr*0)] = "Total Layer "+String.valueOf(i+1);
+					names[i+(nlyr*1)] = "Trees Layer "+String.valueOf(i+1);
+					names[i+(nlyr*2)] = "Shrubs Layer "+String.valueOf(i+1);
+					names[i+(nlyr*3)] = "Forbs Layer "+String.valueOf(i+1);
+					names[i+(nlyr*4)] = "Grasses Layer "+String.valueOf(i+1);
 				}
 				break;
 			case eSW_EvapSoil:
@@ -745,12 +747,13 @@ public class SW_OUTPUT {
 				break;
 			case eSW_HydRed:
 				names = new String[SW_Soils.getLayersInfo().n_layers*5];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
-					names[i*5+0] = "Total Layer "+String.valueOf(i+1);
-					names[i*5+1] = "Trees Layer "+String.valueOf(i+1);
-					names[i*5+2] = "Shrubs Layer "+String.valueOf(i+1);
-					names[i*5+3] = "Forbs Layer "+String.valueOf(i+1);
-					names[i*5+4] = "Grasses Layer "+String.valueOf(i+1);
+				nlyr = SW_Soils.getLayersInfo().n_layers;
+				for(int i=0;i<nlyr;i++) {
+					names[i+(nlyr*0)] = "Total Layer "+String.valueOf(i+1);
+					names[i+(nlyr*1)] = "Trees Layer "+String.valueOf(i+1);
+					names[i+(nlyr*2)] = "Shrubs Layer "+String.valueOf(i+1);
+					names[i+(nlyr*3)] = "Forbs Layer "+String.valueOf(i+1);
+					names[i+(nlyr*4)] = "Grasses Layer "+String.valueOf(i+1);
 				}
 				break;
 			case eSW_ET:
@@ -971,7 +974,8 @@ public class SW_OUTPUT {
 		}
 		for(int i=0; i<numPeriods; i++)
 			timeStep[i] = false;//not used default
-		SW_OutTimes.onClear();
+		if(SW_OutTimes != null)
+			SW_OutTimes.onClear();
 		bFlush = false;
 		tOffset = true;
 		useTimeStep = false;

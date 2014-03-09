@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import events.SoilwatEvent;
+import events.SoilwatListener;
 import soilwat.Defines.ObjType;
 import soilwat.SW_OUTPUT.OutKey;
 import soilwat.SW_OUTPUT.OutPeriod;
@@ -21,6 +23,12 @@ public class SW_CONTROL {
 	private SW_SOILWATER SW_SoilWater;
 	private SW_VEGESTAB SW_VegEstab;
 	private SW_OUTPUT SW_Output;
+	
+	protected SoilwatListener soilwatListener;
+	
+	public void addSoilwatEventListener(SoilwatListener e) {
+		soilwatListener = e;
+	}
 	
 	public SW_CONTROL() {
 		SW_Files = new SW_FILES();
@@ -126,21 +134,24 @@ public class SW_CONTROL {
 		SW_Output.onWrite(SW_Files.getOutputSetupIn(true));
 	}
 	
-	public void onStartModel(boolean echo) throws Exception {
+	public void onStartModel(boolean echo, boolean writeOutput) throws Exception {
 		int year;
-		
 		_set_echo(echo);
-		
+		int years = SW_Model.getYearsInSimulation();
+		double Percent = 0;
 		if(onVerify()) {
 			for(year = SW_Model.getStartYear(); year<=SW_Model.getEndYear(); year++) {
 				SW_Model.setYear(year);
 				SW_CTL_run_current_year();
+				Percent = ((double) year-SW_Model.getStartYear()+1)/((double)years);
+				soilwatListener.soilwatEvent(new SoilwatEvent(year, Percent));
 			}
-
-			try {
-				SW_Output.onWriteOutputs();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if(writeOutput) {
+				try {
+					SW_Output.onWriteOutputs();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

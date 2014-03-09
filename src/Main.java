@@ -13,7 +13,7 @@ public class Main {
 			//sim.onWriteOutputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/");
 			//test.filesIn.ProjectDirectory = "/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestWrite/";
 			//sim.onReadInputs("/home/ryan/workspace/Rsoilwat_v31/tests/soilwat_v31_TestProject/files_v30.in");
-			sim.onStartModel(true);
+			sim.onStartModel(true, true);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -5,58 +5,29 @@ import java.util.Collections;
 
 import circular.Circular;
 import soilwat.InputData;
+import aggregation.AggregationCommon;
+import aggregation.AggregationCommon.GrassTypeFractions;
+import aggregation.AggregationCommon.LayerInformation;
+import aggregation.AggregationCommon.Texture;
 
 
 public class Input {
-	public class GrassTypeFractions {
-		public double c3;
-		public double c4;
-		public double ann;
-	}
-	public class LayerInformation {
-		int TopL_start;
-		int TopL_stop;
-		int BottomL_start;
-		int BottomL_stop;
-		double[] layers_width;
-	}
-	public class Texture {
-		double sand_top;
-		double sand_bottom;
-		double clay_top;
-		double clay_bottom;
-		
-		public Texture(LayerInformation Lyrs, InputData in) {
-			sand_top = 0;
-			clay_top = 0;
-			//Weighted Mean
-			for(int i=(Lyrs.TopL_start-1); i<(Lyrs.TopL_stop-1); i++) {
-				sand_top += in.soilsIn.layers[i].fractionWeightMatric_sand * Lyrs.layers_width[i];
-				clay_top += in.soilsIn.layers[i].fractionWeightMatric_clay * Lyrs.layers_width[i];
-			}
-			sand_bottom=0;
-			clay_bottom=0;
-			for(int i=(Lyrs.BottomL_start-1); i<(Lyrs.BottomL_stop-1); i++) {
-				sand_top += in.soilsIn.layers[i].fractionWeightMatric_sand * Lyrs.layers_width[i];
-				clay_top += in.soilsIn.layers[i].fractionWeightMatric_clay * Lyrs.layers_width[i];
-			}
-		}
-	}
+	
 	private Texture texture;
 	private LayerInformation lyr_info;
 	private InputData SW_Input;
 	private GrassTypeFractions grass_c3c4ann_fractions;
 	
-	public class SoilProfile extends Aggregate {
+/*	public class SoilProfile extends Aggregate {
 		@Override
 		protected void setNames() {
-			names = new ArrayList<String>();
-			names.add("SWinput.Soil.maxDepth_cm");
-			names.add("SWinput.Soil.soilLayers_N");
-			names.add("SWinput.Soil.topLayers.Sand_fraction");
-			names.add("SWinput.Soil.bottomLayers.Sand_fraction");
-			names.add("SWinput.Soil.topLayers.Clay_fraction");
-			names.add("SWinput.Soil.bottomLayers.Clay_fraction");
+			columnNames = new ArrayList<String>();
+			columnNames.add("SWinput.Soil.maxDepth_cm");
+			columnNames.add("SWinput.Soil.soilLayers_N");
+			columnNames.add("SWinput.Soil.topLayers.Sand_fraction");
+			columnNames.add("SWinput.Soil.bottomLayers.Sand_fraction");
+			columnNames.add("SWinput.Soil.topLayers.Clay_fraction");
+			columnNames.add("SWinput.Soil.bottomLayers.Clay_fraction");
 		}
 		@Override
 		protected void setValues() {
@@ -74,23 +45,19 @@ public class Input {
 			//clay.bottom
 			values[5] = texture.clay_bottom;
 		}
-		@Override
-		String getMultiLinePrefix(boolean header, int line) {
-			return "";
-		}
 	}
 	public class FractionVegetationComposition extends Aggregate {
 		@Override
 		protected void setNames() {
-			names = new ArrayList<String>();
-			names.add("SWinput.Composition.Grasses_fraction_const");
-			names.add("SWinput.Composition.Shrubs_fraction_const");
-			names.add("SWinput.Composition.Trees_fraction_const");
-			names.add("SWinput.Composition.Forbs_fraction_const");
-			names.add("SWinput.Composition.BareGround_fraction_const");
-			names.add("SWinput.Composition.C3ofGrasses_fraction_const");
-			names.add("SWinput.Composition.C4ofGrasses_fraction_const");
-			names.add("SWinput.Composition.AnnualsofGrasses_fraction_const");
+			columnNames = new ArrayList<String>();
+			columnNames.add("SWinput.Composition.Grasses_fraction_const");
+			columnNames.add("SWinput.Composition.Shrubs_fraction_const");
+			columnNames.add("SWinput.Composition.Trees_fraction_const");
+			columnNames.add("SWinput.Composition.Forbs_fraction_const");
+			columnNames.add("SWinput.Composition.BareGround_fraction_const");
+			columnNames.add("SWinput.Composition.C3ofGrasses_fraction_const");
+			columnNames.add("SWinput.Composition.C4ofGrasses_fraction_const");
+			columnNames.add("SWinput.Composition.AnnualsofGrasses_fraction_const");
 		}
 
 		@Override
@@ -105,11 +72,6 @@ public class Input {
 			values[6] = grass_c3c4ann_fractions.c4;
 			values[7] = grass_c3c4ann_fractions.ann;
 		}
-
-		@Override
-		String getMultiLinePrefix(boolean header, int line) {
-			return "";
-		}
 	}
 	public class VegetationBiomassMonthly extends Aggregate {
 		private int headerColumnWidth;
@@ -120,12 +82,12 @@ public class Input {
 		}
 		@Override
 		protected void setNames() {
-			names = new ArrayList<String>();
-			names.add("Type");//integer
-			names.add("Month");//integer
-			names.add("Litter_gPERm2");
-			names.add("TotalBiomass_gPERm2");
-			names.add("LiveBiomass_gPERm2");
+			columnNames = new ArrayList<String>();
+			columnNames.add("Type");//integer
+			columnNames.add("Month");//integer
+			columnNames.add("Litter_gPERm2");
+			columnNames.add("TotalBiomass_gPERm2");
+			columnNames.add("LiveBiomass_gPERm2");
 		}
 		@Override
 		protected void setValues() {
@@ -151,41 +113,13 @@ public class Input {
 				values[2 + (i*3) + 108] = SW_Input.prodIn.monthlyProd.forb.biomass[i]*SW_Input.prodIn.monthlyProd.forb.percLive[i];
 			}
 		}
-		@Override
-		String getMultiLinePrefix(boolean header, int line) {
-			if(header) {
-				for(int i=0; i<2; i++) {
-					if(names.get(i).length() > headerColumnWidth)
-						headerColumnWidth = names.get(i).length();
-				}
-				return String.format("%"+headerColumnWidth+"s\t%"+headerColumnWidth+"s\t", names.get(0), names.get(1));
-			} else {
-				int type=0;
-				int month=0;
-				if(line<=12) {
-					type=1;
-					month=line;
-				} else if (line > 12 && line <=24) {
-					type=2;
-					month=line-12;
-				} else if (line > 24 && line <=36) {
-					type=3;
-					month=line-24;
-				} else if (line > 36 && line <=48) {
-					type=4;
-					month=line-36;
-				}
-				return String.format("%"+headerColumnWidth+"d\t%"+headerColumnWidth+"d\t", type, month);
-			}
-		}
-		
 	}
 	public class VegetationPeak extends Aggregate {
 		@Override
 		protected void setNames() {
-			names = new ArrayList<String>();
-			names.add("SWinput.PeakLiveBiomass_month_mean");
-			names.add("SWinput.PeakLiveBiomass_months_duration");
+			columnNames = new ArrayList<String>();
+			columnNames.add("SWinput.PeakLiveBiomass_month_mean");
+			columnNames.add("SWinput.PeakLiveBiomass_months_duration");
 		}
 
 		@Override
@@ -239,9 +173,9 @@ public class Input {
 
 		@Override
 		protected void setNames() {
-			names = new ArrayList<String>();
-			names.add("SWinput.PeakLiveBiomass_month_mean");
-			names.add("SWinput.PeakLiveBiomass_months_duration");
+			columnNames = new ArrayList<String>();
+			columnNames.add("SWinput.PeakLiveBiomass_month_mean");
+			columnNames.add("SWinput.PeakLiveBiomass_months_duration");
 		}
 
 		@Override
@@ -290,5 +224,5 @@ public class Input {
 			return "";
 		}
 		
-	}
+	}*/
 }
