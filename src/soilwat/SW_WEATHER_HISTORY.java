@@ -13,12 +13,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class SW_WEATHER_HISTORY {
-
 	
 	private int nCurrentYear;
 	private List<SW_WEATHER_HIST> weatherHist;
 	private Map<Integer, Integer> yearToIndex;
 	private boolean data;
+	
+	public class WeatherException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		public WeatherException(String message) {
+			super(message);
+		}
+	}
 
 	private class SW_WEATHER_HIST implements Comparable<SW_WEATHER_HIST> {
 		private int nYear;
@@ -26,8 +33,12 @@ public class SW_WEATHER_HISTORY {
 		private double[] temp_min;
 		private double[] temp_avg;
 		private double[] ppt;
+		private double[] temp_month_max_avg;
+		private double[] temp_month_min_avg;
 		private double[] temp_month_avg;
 		private double[] ppt_month_avg;
+		private double temp_year_min_avg;
+		private double temp_year_max_avg;
 		private double temp_year_avg;
 		private double PPT_year_sum;
 		private int nDaysInYear;
@@ -38,6 +49,8 @@ public class SW_WEATHER_HISTORY {
 			this.temp_min = new double[Times.MAX_DAYS];
 			this.temp_avg = new double[Times.MAX_DAYS];
 			this.ppt = new double[Times.MAX_DAYS];
+			this.temp_month_max_avg = new double[Times.MAX_MONTHS];
+			this.temp_month_min_avg = new double[Times.MAX_MONTHS];
 			this.temp_month_avg = new double[Times.MAX_MONTHS];
 			this.ppt_month_avg = new double[Times.MAX_MONTHS];
 			this.temp_year_avg = 0;	
@@ -50,7 +63,7 @@ public class SW_WEATHER_HISTORY {
 		public void onSet(int year, double[] ppt, double[] temp_max, double[] temp_min) {
 			this.nYear = year;
 			if((ppt.length == temp_max.length) && (ppt.length == temp_min.length) && (temp_max.length == temp_min.length) && (ppt.length >= 365) && (ppt.length <= 366)) {
-				double acc=0,acc_ppt=0;
+				double acc_max=0,acc_min=0,acc=0,acc_ppt=0;
 				int k=0,x=0;
 				this.nDaysInYear = ppt.length;
 				for(int i=0; i<this.nDaysInYear; i++) {
@@ -59,9 +72,13 @@ public class SW_WEATHER_HISTORY {
 					this.temp_min[i] = temp_min[i];
 					this.temp_avg[i] = (this.temp_max[i]+this.temp_min[i])/2.0;
 					acc+=this.temp_avg[i];
+					acc_max += this.temp_max[i];
+					acc_min += this.temp_min[i];
 					k++;
 				}
 				this.temp_year_avg = acc/(k+0.0);
+				this.temp_year_min_avg = acc_min/(k+0.0);
+				this.temp_year_max_avg = acc_max/(k+0.0);
 				for(int i=0; i<Times.MAX_MONTHS;i++) {
 					k=31;
 					if(i==8 || i==3 || i==5 || i==10)
@@ -71,13 +88,17 @@ public class SW_WEATHER_HISTORY {
 						if(Times.isleapyear(this.nYear))
 							k=29;
 					}
-					acc=0;
+					acc=acc_max=acc_min=0;
 					acc_ppt=0;
 					for(int j=0; j<k; j++) {
 						acc+=this.temp_avg[j+x];
+						acc_max += this.temp_max[j+x];
+						acc_min += this.temp_min[j+x];
 						acc_ppt += this.ppt[j+x];
 					}
 					this.temp_month_avg[i] = acc/(k+0.0);
+					this.temp_month_min_avg[i] = acc_min/(k+0.0);
+					this.temp_month_max_avg[i] = acc_max/(k+0.0);
 					this.ppt_month_avg[i] = acc_ppt;
 					x+=k;
 				}
@@ -89,14 +110,18 @@ public class SW_WEATHER_HISTORY {
 		}
 		
 		public void onCalc() {
-			double acc=0,acc_ppt=0;
+			double acc_max=0,acc_min=0,acc=0,acc_ppt=0;
 			int k=0,x=0;
 			for(int i=0; i<this.nDaysInYear; i++) {
 				this.temp_avg[i] = (this.temp_max[i]+this.temp_min[i])/2.0;
 				acc+=this.temp_avg[i];
+				acc_max += this.temp_max[i];
+				acc_min += this.temp_min[i];
 				k++;
 			}
 			this.temp_year_avg = acc/(k+0.0);
+			this.temp_year_min_avg = acc_min/(k+0.0);
+			this.temp_year_max_avg = acc_max/(k+0.0);
 			for(int i=0; i<Times.MAX_MONTHS;i++) {
 				k=31;
 				if(i==8 || i==3 || i==5 || i==10)
@@ -110,9 +135,13 @@ public class SW_WEATHER_HISTORY {
 				acc_ppt=0;
 				for(int j=0; j<k; j++) {
 					acc+=this.temp_avg[j+x];
+					acc_max += this.temp_max[j+x];
+					acc_min += this.temp_min[j+x];
 					acc_ppt += this.ppt[j+x];
 				}
 				this.temp_month_avg[i] = acc/(k+0.0);
+				this.temp_month_min_avg[i] = acc_min/(k+0.0);
+				this.temp_month_max_avg[i] = acc_max/(k+0.0);
 				this.ppt_month_avg[i] = acc_ppt;
 				x+=k;
 			}
@@ -124,7 +153,7 @@ public class SW_WEATHER_HISTORY {
 			LogFileIn f = LogFileIn.getInstance();
 			this.nYear = year;
 			List<String> lines = Files.readAllLines(WeatherHistoryFile, StandardCharsets.UTF_8);
-			double acc=0,acc_ppt=0;
+			double acc_max=0,acc_min=0,acc=0,acc_ppt=0;
 			int k=0,x=0;
 			int doy=0;
 			
@@ -148,10 +177,14 @@ public class SW_WEATHER_HISTORY {
 						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherHistoryFile : Convert Error :" +e.getMessage());
 					}
 					acc+=this.temp_avg[doy];
+					acc_max += this.temp_max[doy];
+					acc_min += this.temp_min[doy];
 					k++;
 				}
 			}
 			this.temp_year_avg = acc/(k+0.0);
+			this.temp_year_min_avg = acc_min/(k+0.0);
+			this.temp_year_max_avg = acc_max/(k+0.0);
 			for(int i=0; i<Times.MAX_MONTHS;i++) {
 				k=31;
 				if(i==8 || i==3 || i==5 || i==10)
@@ -165,9 +198,13 @@ public class SW_WEATHER_HISTORY {
 				acc_ppt=0;
 				for(int j=0; j<k; j++) {
 					acc+=this.temp_avg[j+x];
+					this.temp_month_min_avg[i] = acc_min/(k+0.0);
+					this.temp_month_max_avg[i] = acc_max/(k+0.0);
 					acc_ppt += this.ppt[j+x];
 				}
 				this.temp_month_avg[i] = acc/(k+0.0);
+				this.temp_month_min_avg[i] = acc_min/(k+0.0);
+				this.temp_month_max_avg[i] = acc_max/(k+0.0);
 				this.ppt_month_avg[i] = acc_ppt;
 				x+=k;
 			}
@@ -201,6 +238,8 @@ public class SW_WEATHER_HISTORY {
 				this.temp_month_avg[i]=0;
 			*/
 			this.temp_year_avg=0;
+			this.temp_year_max_avg=0;
+			this.temp_year_min_avg=0;
 			this.nDaysInYear=0;
 			this.nYear = 0;
 			this.data = false;
@@ -224,6 +263,12 @@ public class SW_WEATHER_HISTORY {
 		//}
 		public double getYearAvg() {
 			return this.temp_year_avg;
+		}
+		public double getYearMinAvg() {
+			return this.temp_year_min_avg;
+		}
+		public double getYearMaxAvg() {
+			return this.temp_year_max_avg;
 		}
 		public int compareTo(SW_WEATHER_HIST n) {
 			int lastCmp = Integer.compare(this.nYear, n.getYear());
@@ -347,10 +392,36 @@ public class SW_WEATHER_HISTORY {
 		}
 		this.data = false;
 	}
-	
-	public double getYearAvg(int year) {
+	/**
+	 * Returns the Temperature Average for a given year. Daily sum of ((min+max)/2) divided by number of days.
+	 * @return double
+	 * @throws Exception 
+	 */
+	public double getTempYearAvg(int year) {
 		if(this.data)
 			return this.weatherHist.get(this.yearToIndex.get(year)).getYearAvg();
+		else
+			return 0;
+	}
+	/**
+	 * Returns the Temperature Min Average for a given year. Daily sum of (temp min) divided by number of days.
+	 * @return double
+	 * @throws Exception 
+	 */
+	public double getTempYearMinAvg(int year) {
+		if(this.data)
+			return this.weatherHist.get(this.yearToIndex.get(year)).getYearMinAvg();
+		else
+			return 0;
+	}
+	/**
+	 * Returns the Temperature Max Average for a given year. Daily sum of (temp max) divided by number of days.
+	 * @return double
+	 * @throws Exception 
+	 */
+	public double getTempYearMaxAvg(int year) {
+		if(this.data)
+			return this.weatherHist.get(this.yearToIndex.get(year)).getYearMaxAvg();
 		else
 			return 0;
 	}
@@ -383,25 +454,37 @@ public class SW_WEATHER_HISTORY {
 	public double[] get_temp_month_avg_array(int year) {
 		return this.weatherHist.get(yearToIndex.get(year)).temp_month_avg;
 	}
+	public double[] get_temp_month_min_avg_array(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).temp_month_min_avg;
+	}
+	public double[] get_temp_month_max_avg_array(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).temp_month_max_avg;
+	}
 	public double[] get_ppt_month_avg_array(int year) {
 		return this.weatherHist.get(yearToIndex.get(year)).ppt_month_avg;
 	}
 	public double get_temp_year_avg(int year) {//mean annual temperature
 		return this.weatherHist.get(yearToIndex.get(year)).temp_year_avg;
 	}
+	public double get_temp_year_min_avg(int year) {//mean annual temperature
+		return this.weatherHist.get(yearToIndex.get(year)).temp_year_min_avg;
+	}
+	public double get_temp_year_max_avg(int year) {//mean annual temperature
+		return this.weatherHist.get(yearToIndex.get(year)).temp_year_max_avg;
+	}
 	public double get_ppt_year_sum(int year) {//mean annual temperature
 		return this.weatherHist.get(yearToIndex.get(year)).PPT_year_sum;
 	}
 	/**
-	 * Returns the meanMonthlyTempC across selected years
+	 * Returns the meanMonthlyTempC across selected years for avgerage monthly temp values
 	 * @return double[]
 	 * @throws Exception 
 	 */
-	public double[] meanMonthlyTempC(int nStartYear, int nEndYear) throws Exception {
+	public double[] meanMonthlyTempC(int nStartYear, int nEndYear) throws WeatherException {
 		if(nStartYear < this.getStartYear() || nEndYear > this.getEndYear())
-			throw new Exception("Requested data is not present");
+			throw new WeatherException("Requested data is not present");
 		if(nStartYear > nEndYear)
-			throw new Exception("Start Year can not be greater then end year;");
+			throw new WeatherException("Start Year can not be greater then end year;");
 		double nYears = (double) (nEndYear - nStartYear + 1);
 		double[] temp = new double[12];//Will init to 0
 		for(int i=nStartYear; i<=nEndYear; i++) {
@@ -415,15 +498,59 @@ public class SW_WEATHER_HISTORY {
 		return temp;
 	}
 	/**
+	 * Returns the meanMonthlyTempC across selected years for Min monthly temp values
+	 * @return double[]
+	 * @throws WeatherException 
+	 */
+	public double[] meanMonthlyTempC_Min(int nStartYear, int nEndYear) throws WeatherException {
+		if(nStartYear < this.getStartYear() || nEndYear > this.getEndYear())
+			throw new WeatherException("Requested data is not present");
+		if(nStartYear > nEndYear)
+			throw new WeatherException("Start Year can not be greater then end year;");
+		double nYears = (double) (nEndYear - nStartYear + 1);
+		double[] temp = new double[12];//Will init to 0
+		for(int i=nStartYear; i<=nEndYear; i++) {
+			double[] temp_y = get_temp_month_min_avg_array(i);//get the monthly avg
+			for(int j=0; j<12; j++) {
+				temp[j] += temp_y[j];//add it to temp
+			}
+		}
+		for(int i=0; i<12; i++)
+			temp[i] = temp[i]/nYears;
+		return temp;
+	}
+	/**
+	 * Returns the meanMonthlyTempC across selected years for max monthly temp values
+	 * @return double[]
+	 * @throws WeatherException 
+	 */
+	public double[] meanMonthlyTempC_Max(int nStartYear, int nEndYear) throws WeatherException {
+		if(nStartYear < this.getStartYear() || nEndYear > this.getEndYear())
+			throw new WeatherException("Requested data is not present");
+		if(nStartYear > nEndYear)
+			throw new WeatherException("Start Year can not be greater then end year;");
+		double nYears = (double) (nEndYear - nStartYear + 1);
+		double[] temp = new double[12];//Will init to 0
+		for(int i=nStartYear; i<=nEndYear; i++) {
+			double[] temp_y = get_temp_month_max_avg_array(i);//get the monthly avg
+			for(int j=0; j<12; j++) {
+				temp[j] += temp_y[j];//add it to temp
+			}
+		}
+		for(int i=0; i<12; i++)
+			temp[i] = temp[i]/nYears;
+		return temp;
+	}
+	/**
 	 * Returns the meanMonthlyPPTcm across selected years
 	 * @return double[]
-	 * @throws Exception 
+	 * @throws WeatherException 
 	 */
-	public double[] meanMonthlyPPTcm(int nStartYear, int nEndYear) throws Exception {
+	public double[] meanMonthlyPPTcm(int nStartYear, int nEndYear) throws WeatherException {
 		if(nStartYear < this.getStartYear() || nEndYear > this.getEndYear())
-			throw new Exception("Requested data is not present");
+			throw new WeatherException("Requested data is not present");
 		if(nStartYear > nEndYear)
-			throw new Exception("Start Year can not be greater then end year;");
+			throw new WeatherException("Start Year can not be greater then end year;");
 		double nYears = (double) (nEndYear - nStartYear + 1);
 		double[] temp = new double[12];//Will init to 0
 		for(int i=nStartYear; i<=nEndYear; i++) {
@@ -440,13 +567,13 @@ public class SW_WEATHER_HISTORY {
 	/**
 	 * Returns the mean annual temperature in C across selected years
 	 * @return double
-	 * @throws Exception 
+	 * @throws WeatherException 
 	 */
-	public double MAT_C(int nStartYear, int nEndYear) throws Exception {
+	public double MAT_C(int nStartYear, int nEndYear) throws WeatherException {
 		if(nStartYear < this.getStartYear() || nEndYear > this.getEndYear())
-			throw new Exception("Requested data is not present");
+			throw new WeatherException("Requested data is not present");
 		if(nStartYear > nEndYear)
-			throw new Exception("Start Year can not be greater then end year;");
+			throw new WeatherException("Start Year can not be greater then end year;");
 		double nYears = (double) (nEndYear - nStartYear + 1);
 		
 		double mat_c = 0;
@@ -460,13 +587,13 @@ public class SW_WEATHER_HISTORY {
 	/**
 	 * Returns the mean annual ppt in (cm) across selected years
 	 * @return double
-	 * @throws Exception 
+	 * @throws WeatherException 
 	 */
-	public double MAP_cm(int nStartYear, int nEndYear) throws Exception {
+	public double MAP_cm(int nStartYear, int nEndYear) throws WeatherException {
 		if(nStartYear < this.getStartYear() || nEndYear > this.getEndYear())
-			throw new Exception("Requested data is not present");
+			throw new WeatherException("Requested data is not present");
 		if(nStartYear > nEndYear)
-			throw new Exception("Start Year can not be greater then end year;");
+			throw new WeatherException("Start Year can not be greater then end year;");
 		
 		double[] temp = meanMonthlyPPTcm(nStartYear, nEndYear);
 		double map_cm = 0;
