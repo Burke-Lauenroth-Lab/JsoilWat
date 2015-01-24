@@ -199,9 +199,9 @@ public class SW_WEATHER {
 	private int nFileItemsRead;
 	private final int nFileItems=18;
 	
-	protected SW_WEATHER(SW_MODEL SW_Model) {
+	protected SW_WEATHER(SW_MODEL SW_Model, SW_MARKOV SW_Markov) {
 		this.hist = new SW_WEATHER_HISTORY();
-		this.SW_Markov = new SW_MARKOV();
+		this.SW_Markov = SW_Markov;//new SW_MARKOV();
 		this.weather = new WEATHER();
 		this.nFileItemsRead=0;
 		this.data = false;
@@ -284,7 +284,7 @@ public class SW_WEATHER {
 		}
 	}
 	protected void onReadHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
-		hist.onRead(WeatherHistoryFolder, prefix, weather.yr.getFirst(), SW_Model.getEndYear());
+		hist.onRead(WeatherHistoryFolder, prefix, weather.yr.getFirst(), SW_Model.getEndYear(), weather.use_markov);
 	}
 	protected void onSetInput(WEATHER_INPUT_DATA weatherSetupIn) {
 		weather.use_snow = weatherSetupIn.use_snow;
@@ -336,7 +336,7 @@ public class SW_WEATHER {
 			history.add_year(year, this.hist.get_ppt_array(year), this.hist.get_temp_max_array(year), this.hist.get_temp_min_array(year));
 		}
 	}
-	protected void onRead(Path WeatherSetupIn, Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws Exception {
+	protected void onRead(Path WeatherSetupIn) throws Exception {
 		this.nFileItemsRead=0;
 		LogFileIn f = LogFileIn.getInstance();
 		List<String> lines = Files.readAllLines(WeatherSetupIn, StandardCharsets.UTF_8);
@@ -409,8 +409,6 @@ public class SW_WEATHER {
 				this.nFileItemsRead++;
 			}
 		}
-		if(weather.use_markov)
-			SW_Markov.onReadMarkov(MarkovProbabilityIn, MarkovCovarianceIn);
 		this.data = true;
 	}
 

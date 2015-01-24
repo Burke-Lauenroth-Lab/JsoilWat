@@ -3,20 +3,42 @@ package soilwat;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import soilwat.LogFileIn.LogMode;
 
 public class SW_MARKOV {
 	/* pointers to arrays of probabilities for each day saves some space */
 	/* by not being allocated if markov weather not requested by user */
 	/* alas, multi-dimensional arrays aren't so convenient */
-	
-	private double[] wetprob;	/* probability of being wet today */
-	private double[] dryprob;	/* probability of being dry today */
-	private double[] avg_ppt;	/* mean precip (cm) */
-	private double[] std_ppt;	/* std dev. for precip */
-	private double[][] u_cov;	/* mean temp (max, min) Celsius */
-	private double[][][] v_cov;	/* covariance matrix */
+	public static class Probability {
+		public double[] wetprob;	/* probability of being wet today */
+		public double[] dryprob;	/* probability of being dry today */
+		public double[] avg_ppt;	/* mean precip (cm) */
+		public double[] std_ppt;	/* std dev. for precip */
+		
+		public Probability() {
+			this.wetprob = new double[Times.MAX_DAYS];
+			this.dryprob = new double[Times.MAX_DAYS];
+			this.avg_ppt = new double[Times.MAX_DAYS];
+			this.std_ppt = new double[Times.MAX_DAYS];
+		}
+		
+		
+	}
+	public static class Covariance {
+		public double[][] u_cov;	/* mean temp (max, min) Celsius */
+		public double[][][] v_cov;	/* covariance matrix */
+		
+		public Covariance() {
+			this.u_cov = new double[Times.MAX_WEEKS][2];
+			this.v_cov = new double[Times.MAX_WEEKS][2][2];
+		}
+	}
+	private Probability prob;
+	private Covariance cov;
 	private int ppt_events;		/* number of ppt events generated this year */
 	private double[][] _vcov;
 	private double[] _ucov;
@@ -34,12 +56,8 @@ public class SW_MARKOV {
 	
 	public SW_MARKOV() {
 		this.data = false;
-		this.wetprob = new double[Times.MAX_DAYS];
-		this.dryprob = new double[Times.MAX_DAYS];
-		this.avg_ppt = new double[Times.MAX_DAYS];
-		this.std_ppt = new double[Times.MAX_DAYS];
-		this.u_cov = new double[Times.MAX_WEEKS][2];
-		this.v_cov = new double[Times.MAX_WEEKS][2][2];
+		this.prob = new Probability();
+		this.cov = new Covariance();
 		this._ucov = new double[2];
 		this._vcov = new double[2][2];
 		this.values = new MaxMinRain();
@@ -57,10 +75,10 @@ public class SW_MARKOV {
 		int week;
 		double prob,p,x;
 		
-		prob = Double.compare(values.rain, 0.0)>0 ? this.wetprob[doy] : this.dryprob[doy];
+		prob = Double.compare(values.rain, 0.0)>0 ? this.prob.wetprob[doy] : this.prob.dryprob[doy];
 		p = random.nextDouble();
 		if(Double.compare(p, prob) < 0) {
-			x = this.avg_ppt[doy] + random.nextGaussian()*this.std_ppt[doy];
+			x = this.prob.avg_ppt[doy] + random.nextGaussian()*this.prob.std_ppt[doy];
 			values.rain = Math.max(0., x);
 		} else {
 			values.rain = 0.;
@@ -71,13 +89,52 @@ public class SW_MARKOV {
 
 		/* Calculate temperature */
 		week = Times.Doy2Week(doy+1);
-		this.v_cov[week][0][0] = _vcov[0][0];
-		this.v_cov[week][0][1] = _vcov[0][1];
-		this.v_cov[week][1][0] = _vcov[1][0];
-		this.v_cov[week][1][1] = _vcov[1][1];
-		_ucov[0] = this.u_cov[week][0];
-		_ucov[1] = this.u_cov[week][1];
+		this.cov.v_cov[week][0][0] = _vcov[0][0];
+		this.cov.v_cov[week][0][1] = _vcov[0][1];
+		this.cov.v_cov[week][1][0] = _vcov[1][0];
+		this.cov.v_cov[week][1][1] = _vcov[1][1];
+		_ucov[0] = this.cov.u_cov[week][0];
+		_ucov[1] = this.cov.u_cov[week][1];
 		mvnorm(values);
+	}
+	
+	public void onSetInput(InputData.MarkovIn markovIn) {
+		//copy prob
+		for(int doy=0; doy<Times.MAX_DAYS; doy++) {
+			this.prob.avg_ppt[doy] = markovIn.probability.avg_ppt[doy];
+			this.prob.dryprob[doy] = markovIn.probability.dryprob[doy];
+			this.prob.std_ppt[doy] = markovIn.probability.std_ppt[doy];
+			this.prob.wetprob[doy] = markovIn.probability.wetprob[doy];
+		}
+		//copy cov
+		for(int week=0; week<Times.MAX_WEEKS; week++) {
+			this.cov.u_cov[week][0] = markovIn.covariance.u_cov[week][0];
+			this.cov.u_cov[week][1] = markovIn.covariance.u_cov[week][1];
+			this.cov.v_cov[week][0][0] = markovIn.covariance.v_cov[week][0][0];
+			this.cov.v_cov[week][0][1] = markovIn.covariance.v_cov[week][0][1];
+			this.cov.v_cov[week][1][0] = markovIn.covariance.v_cov[week][1][0];
+			this.cov.v_cov[week][1][1] = markovIn.covariance.v_cov[week][1][1];
+		}
+		this.data = true;
+	}
+	
+	public void onGetInput(InputData.MarkovIn markovIn) {
+		// copy prob
+		for (int doy = 0; doy < Times.MAX_DAYS; doy++) {
+			markovIn.probability.avg_ppt[doy] = this.prob.avg_ppt[doy];
+			markovIn.probability.dryprob[doy] = this.prob.dryprob[doy];
+			markovIn.probability.std_ppt[doy] = this.prob.std_ppt[doy];
+			markovIn.probability.wetprob[doy] = this.prob.wetprob[doy];
+		}
+		// copy cov
+		for (int week = 0; week < Times.MAX_WEEKS; week++) {
+			markovIn.covariance.u_cov[week][0] = this.cov.u_cov[week][0];
+			markovIn.covariance.u_cov[week][1] = this.cov.u_cov[week][1];
+			markovIn.covariance.v_cov[week][0][0] = this.cov.v_cov[week][0][0];
+			markovIn.covariance.v_cov[week][0][1] = this.cov.v_cov[week][0][1];
+			markovIn.covariance.v_cov[week][1][0] = this.cov.v_cov[week][1][0];
+			markovIn.covariance.v_cov[week][1][1] = this.cov.v_cov[week][1][1];
+		}
 	}
 		
 	public void onReadMarkov(Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws Exception {
@@ -102,10 +159,10 @@ public class SW_MARKOV {
 					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovProbIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
 				try {
 					int day = Integer.parseInt(values[0])-1;
-					this.wetprob[day] = Double.parseDouble(values[1]);
-					this.dryprob[day] = Double.parseDouble(values[2]);
-					this.avg_ppt[day] = Double.parseDouble(values[3]);
-					this.std_ppt[day] = Double.parseDouble(values[4]);
+					this.prob.wetprob[day] = Double.parseDouble(values[1]);
+					this.prob.dryprob[day] = Double.parseDouble(values[2]);
+					this.prob.avg_ppt[day] = Double.parseDouble(values[3]);
+					this.prob.std_ppt[day] = Double.parseDouble(values[4]);
 				} catch(NumberFormatException e) {
 					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovProbIn : Could not convert string to number." + e.getMessage());
 				}
@@ -132,12 +189,12 @@ public class SW_MARKOV {
 					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovCovIn : Line "+String.valueOf(lines.indexOf(line))+": Not enough values.");
 				try {
 					int week = Integer.parseInt(values[0])-1;
-					this.u_cov[week][0] = Double.parseDouble(values[1]);
-					this.u_cov[week][1] = Double.parseDouble(values[2]);
-					this.v_cov[week][0][0] = Double.parseDouble(values[3]);
-					this.v_cov[week][0][1] = Double.parseDouble(values[4]);
-					this.v_cov[week][1][0] = Double.parseDouble(values[5]);
-					this.v_cov[week][1][1] = Double.parseDouble(values[6]);
+					this.cov.u_cov[week][0] = Double.parseDouble(values[1]);
+					this.cov.u_cov[week][1] = Double.parseDouble(values[2]);
+					this.cov.v_cov[week][0][0] = Double.parseDouble(values[3]);
+					this.cov.v_cov[week][0][1] = Double.parseDouble(values[4]);
+					this.cov.v_cov[week][1][0] = Double.parseDouble(values[5]);
+					this.cov.v_cov[week][1][1] = Double.parseDouble(values[6]);
 				} catch(NumberFormatException e) {
 					f.LogError(LogFileIn.LogMode.ERROR, "swMarkov onReadMarkovCovIn : Could not convert string to number." + e.getMessage());
 				}
@@ -145,7 +202,40 @@ public class SW_MARKOV {
 			}
 		}
 	}
-	//TODO : onWriteMarkov
+	
+	public void onWriteMarkov(Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws Exception {
+		onWriteMarkovProbIn(MarkovProbabilityIn);
+		onWriteMarkovCovIn(MarkovCovarianceIn);
+	}
+	
+	private void onWriteMarkovProbIn(Path MarkovProbabilityIn) throws Exception {
+		if(this.data) {
+			List<String> lines = new ArrayList<String>();
+			lines.add("# Markov Prob In v1.0 (RJM) 2015 update");
+			lines.add("# day\t\twet\t\tdry\t\tavg\t\tstd ");
+			for(int i=0; i<(Times.MAX_DAYS); i++)
+				lines.add(String.format("%d %.4f %.4f %.4f %.4f",i+1, this.prob.wetprob[i], this.prob.dryprob[i], this.prob.avg_ppt[i], this.prob.std_ppt[i]));
+			Files.write(MarkovProbabilityIn, lines, StandardCharsets.UTF_8);
+		} else {
+			LogFileIn f = LogFileIn.getInstance();
+			f.LogError(LogMode.WARN, "MarkovProbabilityIn : onWrite : No data.");
+		}
+	}
+	
+	private void onWriteMarkovCovIn(Path MarkovCovarianceIn) throws Exception {
+		if(this.data) {
+			List<String> lines = new ArrayList<String>();
+			lines.add("# Markov Covariance In v1.0 (RJM) 2015 update");
+			lines.add("# week\t\tu_cov1\t\tu_cov2\t\tv_cov1\t\tv_cov2\t\tv_cov3\t\tv_cov4");
+			for(int i=0; i<(Times.MAX_WEEKS); i++)
+				lines.add(String.format("%d %.5f %.5f %.5f %.5f %.5f %.5f",i+1, this.cov.u_cov[i][0], this.cov.u_cov[i][1], this.cov.v_cov[i][0][0], this.cov.v_cov[i][0][1], this.cov.v_cov[i][1][0], this.cov.v_cov[i][1][1]));
+			Files.write(MarkovCovarianceIn, lines, StandardCharsets.UTF_8);
+		} else {
+			LogFileIn f = LogFileIn.getInstance();
+			f.LogError(LogMode.WARN, "MarkovCovarianceIn : onWrite : No data.");
+		}
+	}
+	
 	private void mvnorm(MaxMinRain t) throws Exception {
 		/* --------------------------------------------------- */
 		/* This proc is distilled from a much more general function

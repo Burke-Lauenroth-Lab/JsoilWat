@@ -355,8 +355,8 @@ public class SW_SOILWATER {
 			case SW_DAY:
 				tmp[0] = dysum.total_evap;
 				tmp[1] = dysum.tree_evap;
-				tmp[2] = dysum.forb_evap;
-				tmp[3] = dysum.shrub_evap;
+				tmp[2] = dysum.shrub_evap;
+				tmp[3] = dysum.forb_evap;
 				tmp[4] = dysum.grass_evap;
 				tmp[5] = dysum.litter_evap;
 				tmp[6] = dysum.surfaceWater_evap;
@@ -364,8 +364,8 @@ public class SW_SOILWATER {
 			case SW_WEEK:
 				tmp[0] = wkavg.total_evap;
 				tmp[1] = wkavg.tree_evap;
-				tmp[2] = wkavg.forb_evap;
-				tmp[3] = wkavg.shrub_evap;
+				tmp[2] = wkavg.shrub_evap;
+				tmp[3] = wkavg.forb_evap;
 				tmp[4] = wkavg.grass_evap;
 				tmp[5] = wkavg.litter_evap;
 				tmp[6] = wkavg.surfaceWater_evap;
@@ -373,8 +373,8 @@ public class SW_SOILWATER {
 			case SW_MONTH:
 				tmp[0] = moavg.total_evap;
 				tmp[1] = moavg.tree_evap;
-				tmp[2] = moavg.forb_evap;
-				tmp[3] = moavg.shrub_evap;
+				tmp[2] = moavg.shrub_evap;
+				tmp[3] = moavg.forb_evap;
 				tmp[4] = moavg.grass_evap;
 				tmp[5] = moavg.litter_evap;
 				tmp[6] = moavg.surfaceWater_evap;
@@ -382,8 +382,8 @@ public class SW_SOILWATER {
 			case SW_YEAR:
 				tmp[0] = yravg.total_evap;
 				tmp[1] = yravg.tree_evap;
-				tmp[2] = yravg.forb_evap;
-				tmp[3] = yravg.shrub_evap;
+				tmp[2] = yravg.shrub_evap;
+				tmp[3] = yravg.forb_evap;
 				tmp[4] = yravg.grass_evap;
 				tmp[5] = yravg.litter_evap;
 				tmp[6] = yravg.surfaceWater_evap;
@@ -397,32 +397,32 @@ public class SW_SOILWATER {
 			case SW_DAY:
 				tmp[0] = dysum.total_int;
 				tmp[1] = dysum.tree_int;
-				tmp[2] = dysum.forb_int;
-				tmp[3] = dysum.shrub_int;
+				tmp[2] = dysum.shrub_int;
+				tmp[3] = dysum.forb_int;
 				tmp[4] = dysum.grass_int;
 				tmp[5] = dysum.litter_int;
 				break;
 			case SW_WEEK:
 				tmp[0] = wkavg.total_int;
 				tmp[1] = wkavg.tree_int;
-				tmp[2] = wkavg.forb_int;
-				tmp[3] = wkavg.shrub_int;
+				tmp[2] = wkavg.shrub_int;
+				tmp[3] = wkavg.forb_int;
 				tmp[4] = wkavg.grass_int;
 				tmp[5] = wkavg.litter_int;
 				break;
 			case SW_MONTH:
 				tmp[0] = moavg.total_int;
 				tmp[1] = moavg.tree_int;
-				tmp[2] = moavg.forb_int;
-				tmp[3] = moavg.shrub_int;
+				tmp[2] = moavg.shrub_int;
+				tmp[3] = moavg.forb_int;
 				tmp[4] = moavg.grass_int;
 				tmp[5] = moavg.litter_int;
 				break;
 			case SW_YEAR:
 				tmp[0] = yravg.total_int;
 				tmp[1] = yravg.tree_int;
-				tmp[2] = yravg.forb_int;
-				tmp[3] = yravg.shrub_int;
+				tmp[2] = yravg.shrub_int;
+				tmp[3] = yravg.forb_int;
 				tmp[4] = yravg.grass_int;
 				tmp[5] = yravg.litter_int;
 				break;

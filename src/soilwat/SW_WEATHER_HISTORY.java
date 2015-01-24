@@ -314,7 +314,7 @@ public class SW_WEATHER_HISTORY {
 		this.data = true;
 	}
 	
-	public void onRead(Path WeatherHistoryFile) throws Exception {
+	public void onRead(Path WeatherHistoryFile, Boolean useMarkov) throws Exception {
 		LogFileIn f = LogFileIn.getInstance();
 		int year = 0;
 		try {
@@ -342,17 +342,18 @@ public class SW_WEATHER_HISTORY {
 				}
 				this.data=true;
 			} else {
-				f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistIn onRead : Path '"+WeatherHistoryFile.toString()+"' doesn't exists.");
+				if(!useMarkov)
+					f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistIn onRead : Path '"+WeatherHistoryFile.toString()+"' doesn't exists.");
 			}
 		}
 	}
 	
-	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws Exception {
+	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear, Boolean useMarkov) throws Exception {
 		if(this.data) {
 			onClear();
 		}
 		for(int i=startYear; i<=endYear; i++) {
-			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)));
+			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)), useMarkov);
 		}
 		this.data = true;
 	}
@@ -379,7 +380,7 @@ public class SW_WEATHER_HISTORY {
 			}
 		} else {
 			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onWriteWeatherHistories : No Historical Data.");
+			f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherHistories : No Historical Data.");
 		}
 	}
 	

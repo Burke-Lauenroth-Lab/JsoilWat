@@ -351,7 +351,7 @@ public class SW_OUTPUT {
 	
 	public static class OUTPUT_INPUT_DATA {
 		public OutKey mykey;
-		public OutSum sumtype;
+		public OutSum sumtype = OutSum.eSW_Off;
 		public OutPeriod periodColumn;//We need to store this just in case we write out
 		public int first_orig, last_orig;
 		public String filename_prefix;
@@ -1105,6 +1105,9 @@ public class SW_OUTPUT {
 						SW_Output[k.idx()].last_orig = Integer.valueOf(values[4]);
 				} catch(NumberFormatException e) {
 					f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Could not covert start or end."+e.getMessage());
+				}
+				if(SW_Output[k.idx()].sumtype == OutSum.eSW_Off && SW_Output[k.idx()].last_orig == 0) {
+					SW_Output[k.idx()].last_orig = 366;
 				}
 				if (SW_Output[k.idx()].last_orig == 0) {
 					f.LogError(LogMode.ERROR, "OutputSetupIn onRead : Invalid ending day");

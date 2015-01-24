@@ -17,6 +17,7 @@ public class SW_CONTROL {
 	private SW_MODEL SW_Model;
 	private SW_SKY SW_Sky;
 	private SW_WEATHER SW_Weather;
+	private SW_MARKOV SW_Markov;
 	private SW_VEGPROD SW_VegProd;
 	private SW_SOILS SW_Soils;
 	private SW_SITE SW_Site;
@@ -34,7 +35,8 @@ public class SW_CONTROL {
 		SW_Files = new SW_FILES();
 		SW_Model = new SW_MODEL();
 		SW_Sky = new SW_SKY();
-		SW_Weather = new SW_WEATHER(SW_Model);
+		SW_Markov = new SW_MARKOV();
+		SW_Weather = new SW_WEATHER(SW_Model, SW_Markov);
 		SW_Soils = new SW_SOILS();
 		SW_VegProd = new SW_VEGPROD();
 		SW_Site = new SW_SITE(SW_VegProd, SW_Soils);
@@ -68,6 +70,7 @@ public class SW_CONTROL {
 		SW_Files.onSetInput(data.filesIn);
 		SW_Model.onSetInput(data.yearsIn);
 		SW_Sky.onSetInput(data.cloudIn);
+		SW_Markov.onSetInput(data.markovIn);
 		SW_Weather.onSetInput(data.weatherSetupIn);
 		SW_Weather.onSetWeatherHist(data.weatherHist);
 		SW_VegProd.onSetInput(data.prodIn);
@@ -84,6 +87,7 @@ public class SW_CONTROL {
 		SW_Files.onGetInput(data.filesIn);
 		SW_Model.onGetInput(data.yearsIn);
 		SW_Sky.onGetInput(data.cloudIn);
+		SW_Markov.onGetInput(data.markovIn);
 		SW_Weather.onGetInput(data.weatherSetupIn);
 		SW_Weather.onGetWeatherHist(data.weatherHist);
 		SW_VegProd.onGetInput(data.prodIn);
@@ -100,7 +104,8 @@ public class SW_CONTROL {
 		SW_Files.onRead(swFiles);
 		SW_Model.onRead(SW_Files.getYearsIn(true));
 		SW_Sky.onRead(SW_Files.getCloudIn(true));
-		SW_Weather.onRead(SW_Files.getWeatherSetupIn(true), SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
+		SW_Markov.onReadMarkov(SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
+		SW_Weather.onRead(SW_Files.getWeatherSetupIn(true));
 		SW_Weather.onReadHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
 		SW_VegProd.onRead(SW_Files.getPlantProductivityIn(true));
 		SW_Soils.onRead(SW_Files.getSoilsIn(true));
@@ -119,9 +124,7 @@ public class SW_CONTROL {
 		SW_Model.onWrite(SW_Files.getYearsIn(true));
 		SW_Sky.onWrite(SW_Files.getCloudIn(true));
 		SW_Weather.onWrite(SW_Files.getWeatherSetupIn(true));
-		//if(SW_Weather.getWeather().use_markov) {
-		//	SW_Weather.getMarkov().
-		//}
+		SW_Markov.onWriteMarkov(SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
 		SW_Weather.onWriteHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
 		SW_VegProd.onWrite(SW_Files.getPlantProductivityIn(true));
 		SW_Soils.onWrite(SW_Files.getSoilsIn(true));
@@ -172,7 +175,6 @@ public class SW_CONTROL {
 		SW_SoilWater.onClear();
 		SW_VegEstab.onClear();
 		SW_Output.onClear();
-		SW_Weather.onClear();
 		LogFileIn.getInstance().onClear();
 	}
 		
