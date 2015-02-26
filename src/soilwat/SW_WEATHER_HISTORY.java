@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class SW_WEATHER_HISTORY {
 	
@@ -25,6 +26,15 @@ public class SW_WEATHER_HISTORY {
 		public WeatherException(String message) {
 			super(message);
 		}
+	}
+	
+	public String toString() {
+		String out = "Weather History List\n";
+		Set<Integer> years = yearToIndex.keySet();
+		for(Integer year : years) {
+			out += year.toString()+"\n";
+		}
+		return out;
 	}
 
 	private class SW_WEATHER_HIST implements Comparable<SW_WEATHER_HIST> {

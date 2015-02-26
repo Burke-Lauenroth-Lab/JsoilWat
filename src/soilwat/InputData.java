@@ -77,6 +77,15 @@ public class InputData {
 			for(int i=0; i<25; i++)
 				this.layers[i] = new SOILS_INPUT_DATA();
 		}
+		
+		public String toString() {
+			String out="";
+			out += String.format("# %5s %10s %17s %7s %13s %13s %12s %12s %8s %8s %9s %11s\n","depth","matricd","gravel_content","evco","trco_grass","trco_shrub","trco_tree","trco_forb","%sand","%clay","imperm","soiltemp");
+			for(int i=0; i<nLayers; i++) {
+				out+=layers[i].toString()+"\n";
+			}
+			return out;
+		}
 	}
 	public static class SiteIn {
 		public SWC swcLimits = new SW_SITE.SWC();
@@ -88,6 +97,34 @@ public class InputData {
 		public Intrinsic siteIntrinsicParams = new Intrinsic();
 		public SoilTemperature soilTempConst = new SoilTemperature();
 		public TranspirationRegions transpRegions = new TranspirationRegions();
+		
+		public String toString() {
+			String out="";
+			out+=swcLimits.toString();
+			out+="\n";
+			out+=modelFlagsCoef.toString();
+			out+="\n";
+			out+=snowSimParams.toString();
+			out+="\n";
+			out+=drainageCoef.toString();
+			out+="\n";
+			out+=evaporationCoef.toString();
+			out+="\n";
+			out+=transpCoef.toString();
+			out+="\n";
+			out+=siteIntrinsicParams.toString();
+			out+="\n";
+			out+=soilTempConst.toString();
+			out+="\n";
+			out+="# ---- Transpiration regions ----\n";
+			out+="# ndx  : 1=shallow, 2=medium, 3=deep, 4=very deep\n";
+			out+="# layer: deepest layer number of the region. \n";
+			out+="# Grasses	Shrubs		Trees		Forbs\n";
+			out+="#        Layers are defined in soils.in.\n";
+			out+="# ndx    layer\n";
+			out+=this.transpRegions.toString();
+			return out;
+		}
 	}
 	public static class ProdIn {
 		public VegetationComposition vegComp = new VegetationComposition();
@@ -102,6 +139,42 @@ public class InputData {
 		public HydraulicRedistribution hydraulicRedist = new HydraulicRedistribution();
 		public CriticalSWP criticalSWP = new CriticalSWP();
 		public MonthlyProductionValues monthlyProd = new MonthlyProductionValues();
+		
+		public String toString() {
+			String out="";
+			out += "# Plant production data file for SOILWAT\n";
+			out += vegComp.toString();
+			out += "\n\n";
+			out += albedo.toString();
+			out += "\n\n";
+			out += coverPercent.toString();
+			out += "\n\n";
+			out += canopyHeight.toString();
+			out += "\n\n";
+			out += vegIntercParams.toString();
+			out += "\n\n";
+			out += litterIntercParams.toString();
+			out += "\n\n";
+			out += esTpart.toString();
+			out += "\n\n";
+			out += esLimit.toString();
+			out += "\n\n";
+			out += shade.toString();
+			out += "\n\n";
+			out += hydraulicRedist.toString();
+			out += "\n\n";
+			out += criticalSWP.toString();
+			out += "\n\n";
+			out += "# -------------- Monthly production values ------------\n";
+			out += "# Litter   - dead leafy material on the ground (g/m^2 ).\n";
+			out += "# Biomass  - living and dead/woody aboveground standing biomass (g/m^2).\n";
+			out += "# %Live    - proportion of Biomass that is actually living (0-1.0).\n";
+			out += "# LAI_conv - monthly amount of biomass needed to produce LAI=1.0 (g/m^2).\n";
+			out += "# There should be 12 rows, one for each month, starting with January.\n";
+			out += "#\n";
+			out += monthlyProd.toString();
+			return out;
+		}
 	}
 	public static class OutputIn {
 		public String outsep = "\t";
@@ -119,11 +192,67 @@ public class InputData {
 				outputs[i].use = false;
 			}
 		}
+		
+		public String toString() {
+			String out = "";
+			if(outsep.equals("\t"))
+				out += "OUTSEP t\n";
+			else if(outsep.equals(" "))
+				out += "OUTSEP s\n";
+			else
+				out += "OUTSEP "+outsep+"\n";
+			if(TimeSteps[0] || TimeSteps[1] || TimeSteps[2] || TimeSteps[3]) {
+				String temp="TIMESTEP";
+				for(int i=0; i<4; i++) {
+					if(TimeSteps[i] == true) {
+						temp+=" ";
+						switch(i) {
+						case 0:
+							temp+="dy";
+							break;
+						case 1:
+							temp+="wk";
+							break;
+						case 2:
+							temp+="mo";
+							break;
+						case 3:
+							temp+="yr";
+							break;
+						}
+					}
+				}
+				out += temp+"\n";
+			}
+			out += "\n";
+			out += String.format("#     %4s     %7s   %6s   %5s    %3s    %15s   %7s\n","key","SUMTYPE","PERIOD","start","end","filename_prefix","comment");
+			for(int i=0; i<28; i++) {
+				if(outputs[i].use)
+					out+=String.format("%13s %7s   %6s      %2s     %3s %15s      %s\n", outputs[i].mykey.key(),outputs[i].sumtype.key(),outputs[i].periodColumn.key(),String.valueOf(outputs[i].first_orig), outputs[i].last_orig==366?"end":String.valueOf(outputs[i].last_orig),outputs[i].filename_prefix, outputs[i].mykey.getComment());
+			}
+			return out;
+		}
 	}
 	public static class EstabIn {
 		public boolean use = true;
 		public List<String> estabFiles = new ArrayList<String>();
-		public List<SPP_INPUT_DATA> spps = new ArrayList<SPP_INPUT_DATA>();;
+		public List<SPP_INPUT_DATA> spps = new ArrayList<SPP_INPUT_DATA>();
+		
+		public String toString() {
+			String out = "";
+			out += String.valueOf(this.use?1:0)+"\t"+"# use flag; 1=check establishment, 0=don't check, ignore following\n";
+			if(this.estabFiles.size() > 0) {
+				for(int i=0; i<this.estabFiles.size(); i++) {
+					out += this.estabFiles.get(i)+"\n";
+				}
+			}
+			out+="\n";
+			for (SPP_INPUT_DATA v : spps) {
+				out  += v.toString()+"\n";
+			}
+	
+			return out;
+		}
 	}
 	public static class CloudIn {
 		public double[] cloudcov = new double[Times.MAX_MONTHS],	/* monthly cloud cover (frac) */
@@ -201,10 +330,25 @@ public class InputData {
 			snow_density[10] = m11;
 			snow_density[11] = m12;
 		}
+		
+		public String toString() {
+			String out = "";
+			out+=String.format("%-7s%-7s%-7s%-7s%-7s%-7s%-7s%-7s%-7s%-7s%-7s%-7s\n", "Jan", "Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec");
+			out+=String.format("%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f\n", cloudcov[0],cloudcov[1],cloudcov[2],cloudcov[3],cloudcov[4],cloudcov[5],cloudcov[6],cloudcov[7],cloudcov[8],cloudcov[9],cloudcov[10],cloudcov[11]);
+			out+=String.format("%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f\n", windspeed[0],windspeed[1],windspeed[2],windspeed[3],windspeed[4],windspeed[5],windspeed[6],windspeed[7],windspeed[8],windspeed[9],windspeed[10],windspeed[11]);
+			out+=String.format("%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f\n", r_humidity[0],r_humidity[1],r_humidity[2],r_humidity[3],r_humidity[4],r_humidity[5],r_humidity[6],r_humidity[7],r_humidity[8],r_humidity[9],r_humidity[10],r_humidity[11]);
+			out+=String.format("%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f\n", transmission[0],transmission[1],transmission[2],transmission[3],transmission[4],transmission[5],transmission[6],transmission[7],transmission[8],transmission[9],transmission[10],transmission[11]);
+			out+=String.format("%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f%-7.2f\n", snow_density[0],snow_density[1],snow_density[2],snow_density[3],snow_density[4],snow_density[5],snow_density[6],snow_density[7],snow_density[8],snow_density[9],snow_density[10],snow_density[11]);
+			return out;
+		}
 	}
 	public static class MarkovIn {
 		public Probability probability = new Probability();
 		public Covariance covariance = new Covariance();
+		
+		public String toString() {
+			return probability.toString() + "\n" + covariance.toString();
+		}
 	}
 	
 	public FILES_INPUT_DATA filesIn = new FILES_INPUT_DATA();
@@ -220,6 +364,37 @@ public class InputData {
 	public SW_WEATHER_HISTORY weatherHist = new SW_WEATHER_HISTORY();
 	public SW_SOILWAT_HISTORY swcHist = new SW_SOILWAT_HISTORY();
 	public MarkovIn markovIn = new MarkovIn();
+	
+	public String toString() {
+		String out = "";
+		out+="##########\n##########Files Input\n##########\n";
+		out+=filesIn.toString();
+		out+="\n##########\n##########Model Input\n##########\n";
+		out+=yearsIn.toString();
+		out+="\n##########\n##########SWC Setup Input\n##########\n";
+		out+=swcSetupIn.toString();
+		out+="\n##########\n##########Weather Setup Input\n##########\n";
+		out+=weatherSetupIn.toString();
+		out+="\n##########\n##########Soils Input\n##########\n";
+		out+=soilsIn.toString();
+		out+="\n##########\n##########Site Input\n##########\n";
+		out+=siteIn.toString();
+		out+="\n##########\n##########Prod Input\n##########\n";
+		out+=prodIn.toString();
+		out+="\n##########\n##########Output Setup Input\n##########\n";
+		out+=outputSetupIn.toString();
+		out+="\n##########\n##########Estab Input\n##########\n";
+		out+=estabIn.toString();
+		out+="\n##########\n##########Cloud Input\n##########\n";
+		out+=cloudIn.toString();
+		out+="\n##########\n##########Weather History Input\n##########\n";
+		out+=weatherHist.toString();
+		out+="\n##########\n##########SWC History Input\n##########\n";
+		out+=swcHist.toString();
+		out+="\n##########\n##########Markov Input\n##########\n";
+		out+=markovIn.toString();
+		return out;
+	}
 	
 	public InputData() {
 		this.weatherSetupIn.yr = new SW_TIMES();
@@ -305,7 +480,7 @@ public class InputData {
 		prodIn.vegIntercParams.tree.onSet(0.00461, 0.01405, 0.0383, 0.0337);
 		prodIn.vegIntercParams.forb.onSet(0.0182, 0.0065, 0.0019, 0.0054);
 		prodIn.litterIntercParams.grass.onSet(0.0151, 0.00005, 0.0116, 0.00002);
-		prodIn.litterIntercParams.shrub.onSet(0.0151, 0.00005, 0.0116, 0.0116);
+		prodIn.litterIntercParams.shrub.onSet(0.0151, 0.00005, 0.0116, 0.00002);
 		prodIn.litterIntercParams.tree.onSet(0.0151, 0.00005, 0.0116, 0.00002);
 		prodIn.litterIntercParams.forb.onSet(0.0151, 0.00005, 0.0116, 0.00002);
 		prodIn.esTpart.onSet(1, 1, 0.41, 1);
@@ -331,7 +506,7 @@ public class InputData {
 		prodIn.monthlyProd.tree.onSetBiomass(15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000);
 		prodIn.monthlyProd.tree.onSetPercLive(0.083, 0.083, 0.083, 0.083, 0.083, 0.083, 0.083, 0.083, 0.083, 0.083, 0.083, 0.083);
 		prodIn.monthlyProd.tree.onSetLai_conv(500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500);
-		prodIn.monthlyProd.forb.onSetLitter(85.4, 88.2, 95.3, 1000.5, 166.4, 186.0, 177.1, 212.2, 157.4, 124.9, 110.4, 104.3);
+		prodIn.monthlyProd.forb.onSetLitter(85.4, 88.2, 95.3, 100.5, 166.4, 186.0, 177.1, 212.2, 157.4, 124.9, 110.4, 104.3);
 		prodIn.monthlyProd.forb.onSetBiomass(210.0, 212.0, 228.0, 272.0, 400.0, 404.0, 381.0, 352.0, 286.0, 235.0, 218.0, 214.0);
 		prodIn.monthlyProd.forb.onSetPercLive(0.06, 0.08, 0.20, 0.33, 0.57, 0.55, 0.5, 0.46, 0.32, 0.15, 0.08, 0.06);
 		prodIn.monthlyProd.forb.onSetLai_conv(372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372);

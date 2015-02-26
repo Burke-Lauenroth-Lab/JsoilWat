@@ -26,7 +26,14 @@ public class SW_MARKOV {
 			this.std_ppt = new double[Times.MAX_DAYS];
 		}
 		
-		
+		public String toString() {
+			String out = "";
+			out += "# Markov Prob In v1.0 (RJM) 2015 update\n";
+			out += "# day\twet\t\tdry\t\tavg\t\tstd\n";
+			for(int i=0; i<(Times.MAX_DAYS); i++)
+				out += String.format("  %-5d %-7.4f %-7.4f %-7.4f %.4f\n",i+1, wetprob[i], dryprob[i], avg_ppt[i], std_ppt[i]);
+			return out;
+		}
 	}
 	public static class Covariance {
 		public double[][] u_cov;	/* mean temp (max, min) Celsius */
@@ -35,6 +42,15 @@ public class SW_MARKOV {
 		public Covariance() {
 			this.u_cov = new double[Times.MAX_WEEKS][2];
 			this.v_cov = new double[Times.MAX_WEEKS][2][2];
+		}
+		
+		public String toString() {
+			String out = "";
+			out += "# Markov Covariance In v1.0 (RJM) 2015 update\n";
+			out += "# week\tu_cov1\t\tu_cov2\t\tv_cov1\t\tv_cov2\t\tv_cov3\t\tv_cov4\n";
+			for(int i=0; i<(Times.MAX_WEEKS); i++)
+				out += String.format("  %-5d %-11.5f %-11.5f %-11.5f %-11.5f %-11.5f %.5f\n",i+1, u_cov[i][0], u_cov[i][1], v_cov[i][0][0], v_cov[i][0][1], v_cov[i][1][0], v_cov[i][1][1]);
+			return out;
 		}
 	}
 	private Probability prob;
@@ -138,8 +154,12 @@ public class SW_MARKOV {
 	}
 		
 	public void onReadMarkov(Path MarkovProbabilityIn, Path MarkovCovarianceIn) throws Exception {
-		onReadMarkovCovIn(MarkovCovarianceIn);
-		onReadMarkovProbIn(MarkovProbabilityIn);
+		if(Files.exists(MarkovProbabilityIn)) {
+			onReadMarkovCovIn(MarkovCovarianceIn);
+		}
+		if(Files.exists(MarkovCovarianceIn)) {
+			onReadMarkovProbIn(MarkovProbabilityIn);
+		}
 		this.data = true;
 	}
 	private void onReadMarkovProbIn(Path MarkovProbabilityIn) throws Exception {

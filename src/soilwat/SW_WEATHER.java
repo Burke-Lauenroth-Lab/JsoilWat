@@ -85,7 +85,34 @@ public class SW_WEATHER {
 		public double[] scale_precip = new double[Times.MAX_MONTHS], scale_temp_max = new double[Times.MAX_MONTHS], scale_temp_min = new double[Times.MAX_MONTHS];
 		public double[] scale_skyCover = new double[Times.MAX_MONTHS], scale_wind = new double[Times.MAX_MONTHS], scale_rH = new double[Times.MAX_MONTHS], scale_transmissivity = new double[Times.MAX_MONTHS];
 		public String get_MonthlyScaling_toString(int month) {
-			return String.format("%4s\t%5f\t%5f\t%5f\t%8f\t%5f\t%5f\t%14f", String.valueOf(month+1),scale_precip[month],scale_temp_max[month],scale_temp_min[month],scale_skyCover[month],scale_wind[month],scale_rH[month],scale_transmissivity[month]);
+			return String.format("%4s\t%5.2f\t%5.2f\t%5.2f\t%8.2f\t%5.2f\t%5.2f\t%14.2f", String.valueOf(month+1),scale_precip[month],scale_temp_max[month],scale_temp_min[month],scale_skyCover[month],scale_wind[month],scale_rH[month],scale_transmissivity[month]);
+		}
+		
+		public String toString() {
+			String out = "";
+			out += "# Weather setup parameters\n";
+			out += "# Location:\n";
+			out += "#\n";
+			out += String.format("%-6d",use_snow?1:0)+"\t# 1=allow snow accumulation,   0=no snow effects.\n";
+			out += String.format("%-6.0f",pct_snowdrift)+"\t# % of snow drift per snow event (+ indicates snow addition, - indicates snow taken away from site)\n";
+			out += String.format("%-6.0f",pct_snowRunoff)+"\t# % of snowmelt water as runoff/on per event (>0 indicates runoff, <0 indicates runon)\n";
+			out += String.format("%-6d",use_markov?1:0)+"\t# 0=use hout += data only, 1=use markov process for missing weather.\n";
+			out += String.format("%-6d",yr.getFirst())+"\t# first year to begin historical weather.\n";
+			out += String.format("%-6d",days_in_runavg)+"\t# number of days to use in the running average of temperature.\n";
+			out += "\n";
+			out += "# Monthly scaling parameters.\n";
+			out += "# Month 1 = January, Month 2 = February, etc.\n";
+			out += "# PPT = multiplicative for PPT (scale*ppt).\n";
+			out += "# MaxT = additive for max temp (scale+maxtemp).\n";
+			out += "# MinT = additive for min temp (scale+mintemp).\n";
+			out += "# SkyCover = additive for mean monthly sky cover [%]; min(100, max(0, scale + sky cover))\n";
+			out += "# Wind = multiplicative for mean monthly wind speed; max(0, scale * wind speed)\n";
+			out += "# rH = additive for mean monthly relative humidity [%]; min(100, max(0, scale + rel. Humidity))\n";
+			out += "# Transmissivity = multiplicative for mean monthly relative transmissivity; min(1, max(0, scale * transmissivity))\n";
+			out += String.format("#%3s\t%5s\t%5s\t%5s\t%8s\t%5s\t%5s\t%14s\n", "Mon","PPT","MaxT","MinT","SkyCover","Wind","rH","Transmissivity");
+			for(int i=0; i<Times.MAX_MONTHS; i++)
+				out += get_MonthlyScaling_toString(i)+"\n";
+			return out;
 		}
 	}
 

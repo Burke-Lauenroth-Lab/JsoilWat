@@ -29,6 +29,15 @@ public class SW_VEGESTAB {
 				this.bars[SW_GERM_BARS] = swpGermination;
 				this.bars[SW_ESTAB_BARS] = swpEstablishment;
 			}
+			
+			public String toString() {
+				String out = "";
+				out += "# soil layer parameters\n";
+				out += String.format("%-7d%s", estab_lyrs,"\t# number of layers affecting establishment\n");
+				out += String.format("%-7.2f%s", bars[SW_GERM_BARS], "\t# SWP (bars) requirement for germination (top layer)\n");
+				out += String.format("%-7.2f%s", bars[SW_ESTAB_BARS], "\t# SWP (bars) requirement for establishment (average of top layers)\n");
+				return out;
+			}
 		}
 		public class TimingParams {
 			public int min_pregerm_days, /* first possible day of germination */
@@ -53,6 +62,19 @@ public class SW_VEGESTAB {
 				this.min_days_germ2estab = min_days_germ2estab;
 				this.max_days_germ2estab = max_days_germ2estab;
 			}
+			
+			public String toString() {
+				String out = "";
+				out += "# timing parameters in days\n";
+				out += String.format("%-7d%s", min_pregerm_days, "\t# first possible day of germination\n");
+				out += String.format("%-7d%s", max_pregerm_days, "\t# last possible day of germination\n");
+				out += String.format("%-7d%s", min_wetdays_for_germ, "\t# min number of consecutive 'wet' days for germination to occur\n");
+				out += String.format("%-7d%s", max_drydays_postgerm, "\t# max number of consecutive 'dry' days after germination allowing estab\n");
+				out += String.format("%-7d%s", min_wetdays_for_estab, "\t# min number of consecutive 'wet' days after germination before establishment\n");
+				out += String.format("%-7d%s", min_days_germ2estab, "\t# min number of days between germination and establishment\n");
+				out += String.format("%-7d%s", max_days_germ2estab, "\t# max number of days between germination and establishment\n");
+				return out;
+			}
 		}
 		public class TempParams {
 			public double min_temp_germ, 	/* min avg daily temp req't for germination */
@@ -65,12 +87,30 @@ public class SW_VEGESTAB {
 				this.min_temp_estab = min_temp_estab;
 				this.max_temp_estab = max_temp_estab;
 			}
+			
+			public String toString() {
+				String out = "";
+				out += "# temperature parameters in C\n";
+				out += String.format("%-7.2f%s", min_temp_germ, "\t# min temp threshold for germination\n");
+				out += String.format("%-7.2f%s", max_temp_germ, "\t# max temp threshold for germination\n");
+				out += String.format("%-7.2f%s", min_temp_estab, "\t# min temp threshold for establishment\n");
+				out += String.format("%-7.2f%s", max_temp_estab, "\t# max temp threshold for establishment\n");
+				return out;
+			}
 		}
 		public SoilLayerParams soilLayerParams = new SoilLayerParams();
 		public TimingParams timingParams = new TimingParams();
 		public TempParams tempParams = new TempParams();
 		public String sppName;
 		
+		public String toString() {
+			String out = "";
+			out += sppName + "\t" + "# 4-char name of species\n";
+			out += soilLayerParams.toString();
+			out += timingParams.toString();
+			out += tempParams.toString();
+			return out;
+		}
 		//public void onSet(String sppName, int )
 	}
 	

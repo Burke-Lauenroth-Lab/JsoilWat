@@ -13,6 +13,22 @@ public class SW_MODEL {
 		startstart,
 		endend;
 		public boolean isNorth;
+		
+		public String toString() {
+			String out = "";
+			out+="# Model time definition file\n";
+			out+="# Location: \n";
+			out+="\n";
+			out+=String.format("%-5d%s%s",startYear,comments[0],"\n");
+			out+=String.format("%-5d%s%s",endYear,comments[1],"\n");
+			out+=String.format("%-5d%s%s",startstart,comments[2],"\n");
+			out+=String.format("%-5d%s%s",endend,comments[3],"\n");
+			if(isNorth)
+				out+=String.format("%-5s%s%s", "N",comments[4],"\n");
+			else
+				out+=String.format("%-5s%s%s", "S",comments[4],"\n");
+			return out;
+		}
 	}
 	/* Private Member Variables */
 	private int /* controlling dates for model run */
@@ -40,7 +56,7 @@ public class SW_MODEL {
 	_notime = 0xffff; /* init value for _prev* */
 	
 	private final int nLineStartYear=3, nLineEndYear=4, nLineFDOFY=5, nLineEDOEY=6;
-	private final String[] comments = {"\t# starting year (but see weather and swc inputs)",
+	private static final String[] comments = {"\t# starting year (but see weather and swc inputs)",
 			"\t# ending year", "\t# first day of first year", "\t# ending day of last year",
 			"\t# ending day of last year"};
 	private int nLineIsNorth=7;

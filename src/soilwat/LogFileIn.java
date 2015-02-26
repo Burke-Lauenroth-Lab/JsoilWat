@@ -11,6 +11,7 @@ import java.util.List;
 public class LogFileIn {
 	private static LogFileIn instance = null;
 	private Path pLogFile;
+	private boolean quiet = true;
 	private boolean bLogged;
 	private boolean fileSet = false;
 	private boolean fileGood = false;
@@ -23,6 +24,10 @@ public class LogFileIn {
 	
 	public boolean isbLogged() {
 		return bLogged;
+	}
+	
+	public void setQuiet(boolean quiet) {
+		this.quiet = quiet;
 	}
 
 	public void setbLogged(boolean bLogged) {
@@ -64,8 +69,11 @@ public class LogFileIn {
 		try {
 			if(this.ready())
 				Files.write(path, lines, StandardCharsets.UTF_8);
-			else
-				System.out.println(lines.get(lines.size()-1)+"\n");
+			else {
+				if(!this.quiet) {
+					System.out.println(lines.get(lines.size()-1)+"\n");
+				}
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("SYSTEM: Cannot write to File fLogFile in LogError()\n");

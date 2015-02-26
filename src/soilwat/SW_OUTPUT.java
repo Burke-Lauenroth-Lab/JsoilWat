@@ -765,7 +765,10 @@ public class SW_OUTPUT {
 				names = new String[]{"Potential Evaporation"};
 				break;
 			case eSW_WetDays:
-				names = new String[]{"Days Above SWC_Wet"};
+				names = new String[SW_Soils.getLayersInfo().n_layers];
+				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+					names[i] = "Lyr"+String.valueOf(i+1);
+				}
 				break;
 			case eSW_SnowPack:
 				names = new String[]{"Snowpack Water Equivalent","Snowdepth"};

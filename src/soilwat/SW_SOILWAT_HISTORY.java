@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 
@@ -20,6 +21,15 @@ public class SW_SOILWAT_HISTORY {
 	private List<SW_SOILWAT_HIST> swcHist;
 	private Map<Integer, Integer> yearToIndex;
 	private boolean data; 
+	
+	public String toString() {
+		String out = "SWC History List\n";
+		Set<Integer> years = yearToIndex.keySet();
+		for(Integer year : years) {
+			out += year.toString()+"\n";
+		}
+		return out;
+	}
 	
 	private class SW_SOILWAT_HIST {
 		private double swc[][];

@@ -27,6 +27,14 @@ public class SW_VEGPROD {
 			this.forb = forbFrac;
 			this.bareGround = baregroundFrac;
 		}
+		
+		public String toString() {
+			String out="";
+			out += "# ---- Composition of vegetation type components (0-1; must add up to 1)\n";
+			out += "# Grasses	Shrubs		Trees		Forbs		Bare Ground\n";
+			out += String.format("  %-10.3f%-12.3f%-12.3f%-12.3f%-12.3f", grass, shrub, tree, forb, bareGround);
+			return out;
+		}
 	}
 	public static class Albedo {
 		public double grass;
@@ -44,6 +52,15 @@ public class SW_VEGPROD {
 			this.forb = forb;
 			this.bareGround = bareGround;
 		}
+		
+		public String toString() {
+			String out="";
+			String comment = "\t# albedo:	(Houldcroft et al. 2009) MODIS snowfree 'grassland', 'open shrub', ‘evergreen needle forest’ with MODIS albedo aggregated over pure IGBP cells where NDVI is greater than the 98th percentile NDVI\n";
+			out += "# ---- Albedo\n";
+			out += "# Grasses	Shrubs		Trees		Forbs		Bare Ground\n";
+			out += String.format("  %-10.3f%-12.3f%-12.3f%-12.3f%-12.3f %s", grass, shrub, tree, forb, bareGround, comment);
+			return out;
+		}
 	}
 	public static class CoverPercent {
 		public double grass;
@@ -58,6 +75,14 @@ public class SW_VEGPROD {
 			this.shrub = shrub;
 			this.tree = tree;
 			this.forb = forb;
+		}
+		
+		public String toString() {
+			String out="";
+			out += "# ---- % Cover: divide standing LAI by this to get % cover\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.3f%-12.3f%-12.3f%-7.3f", grass, shrub, tree, forb);
+			return out;
 		}
 	}
 	public static class CanopyHeight {
@@ -94,6 +119,18 @@ public class SW_VEGPROD {
 			this.tree.onClear();
 			this.forb.onClear();
 		}
+		
+		public String toString() {
+			String out="";
+			out += "# -- Canopy height (cm) parameters either constant through season or as tanfunc with respect to biomass (g/m^2)\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-7.1f%s", grass.xinflec,shrub.xinflec,tree.xinflec,forb.xinflec,"\t# xinflec\n");
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-7.1f%s", grass.yinflec,shrub.yinflec,tree.yinflec,forb.yinflec,"\t# yinflec\n");
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-7.1f%s", grass.range,shrub.range,tree.range,forb.range,"\t# range\n");
+			out += String.format("  %-10.3f%-12.3f%-12.5f%-7.3f%s", grass.slope,shrub.slope,tree.slope,forb.slope,"\t# slope\n");
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-7.1f%s", grass.canopyHeight,shrub.canopyHeight,tree.canopyHeight,forb.canopyHeight,"\t# if > 0 then constant canopy height (cm)\n");
+			return out;
+		}
 	}
 	public static class VegetationInterceptionParameters {
 		public class Params {
@@ -126,6 +163,17 @@ public class SW_VEGPROD {
 			this.shrub.onClear();
 			this.tree.onClear();
 			this.forb.onClear();
+		}
+		
+		public String toString() {
+			String out = "";
+			out += "# --- Vegetation interception parameters for equation: intercepted rain = (a + b*veg) + (c+d*veg) * ppt; Grasses+Shrubs: veg=vegcov, Trees: veg=LAI\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.a,shrub.a,tree.a,forb.a,"\t# a\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.b,shrub.b,tree.b,forb.b,"\t# b\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.c,shrub.c,tree.c,forb.c,"\t# c\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.d,shrub.d,tree.d,forb.d,"\t# d\n");
+			return out;
 		}
 	}
 	public static class LitterInterceptionParameters {
@@ -160,6 +208,16 @@ public class SW_VEGPROD {
 			this.tree.onClear();
 			this.forb.onClear();
 		}
+		public String toString() {
+			String out = "";
+			out += "# --- Litter interception parameters for equation: intercepted rain = (a + b*litter) + (c+d*litter) * ppt\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.a,shrub.a,tree.a,forb.a,"\t# a\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.b,shrub.b,tree.b,forb.b,"\t# b\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.c,shrub.c,tree.c,forb.c,"\t# c\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.d,shrub.d,tree.d,forb.d,"\t# d\n");
+			return out;
+		}
 	}
 	public static class EsTpartitioning {
 		public double grass;
@@ -175,6 +233,14 @@ public class SW_VEGPROD {
 			this.tree = tree;
 			this.forb = forb;
 		}
+		
+		public String toString() {
+			String out="";
+			out += "# ---- Parameter for partitioning of bare-soil evaporation and transpiration as in Es = exp(-param*LAI)\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.3f%-12.3f%-12.3f%-7.3f", grass, shrub, tree, forb);
+			return out;
+		}
 	}
 	public static class EsParamLimit {
 		public double grass;
@@ -189,6 +255,14 @@ public class SW_VEGPROD {
 			this.shrub = shrub;
 			this.tree = tree;
 			this.forb = forb;
+		}
+		
+		public String toString() {
+			String out="";
+			out += " ---- Parameter for scaling and limiting bare soil evaporation rate: if totagb (g/m2) > param then no bare-soil evaporation\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-7.1f", grass, shrub, tree, forb);
+			return out;
 		}
 	}
 	public static class Shade {
@@ -227,6 +301,19 @@ public class SW_VEGPROD {
 			this.tree.onClear();
 			this.forb.onClear();
 		}
+		
+		public String toString() {
+			String out="";
+			out += "# --- Shade effects on transpiration based on live and dead biomass\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.2f%-12.2f%-12.2f%-7.2f%s", grass.shadeScale,shrub.shadeScale,tree.shadeScale,forb.shadeScale,"\t# shade scale\n");
+			out += String.format("  %-10.2f%-12.2f%-12.2f%-7.2f%s", grass.shadeMaximalDeadBiomass,shrub.shadeMaximalDeadBiomass,tree.shadeMaximalDeadBiomass,forb.shadeMaximalDeadBiomass,"\t# shade maximal dead biomass\n");
+			out += String.format("  %-10.2f%-12.2f%-12.2f%-7.2f%s", grass.xinflec,shrub.xinflec,tree.xinflec,forb.xinflec,"\t# tanfunc: xinflec\n");
+			out += String.format("  %-10.2f%-12.2f%-12.2f%-7.2f%s", grass.yinflec,shrub.yinflec,tree.yinflec,forb.yinflec,"\t# yinflec\n");
+			out += String.format("  %-10.2f%-12.2f%-12.2f%-7.2f%s", grass.range,shrub.range,tree.range,forb.range,"\t# range\n");
+			out += String.format("  %-10.5f%-12.5f%-12.5f%-7.5f%s", grass.slope,shrub.slope,tree.slope,forb.slope,"\t# slope\n");
+			return out;
+		}
 	}
 	public static class HydraulicRedistribution {
 		public class Params {
@@ -261,6 +348,16 @@ public class SW_VEGPROD {
 			this.tree.onClear();
 			this.forb.onClear();
 		}
+		public String toString() {
+			String out = "";
+			out += "# ---- Hydraulic redistribution: Ryel, Ryel R, Caldwell, Caldwell M, Yoder, Yoder C, Or, Or D, Leffler, Leffler A. 2002. Hydraulic redistribution in a stand of Artemisia tridentata: evaluation of benefits to transpiration assessed with a simulation model. Oecologia 130: 173-184.\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10d%-12d%-12d%-5d%s", grass.flag?1:0,shrub.flag?1:0,tree.flag?1:0,forb.flag?1:0,"\t# flag to turn on/off (1/0) hydraulic redistribution\n");
+			out += String.format("  %-10.4f%-12.4f%-12.4f%-7.4f%s", grass.maxCondRoot,shrub.maxCondRoot,tree.maxCondRoot,forb.maxCondRoot,"\t# maxCondroot - maximum radial soil-root conductance of the entire active root system for water (cm/-bar/day) = 0.097 cm/MPa/h\n");
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-7.1f%s", grass.swp50,shrub.swp50,tree.swp50,forb.swp50,"\t# swp50 - soil water potential (-bar) where conductance is reduced by 50% = -1. MPa\n");
+			out += String.format("  %-10.3f%-12.3f%-12.3f%-7.3f%s", grass.shapeCond,shrub.shapeCond,tree.shapeCond,forb.shapeCond,"\t# shapeCond - shaping parameter for the empirical relationship from van Genuchten to model relative soil-root conductance for water\n");
+			return out;
+		}
 	}
 	public static class CriticalSWP {
 		public double grass;
@@ -276,6 +373,14 @@ public class SW_VEGPROD {
 			this.tree = tree;
 			this.forb = forb;
 		}
+		
+		public String toString() {
+			String out = "";
+			out += "# ---- Critical soil water potential (MPa), i.e., when transpiration rates cannot sustained anymore, for instance, for many crop species -1.5 MPa is assumed and called wilting point\n";
+			out += "# Grasses	Shrubs		Trees		Forbs\n";
+			out += String.format("  %-10.1f%-12.1f%-12.1f%-12.1f", grass, shrub, tree, forb);
+			return out;
+		}
 	}
 	public static class MonthlyProductionValues {
 		public class Params {
@@ -289,7 +394,7 @@ public class SW_VEGPROD {
 				}
 			}
 			public String getString(int month) {
-				return String.valueOf(this.litter[month])+"\t"+String.valueOf(this.biomass[month])+"\t"+String.valueOf(this.percLive[month])+"\t"+String.valueOf(this.lai_conv[month]);
+				return String.format(" %-8.1f%-9.1f%-6.2f%-5.1f", litter[month],biomass[month],percLive[month],lai_conv[month]);
 			}
 			public void onSetMonth(int month, double litter, double biomass, double percLive, double lai_conv) {
 				month--;
@@ -354,6 +459,24 @@ public class SW_VEGPROD {
 				this.lai_conv[10] = m11;
 				this.lai_conv[11] = m12;
 			}
+			
+			public String toString() {
+				String out = "";
+				out += "#Litter\tBiomass\t%Live\tLAI_conv\n";
+				out += getString(Months.Jan.ordinal())+"\t# January\n";
+				out += getString(Months.Feb.ordinal())+"\t# February\n";
+				out += getString(Months.Mar.ordinal())+"\t# March\n";
+				out += getString(Months.Apr.ordinal())+"\t# April\n";
+				out += getString(Months.May.ordinal())+"\t# May\n";
+				out += getString(Months.Jun.ordinal())+"\t# June\n";
+				out += getString(Months.Jul.ordinal())+"\t# July\n";
+				out += getString(Months.Aug.ordinal())+"\t# August\n";
+				out += getString(Months.Sep.ordinal())+"\t# September\n";
+				out += getString(Months.Oct.ordinal())+"\t# October\n";
+				out += getString(Months.Nov.ordinal())+"\t# November\n";
+				out += getString(Months.Dec.ordinal())+"\t# December\n";
+				return out;
+			}
 		}
 		public Params grass;
 		public Params shrub;
@@ -370,6 +493,19 @@ public class SW_VEGPROD {
 			this.shrub.onClear();
 			this.tree.onClear();
 			this.forb.onClear();
+		}
+		
+		public String toString() {
+			String out = "";
+			out += "# Grasslands component:\n";
+			out += grass.toString()+"\n";
+			out += "# Shrublands component:\n";
+			out += shrub.toString()+"\n";
+			out += "# Forest component:\n";
+			out += tree.toString();
+			out += "# FORB component:\n";
+			out += forb.toString();
+			return out;
 		}
 	}
 	

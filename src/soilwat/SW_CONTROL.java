@@ -137,17 +137,23 @@ public class SW_CONTROL {
 		SW_Output.onWrite(SW_Files.getOutputSetupIn(true));
 	}
 	
-	public void onStartModel(boolean echo, boolean writeOutput) throws Exception {
+	public void onStartModel(boolean echo, boolean quiet, boolean writeOutput) throws Exception {
 		int year;
+		LogFileIn f = LogFileIn.getInstance();
+		
 		_set_echo(echo);
+		f.setQuiet(quiet);
+		
 		int years = SW_Model.getYearsInSimulation();
 		double Percent = 0;
 		if(onVerify()) {
 			for(year = SW_Model.getStartYear(); year<=SW_Model.getEndYear(); year++) {
 				SW_Model.setYear(year);
 				SW_CTL_run_current_year();
-				Percent = ((double) year-SW_Model.getStartYear()+1)/((double)years);
-				soilwatListener.soilwatEvent(new SoilwatEvent(year, Percent));
+				if(soilwatListener != null) {
+					Percent = ((double) year-SW_Model.getStartYear()+1)/((double)years);
+					soilwatListener.soilwatEvent(new SoilwatEvent(year, Percent));
+				}
 			}
 			if(writeOutput) {
 				try {

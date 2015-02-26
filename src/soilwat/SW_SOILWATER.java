@@ -70,6 +70,20 @@ public class SW_SOILWATER {
 		public SWC_INPUT_DATA() {
 			yr = new SW_TIMES();
 		}
+		
+		public String toString() {
+			String format = "%-"+String.valueOf(filePrefix.length()+1)+"d%s";
+			String formats= "%-"+String.valueOf(filePrefix.length()+1)+"s%s";
+			String out = "";
+			out+="# Setup parameters for measured swc\n";
+			out+="# Location: -\n";
+			out+="#\n";
+			out+=String.format(format, hist_use?1:0,"\t\t# 1=use swcdata history data file, 0= don't use\n");
+			out+=String.format(formats,filePrefix,"\t\t# input data file prefix\n");
+			out+=String.format(format,yr.getFirst(),"\t\t# first year of measurement data files\n");
+			out+=String.format(format,method,"\t\t# first year of measurement data files\n");
+			return out;
+		}
 	}
 	
 	protected class SOILWAT extends SWC_INPUT_DATA {

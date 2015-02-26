@@ -36,6 +36,11 @@ public class SW_SOILS {
 			this.impermeability = imperm;
 			this.sTemp = soiltemp;
 		}
+		
+		public String toString() {
+			return String.format("%7.0f %10.3f      %-12.3f %7.3f %13.3f %13.3f %12.3f %12.3f %8.3f %8.3f %9.3f %11.3f", depth, soilMatric_density, fractionVolBulk_gravel, evap_coeff, transp_coeff_grass, transp_coeff_shrub, transp_coeff_tree,
+					transp_coeff_forb, fractionWeightMatric_sand, fractionWeightMatric_clay, impermeability, sTemp);
+		}
 	}
 	protected class SW_LAYER_INFO extends SOILS_INPUT_DATA {
 		protected double width, /* width of the soil layer (cm) */

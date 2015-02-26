@@ -26,6 +26,55 @@ public class SW_FILES {
 		public String EstablishmentIn;
 		public String SWCSetupIn;
 		public String OutputSetupIn;
+		
+		public static int LongestString(String... args) {
+			int maxLength = 0;
+		    //String longestString = null;
+		    for (String s : args)
+		    {
+		      if (s.length() > maxLength)
+		      {
+		        maxLength = s.length();
+		        //longestString = s;
+		      }
+		    }
+		    return maxLength;
+		}
+		
+		public String toString() {
+			int length = LongestString(ProjectDirectory,OutputDirectory,WeatherPathAndPrefix,FilesIn,YearsIn,LogFile,SiteParametersIn,SoilsIn,WeatherSetupIn,MarkovProbabilityIn,MarkovCovarianceIn,CloudIn,PlantProductivityIn,EstablishmentIn,SWCSetupIn,OutputSetupIn);
+			String format = "%-"+String.valueOf(length)+"s%s";
+			String out = "";
+			out+="# List of input files for SOILWAT v32\n";
+			out+="# This is the first file read. Simulation information = \n";
+			out+="\n";
+			out+="# Model\n";
+			out+=String.format(format, YearsIn,"\t# years for model operation\n");
+			out+=String.format(format, LogFile, "\t# errors or important info (can also be stdout)\n");
+			out+="\n";
+			out+="#Site\n";
+			out+=String.format(format, SiteParametersIn, "\t# site parameters\n");
+			out+=String.format(format, SoilsIn, "\t# soil layer definitions\n");
+			out+="\n";
+			out+="#Weather\n";
+			out+=String.format(format, WeatherSetupIn, "\t# weather parameters\n");
+			out+=String.format(format, WeatherPathAndPrefix, "\t# data file containing historical weather (can include path)\n");
+			out+=String.format(format, MarkovProbabilityIn, "\t# precip probs; required for markov weather\n");
+			out+=String.format(format, MarkovCovarianceIn, "\t# covariance table required for markov weather\n");
+			out+=String.format(format, CloudIn, "\t# general atmospheric params\n");
+			out+="\n";
+			out+="#Vegetation\n";
+			out+=String.format(format, PlantProductivityIn, "\t# productivity values\n");
+			out+=String.format(format, EstablishmentIn, "\t# plant establishment start file\n");
+			out+="\n";
+			out+="#SWC measurements\n";
+			out+=String.format(format, SWCSetupIn, "\t# params for handling measured swc\n");
+			out+="\n";
+			out+="#Output\n";
+			out+=String.format(format, OutputDirectory, "\t# 'relative' path for output files: / for same directory, or e.g., Output/\n");
+			out+=String.format(format, OutputSetupIn, "\t# define output quantities\n");
+			return out;
+		}
 	}
 	/* Private Member Values*/
 	//Line index Values
@@ -158,7 +207,8 @@ public class SW_FILES {
 				String message = "";
 				for (String s : messages)
 					message += s + "\n";
-				f.LogError(LogFileIn.LogMode.ERROR, message);
+				
+				f.LogError(LogFileIn.LogMode.NOTE, message);
 			}
 			this.verified = true;
 			return true;

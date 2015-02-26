@@ -19,6 +19,15 @@ public class SW_SITE {
 			this.swc_init = swc_init;
 			this.swc_wet = swc_wet;
 		}
+		
+		public String toString() {
+			String out = "";
+			out+="# ---- SWC limits ----\n";
+			out+=String.format("%-7.3f%s", swc_min, "\t\t\t# swc_min : cm/cm if 0 - <1.0, -bars if >= 1.0.; if < 0. then estimate residual water content for each layer\n");
+			out+=String.format("%-7.3f%s", swc_init, "\t\t\t# swc_init: cm/cm if < 1.0, -bars if >= 1.0. \n");
+			out+=String.format("%-7.3f%s", swc_wet, "\t\t\t# swc_wet : cm/cm if < 1.0, -bars if >= 1.0. \n");
+			return out;
+		}
 	}
 	public static class Model {
 		public class Flags {
@@ -41,6 +50,17 @@ public class SW_SITE {
 			this.coefficients.petMultiplier = petMultiplier;
 			this.coefficients.percentRunoff = percentRunoff;
 		}
+		
+		public String toString() {
+			String out = "";
+			out+="# ---- Model flags and coefficients ----\n";
+			out+=String.format("%-7d%s",flags.reset_yr?1:0,"\t\t\t# reset (1/0): reset/don't reset swc each new year\n");
+			out+=String.format("%-7d%s",flags.deepdrain?1:0,"\t\t\t# deepdrain (1/0): allow/disallow deep drainage function.\n");
+			out+="\t\t\t\t#   if deepdrain == 1, model expects extra layer in soils file.\n";
+			out+=String.format("%-7.3f%s", coefficients.petMultiplier, "\t\t\t# multiplier for PET (eg for climate change).\n");
+			out+=String.format("%-7.3f%s", coefficients.percentRunoff, "\t\t\t#proportion of ponded surface water removed as runoff daily (value ranges between 0 and 1; 0=no loss of surface water, 1=all ponded water lost via runoff)\n");
+			return out;
+		}
 	}
 	public static class Snow {
 		public double TminAccu2;
@@ -55,11 +75,31 @@ public class SW_SITE {
 			this.RmeltMin = RmeltMin;
 			this.RmeltMax = RmeltMax;
 		}
+		
+		public String toString() {
+			String out = "";
+			out+="# ---- Snow simulation parameters (SWAT2K model): Neitsch S, Arnold J, Kiniry J, Williams J. 2005. Soil and water assessment tool (SWAT) theoretical documentation. version 2005. Blackland Research Center, Texas Agricultural Experiment Station: Temple, TX.\n";
+			out+="# these parameters are RMSE optimized values for 10 random SNOTEL sites for western US\n";
+			out+=String.format("%-7.3f%s",TminAccu2,"\t\t\t# TminAccu2 = Avg. air temp below which ppt is snow ( C)\n");
+			out+=String.format("%-7.3f%s",TmaxCrit,"\t\t\t# TmaxCrit = Snow temperature at which snow melt starts ( C)\n");
+			out+=String.format("%-7.3f%s",lambdasnow,"\t\t\t# lambdasnow = Relative contribution of avg. air temperature to todays snow temperture vs. yesterday's snow temperature (0-1)\n");
+			out+=String.format("%-7.3f%s",RmeltMin,"\t\t\t# RmeltMin = Minimum snow melt rate on winter solstice (cm/day/C)\n");
+			out+=String.format("%-7.3f%s",RmeltMax,"\t\t\t# RmeltMax = Maximum snow melt rate on summer solstice (cm/day/C)\n");
+			return out;
+		}
 	}
 	public static class Drainage {
 		public double slow_drain_coeff;
 		public void onSet(double slow_drain_coeff) {
 			this.slow_drain_coeff = slow_drain_coeff;
+		}
+		public String toString() {
+			String out = "";
+			out+="# ---- Drainage coefficient ----\n";
+			out+=String.format("%-7.4f%s", slow_drain_coeff,"\t\t\t# slow-drain coefficient per layer (cm/day).  See Eqn 2.9 in ELM doc.\n");
+			out+="\t\t\t\t# ELM shows this as a value for each layer, but this way it's applied to all.\n";
+			out+="\t\t\t\t# (Q=.02 in ELM doc, .06 in FORTRAN version).\n";
+			return out;
 		}
 	}
 	public static class Evaporation {
@@ -73,6 +113,21 @@ public class SW_SITE {
 			this.yinflec = inflection_point;
 			this.range = range;
 		}
+		public String toString() {
+			String out = "";
+			out+="# ---- Evaporation coefficients ----\n";
+			out+="# These control the tangent function (tanfunc) which affects the amount of soil\n";
+			out+="# water extractable by evaporation and transpiration.\n";
+			out+="# These constants aren't documented by the ELM doc.\n";
+			out+=String.format("%-7.3f%s", xinflec, "\t\t\t# rate shift (x value of inflection point).  lower value shifts curve \n");
+			out+="\t\t\t\t"+"# leftward, meaning less water lost to evap at a given swp.  effectively\n";
+			out+="\t\t\t\t"+"# shortens/extends high rate.\n";
+			out+=String.format("%-7.3f%s", slope, "\t\t\t# rate slope: lower value (eg .01) straightens S shape meaning more gradual\n");
+			out+="\t\t\t\t"+"# reduction effect; higher value (.5) makes abrupt transition\n";
+			out+=String.format("%-7.3f%s", yinflec, "\t\t\t# inflection point (y-value of inflection point)\n");
+			out+=String.format("%-7.3f%s", range, "\t\t\t# range: diff btw upper and lower rates at the limits\n");
+			return out;
+		}
 	}
 	public static class Transpiration {
 		public double xinflec;
@@ -85,6 +140,16 @@ public class SW_SITE {
 			this.yinflec = inflection_point;
 			this.range = range;
 		}
+		public String toString() {
+			String out = "";
+			out+="# ---- Transpiration Coefficients ----\n";
+			out+="# comments from Evap constants apply.\n";
+			out+=String.format("%-7.3f%s",xinflec,"\t\t\t# rate shift\n");
+			out+=String.format("%-7.3f%s",slope, "\t\t\t# rate shape\n");
+			out+=String.format("%-7.3f%s",yinflec, "\t\t\t# inflection point\n");
+			out+=String.format("%-7.3f%s",range, "\t\t\t# range\n");
+			return out;
+		}
 	}
 	public static class Intrinsic {
 		public double latitude;
@@ -96,6 +161,15 @@ public class SW_SITE {
 			this.altitude = altitude;
 			this.slope = slope;
 			this.aspect = aspect;
+		}
+		public String toString() {
+			String out = "";
+			out+="# ---- Intrinsic site params: Chimney Park, WY (41.068° N, 106.1195° W, 2740 m elevation) ----\n";
+			out+=String.format("%-10.4f%s",latitude,"\t\t\t# latitude of the site in radians, site = 002_-119.415_39.046\n");
+			out+=String.format("%-10.4f%s",altitude,"\t\t\t# altitude of site (m a.s.l.)\n");
+			out+=String.format("%-10.4f%s",slope,"\t\t\t# slope at site (degrees): no slope = 0\n");
+			out+=String.format("%-10.4f%s",aspect,"\t\t\t# aspect at site (degrees): N=0, E=90, S=180, W=270, no slope:-1\n");
+			return out;
 		}
 	}
 	public static class SoilTemperature {
@@ -123,6 +197,24 @@ public class SW_SITE {
 			this.stDeltaX=stDeltaX;
 			this.stMaxDepth=stMaxDepth;
 			this.use_soil_temp=use_soil_temp;
+		}
+		public String toString() {
+			String out = "";
+			out+="# ---- Intrinsic site params: ----\n";
+			out+="# ---- Soil Temperature Constants ----\n";
+			out+="# from Parton 1978, ch. 2.2.2 Temperature-profile Submodel\n";
+			out+=String.format("%-9.1f%s",bmLimiter,"\t\t\t# biomass limiter, 300 g/m^2 in Parton's equation for T1(avg daily temperature at the top of the soil)\n");
+			out+=String.format("%-9.1f%s",t1Param1,"\t\t\t# constant for T1 equation (used if biomass <= biomass limiter), 15 in Parton's equation\n");
+			out+=String.format("%-9.1f%s",t1Param2,"\t\t\t# constant for T1 equation (used if biomass > biomass limiter), -4 in Parton's equation\n");
+			out+=String.format("%-9.1f%s",t1Param3,"\t\t\t# constant for T1 equation (used if biomass > biomass limiter), 600 in Parton's equation\n");
+			out+=String.format("%-9.5f%s",csParam1,"\t\t\t# constant for cs (soil-thermal conductivity) equation, 0.00070 in Parton's equation\n");
+			out+=String.format("%-9.5f%s",csParam2,"\t\t\t# constant for cs equation, 0.00030 in Parton's equation\n");
+			out+=String.format("%-9.3f%s",shParam,"\t\t\t# constant for sh (specific heat capacity) equation, 0.18 in Parton's equation\n");
+			out+=String.format("%-9.3f%s",meanAirTemp,"\t\t\t# constant mean air temperature (the soil temperature at the lower boundary, 180 cm) in celsius\n");
+			out+=String.format("%-9.1f%s",stDeltaX,"\t\t\t# deltaX parameter for soil_temperature function, default is 15.  (distance between profile points in cm)  max depth (the next number) should be evenly divisible by this number\n");
+			out+=String.format("%-9.1f%s",stMaxDepth,"\t\t\t# max depth for the soil_temperature function equation, default is 180.  this number should be evenly divisible by deltaX\n");
+			out+=String.format("%-9d%s",use_soil_temp?1:0,"\t\t\t# flag, 1 to calculate soil_temperature, 0 to not calculate soil_temperature\n");
+			return out;
 		}
 	}
 	/* transpiration regions  shallow, moderately shallow,  */
@@ -174,7 +266,7 @@ public class SW_SITE {
 			if(nTranspRgn > 0) {
 				String sTable = "";
 				for(int i=0;i<nTranspRgn;i++) {
-					sTable+="\t"+String.valueOf(i+1)+"\t"+String.valueOf(table[i][1]+1)+"\n";
+					sTable+="\t"+String.valueOf(i+1)+"\t"+String.valueOf(table[i][1])+"\n";
 				}
 				return sTable;
 			} else
