@@ -3,6 +3,7 @@ package soilwat;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,11 +65,86 @@ public class SW_SOILWATER {
 	
 	public static class SWC_INPUT_DATA {
 		public boolean hist_use;
-		public String filePrefix;
+		public String filePrefix = "";
 		public SW_TIMES yr;
 		public int method;
-		public SWC_INPUT_DATA() {
+		private LogFileIn log;
+		
+		public SWC_INPUT_DATA(LogFileIn log) {
 			yr = new SW_TIMES();
+			this.log = log;
+		}
+		
+		public void onClear() {
+			hist_use = false;
+			filePrefix = "";
+			yr.onClear();
+			method = 0;
+		}
+		
+		public void onRead(String swSWCSetup) throws Exception {
+			int nitems=4, lineno=0;
+			LogFileIn f = log;
+			List<String> lines = SW_FILES.readFile(swSWCSetup, getClass().getClassLoader());
+			
+			for (String line : lines) {
+				//Skip Comments and empty lines
+				if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+					line = line.trim();
+					String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
+					switch (lineno) {
+					case 0:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc history use line.");
+						try {
+							hist_use = Integer.parseInt(values[0])>0 ? true : false;
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert swc history use line.");
+						}
+						break;
+					case 1:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc file prefix.");
+						filePrefix = values[0];
+						break;
+					case 2:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc history start year.");
+						try {
+							yr.setFirst(Integer.parseInt(values[0]));
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert swc first year line.");
+						}
+						break;
+					case 3:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for method.");
+						try {
+							method = Integer.parseInt(values[0]);
+							if(method < 1 || method >2)
+								f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Invalid swc adjustment method.");
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert method line.");
+						}
+						break;
+					default:
+						System.out.println(line);
+						if(lineno > nitems)
+							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too many lines.");
+						break;
+					}
+					lineno++;
+				}
+			}
+			if(lineno < nitems)
+				f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too few lines.");		
+		}
+		
+		public void onWrite(String swSWCSetup) throws Exception {
+			Path swcSetupIn = Paths.get(swSWCSetup);
+			List<String> lines = new ArrayList<String>();
+			lines.add(this.toString());
+			Files.write(swcSetupIn, lines, StandardCharsets.UTF_8);
 		}
 		
 		public String toString() {
@@ -107,7 +183,8 @@ public class SW_SOILWATER {
 		//protected SW_TIMES yr;
 		//protected String filePrefix;
 		
-		protected SOILWAT() {
+		protected SOILWAT(LogFileIn log) {
+			super(log);
 			snowdepth=surfaceWater=surfaceWater_evap=pet=aet=litter_evap=tree_evap=forb_evap=shrub_evap=grass_evap=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=0;
 			is_wet = new boolean[Defines.MAX_LAYERS];
@@ -134,7 +211,7 @@ public class SW_SOILWATER {
 			yravg=new SW_SOILWAT_OUTPUTS();
 			filePrefix = "";
 		}
-		protected void onClear() {
+		public void onClear() {
 			snowdepth=surfaceWater=surfaceWater_evap=pet=aet=litter_evap=tree_evap=forb_evap=shrub_evap=grass_evap=0;
 			litter_int=tree_int=forb_int=shrub_int=grass_int=0;
 			snowpack[0]=snowpack[1]=0;
@@ -228,19 +305,19 @@ public class SW_SOILWATER {
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
 				case SW_DAY:
-					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, dysum.swpMatric[i], SW_Soils.getWidths()[i],
+					tmp[i] = SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, dysum.swpMatric[i], SW_Soils.getWidths()[i],
 							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
 					break;
 				case SW_WEEK:
-					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, wkavg.swpMatric[i], SW_Soils.getWidths()[i],
+					tmp[i] = SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, wkavg.swpMatric[i], SW_Soils.getWidths()[i],
 							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
 					break;
 				case SW_MONTH:
-					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, moavg.swpMatric[i], SW_Soils.getWidths()[i],
+					tmp[i] = SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, moavg.swpMatric[i], SW_Soils.getWidths()[i],
 							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
 					break;
 				case SW_YEAR:
-					tmp[i] = SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, yravg.swpMatric[i], SW_Soils.getWidths()[i],
+					tmp[i] = SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, yravg.swpMatric[i], SW_Soils.getWidths()[i],
 							SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, 0, 0, i);
 					break;
 				}
@@ -604,22 +681,24 @@ public class SW_SOILWATER {
 	private SOILWAT soilwat;
 	private SW_SOILWAT_HISTORY hist;
 	private double temp_snow;
-	private boolean data;
+	public boolean data;
 	
 	private SW_MODEL SW_Model;
 	private SW_FLOW SW_Flow;
 	private SW_SOILS SW_Soils;
 	private SW_SITE SW_Site;
+	private LogFileIn log;
 	
-	protected SW_SOILWATER(SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
-		this.soilwat = new SOILWAT();
-		this.hist = new SW_SOILWAT_HISTORY();
+	protected SW_SOILWATER(LogFileIn log, SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
+		this.soilwat = new SOILWAT(log);
+		this.hist = new SW_SOILWAT_HISTORY(this.log);
 		this.data = false;
 		this.SW_Model = SW_Model;
 		this.SW_Soils = SW_Soils;
 		this.SW_Site = SW_Site;
-		this.SW_Flow = new SW_FLOW(SW_Model, SW_Site, SW_Soils, this, SW_Weather, SW_VegProd, SW_Sky);
+		this.SW_Flow = new SW_FLOW(log, SW_Model, SW_Site, SW_Soils, this, SW_Weather, SW_VegProd, SW_Sky);
 		temp_snow = 0;
+		this.log = log;
 	}
 	
 	protected void onClear() {
@@ -667,89 +746,10 @@ public class SW_SOILWATER {
 				else
 					hist.onRead(WeatherHistoryFolder, soilwat.filePrefix, soilwat.yr.getFirst(), SW_Model.getEndYear());
 			} catch (Exception e) {
-				LogFileIn f = LogFileIn.getInstance();
-				f.LogError(LogMode.ERROR, "SwcSetupIn onReadHist : Problem.");
+				log.LogError(LogMode.ERROR, "SwcSetupIn onReadHist : Problem.");
 			}
 	}
-	protected void onRead(Path swcSetupIn, Path WeatherHistoryFolder) throws Exception {
-		int nitems=4, lineno=0;
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(swcSetupIn, StandardCharsets.UTF_8);
-		
-		for (String line : lines) {
-			//Skip Comments and empty lines
-			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
-				line = line.trim();
-				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
-				switch (lineno) {
-				case 0:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc history use line.");
-					try {
-						soilwat.hist_use = Integer.parseInt(values[0])>0 ? true : false;
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert swc history use line.");
-					}
-					break;
-				case 1:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc file prefix.");
-					soilwat.filePrefix = values[0];
-					break;
-				case 2:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for swc history start year.");
-					try {
-						soilwat.yr.setFirst(Integer.parseInt(values[0]));
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert swc first year line.");
-					}
-					break;
-				case 3:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Expected only one value for method.");
-					try {
-						soilwat.method = Integer.parseInt(values[0]);
-						if(soilwat.method < 1 || soilwat.method >2)
-							f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Invalid swc adjustment method.");
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Could not convert method line.");
-					}
-					break;
-				default:
-					System.out.println(line);
-					if(lineno > nitems)
-						f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too many lines.");
-					break;
-				}
-				lineno++;
-			}
-		}
-		if(lineno < nitems)
-			f.LogError(LogMode.ERROR, "SwcSetupIn onRead : Too few lines.");
-		
-		onReadHist(WeatherHistoryFolder);
-		this.data = true;
-	}
-	protected void onWrite(Path swcSetupIn) throws Exception {
-		if(this.data) {
-			List<String> lines = new ArrayList<String>();
-			lines.add("# Setup parameters for measured swc");
-			lines.add("# Location: -");
-			lines.add("#");
-			lines.add(String.valueOf(soilwat.hist_use?1:0)+"\t\t"+"# 1=use swcdata history data file, 0= don't use");
-			lines.add(soilwat.filePrefix+"\t\t"+"# input data file prefix");
-			lines.add(String.valueOf(soilwat.yr.getFirst())+"\t\t"+"# first year of measurement data files");
-			lines.add(String.valueOf(soilwat.method)+"\t\t"+"# first year of measurement data files ");
-			Files.write(swcSetupIn, lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.WARN, "SwcSetupIn : onWrite : No data.");
-		}
-	}
-	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
-		this.hist.onWrite(WeatherHistoryFolder, prefix);
-	}
+	
 	protected void SW_SWC_water_flow() throws Exception {
 		/* =================================================== */
 		/* Adjust SWC according to historical (measured) data
@@ -769,8 +769,7 @@ public class SW_SOILWATER {
 			if (!(SW_Model.getDOY() == SW_Model.getFirstDayOfFirstYear() && SW_Model.getYear() == SW_Model.getStartYear())) {
 				SW_SWC_adjust_swc(SW_Model.getDOY());
 			} else {
-				LogFileIn f = LogFileIn.getInstance();
-				f.LogError(LogMode.WARN, "Attempt to set SWC on start day of first year of simulation disallowed.");
+				log.LogError(LogMode.WARN, "Attempt to set SWC on start day of first year of simulation disallowed.");
 			}
 
 		} else {
@@ -849,8 +848,7 @@ public class SW_SOILWATER {
 			break;
 
 		default:
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, "SW_SOILWATER SW_SWC_adjust_swc : Invalid SWC adjustment method.");
+			log.LogError(LogMode.FATAL, "SW_SOILWATER SW_SWC_adjust_swc : Invalid SWC adjustment method.");
 		}
 
 		/* this will guarantee that any method will not lower swc */
@@ -922,7 +920,7 @@ public class SW_SOILWATER {
 			return 0.;
 		}
 	}
-	protected static double SW_SWCbulk2SWPmatric(double fractionGravel, double swcBulk, double width, double psisMatric, double thetasMatric, double bMatric, int year, int doy, int lyr) throws Exception {
+	protected static double SW_SWCbulk2SWPmatric(LogFileIn log, double fractionGravel, double swcBulk, double width, double psisMatric, double thetasMatric, double bMatric, int year, int doy, int lyr) throws Exception {
 		/**********************************************************************
 		 PURPOSE: Calculate the soil water potential or the soilwater
 		 content of the current layer,
@@ -986,8 +984,7 @@ public class SW_SOILWATER {
 				theta1 = (swcBulk / width) * 100. / (1. - fractionGravel);
 			swp = psisMatric / Defines.powe(theta1/thetasMatric, bMatric) / Defines.BARCONV;
 		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, String.format("Invalid SWC value (%.4f) in SW_SWC_swc2potential.\n"+
+			log.LogError(LogMode.FATAL, String.format("Invalid SWC value (%.4f) in SW_SWC_swc2potential.\n"+
 					"    Year = %d, DOY=%d, Layer = %d\n", swcBulk, year, doy, lyr));
 		}
 

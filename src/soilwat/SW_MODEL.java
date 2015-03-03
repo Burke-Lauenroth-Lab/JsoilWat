@@ -3,6 +3,7 @@ package soilwat;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,115 @@ public class SW_MODEL {
 		startstart,
 		endend;
 		public boolean isNorth;
+		private LogFileIn log;
+		
+		public MODEL_INPUT_DATA(LogFileIn log) {
+			this.log = log;
+		}
+		
+		public void onClear() {
+			startYear = 0;
+			endYear = 0;
+			startstart = 0;
+			endend = 0;
+			isNorth = false;
+		}
+		
+		public void onRead(String swYearsIn) throws Exception {
+			LogFileIn f = log;
+			List<String> lines = SW_FILES.readFile(swYearsIn, getClass().getClassLoader());
+			
+			int nFileItemsRead = 0;
+			String enddyval="";
+			boolean fhemi=false,fenddy=false,fstartdy=false;
+
+			int cnt = 0;
+			loop: for (String line : lines) {
+				//Skip Comments and empty lines
+				if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+					line = line.trim();
+					String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
+					switch1: switch (nFileItemsRead) {
+					case 0:
+						try {
+							startYear = Integer.parseInt(values[0]);
+						} catch (NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read Start Year integer: "+e.getMessage());
+						}
+						break switch1;
+					case 1:
+						try {
+							endYear = Integer.parseInt(values[0]);
+						} catch (NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read End Year integer: "+e.getMessage());
+						}
+						break switch1;
+					default:
+						cnt++;
+						if(values[0].matches("[a-zA-Z]+") && values[0].compareToIgnoreCase("N") == 0) {//I think the C code is wrong
+							isNorth = true;
+							fhemi = true;
+							break loop;
+						}
+						swith2: switch (cnt) {
+						case 1:
+							try {
+								startstart = Integer.parseInt(values[0]);
+							} catch (NumberFormatException e) {
+								f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read Start Year integer: "+e.getMessage());
+							}
+							fstartdy = true;
+							break swith2;
+						case 2:
+							enddyval = values[0];
+							fenddy=true;
+							break loop;
+						case 3:
+							isNorth = true;
+							fhemi = true;
+							break loop;
+						}
+						break switch1;
+					}
+					nFileItemsRead++;
+				}
+			}
+			
+			if(!(fstartdy && fenddy && fhemi)) {
+				String message = "\n Not found in "+swYearsIn+":\n";
+				if(!fstartdy) {
+					message += "\tStart Day - using 1\n";
+					this.startstart = 1;
+				} else if(!fenddy) {
+					message += "\tEnd Day - using 'end'\n";
+					enddyval = "end";
+				} else if(!fhemi) {
+					message += "\tHemisphere - using 'N'\n";
+					isNorth = true;
+				}
+				f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn : "+message);
+			}
+			
+			this.startstart += ((isNorth) ? Times.DAYFIRST_NORTH : Times.DAYFIRST_SOUTH) - 1;
+			if(enddyval.compareToIgnoreCase("end") == 0)
+				this.endend = (isNorth) ? Times.Time_get_lastdoy_y(endYear) : Times.DAYLAST_SOUTH;
+			else {
+				int d = 0;
+				try {
+					d = Integer.parseInt(enddyval);
+				} catch (NumberFormatException e) {
+					f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read end year integer: "+e.getMessage());
+				}
+				this.endend = (d<365) ? d : Times.Time_get_lastdoy_y(endYear);
+			}
+		}
+		
+		public void onWrite(String swYearsIn) throws Exception {
+			Path yearsIn = Paths.get(swYearsIn);
+			List<String> lines = new ArrayList<String>();
+			lines.add(this.toString());
+			Files.write(yearsIn, lines, StandardCharsets.UTF_8);
+		}
 		
 		public String toString() {
 			String out = "";
@@ -30,6 +140,7 @@ public class SW_MODEL {
 			return out;
 		}
 	}
+	
 	/* Private Member Variables */
 	private int /* controlling dates for model run */
 	startyr, /* beginning year for model run */
@@ -55,17 +166,17 @@ public class SW_MODEL {
 	//_prevyear, /* check for new year */
 	_notime = 0xffff; /* init value for _prev* */
 	
-	private final int nLineStartYear=3, nLineEndYear=4, nLineFDOFY=5, nLineEDOEY=6;
 	private static final String[] comments = {"\t# starting year (but see weather and swc inputs)",
 			"\t# ending year", "\t# first day of first year", "\t# ending day of last year",
 			"\t# ending day of last year"};
-	private int nLineIsNorth=7;
 	private boolean data;
+	private LogFileIn log;
 	
-	protected SW_MODEL() {
+	protected SW_MODEL(LogFileIn log) {
 		Times.Time_init();
 		this.newweek=this.newmonth=this.newyear=false;
 		this.data = false;
+		this.log = log;
 	}
 	
 	protected void onClear() {
@@ -73,7 +184,7 @@ public class SW_MODEL {
 	}
 	
 	protected boolean onVerify() throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if(this.data) {
 			List<String> messages = new ArrayList<String>();
 			if(this.startyr < 0)
@@ -148,94 +259,7 @@ public class SW_MODEL {
 		yearsIn.endend = this.endend;
 		yearsIn.isNorth = this.isnorth;
 	}
-	protected void onRead(Path YearsIn) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(YearsIn, StandardCharsets.UTF_8);
-		boolean FirstEnd = false, endString = false; //used if FDOFY or EDOEY are not present
-		boolean fhemi=false,fenddy=false,fstartdy=false;
-		int d=0;
-		if(lines.isEmpty() | lines.size() < 5 ) {
-			f.LogError(LogFileIn.LogMode.FATAL, "swYears onReadYearsIn Empty or not enough Lines.");
-		}
-		try {
-			this.startyr = Integer.parseInt(lines.get(nLineStartYear).split("[ \t]+")[0]);
-			this.endyr = Integer.parseInt(lines.get(nLineEndYear).split("[ \t]+")[0]);
-			if(lines.size() > 5) {
-				if(!(lines.get(nLineEndYear+1).split("[ \t]")[0] == "N" | lines.get(nLineEndYear+1).split("[ \t]+")[0] == "S")) {
-					this.startstart = Integer.parseInt(lines.get(nLineFDOFY).split("[ \t]+")[0]);
-					fstartdy=true;
-					if(lines.get(nLineEDOEY).split("[ \t]+")[0].equals("end")) {
-						d = Integer.parseInt(lines.get(nLineEDOEY).split("[ \t]+")[0]);
-					} else {
-						endString=true;
-					}
-					fenddy=true;
-				} else {
-					FirstEnd = true;
-					fhemi = true;
-				}
-			}
-		} catch (NumberFormatException e) {
-			f.LogError(LogFileIn.LogMode.ERROR, "swYears onReadYearsIn could not read integer: "+e.getMessage());
-		}
-		if(lines.size() > 5) {
-			if(FirstEnd)
-				nLineIsNorth=nLineEndYear+1;
-			if(lines.get(nLineIsNorth).split("[ \t]+")[0].equals("N")) {
-				this.isnorth = true;
-				fhemi = true;
-			} else if(lines.get(nLineIsNorth).split("[ \t]+")[0].equals("s")) {
-				this.isnorth = false;
-				fhemi = true;
-			} else {
-				f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn isNorth format wrong: Set to TRUE");
-				this.isnorth = true;
-			}
-		}
-		if(!(fstartdy && fenddy && fhemi)) {
-			String message = "\n Not found in "+YearsIn.toString()+":\n";
-			if(!fstartdy) {
-				message += "\tStart Day - using 1\n";
-				this.startstart = 1;
-			} else if(!fenddy) {
-				message += "\tEnd Day - using 'end'\n";
-				endString = true;
-			} else if(!fhemi) {
-				message += "\tHemisphere - using 'N'\n";
-				this.isnorth = true;
-			}
-			f.LogError(LogFileIn.LogMode.WARN, "swYears onReadYearsIn : "+message);
-		}
-		this.startstart += ((this.isIsNorth()) ? Times.DAYFIRST_NORTH : Times.DAYFIRST_SOUTH) - 1;
-		if(endString)
-			this.endend = (this.isIsNorth()) ? Times.Time_get_lastdoy_y(this.endyr) : Times.DAYLAST_SOUTH;
-		else {
-			this.endend = (d<365) ? d : Times.Time_get_lastdoy_y(this.endyr);
-		}
-		this.daymid = (this.isIsNorth()) ? Times.DAYMID_NORTH : Times.DAYMID_SOUTH;
-		this.data = true;
-	}
 	
-	protected void onWrite(Path YearsIn) throws Exception {
-		if(this.data) {
-			List<String> lines = new ArrayList<String>();
-			lines.add("# Model time definition file");
-			lines.add("# Location: P1");
-			lines.add("");
-			lines.add(String.valueOf(this.startyr) + comments[0]);
-			lines.add(String.valueOf(this.endyr) + comments[1]);
-			lines.add(String.valueOf(this.startstart) + comments[2]);
-			lines.add(String.valueOf(this.endend) + comments[3]);
-			if(this.isIsNorth())
-				lines.add("N" + comments[4]);
-			else
-				lines.add("S" + comments[4]);
-			Files.write(YearsIn, lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.ERROR, "swYears onWriteYears : No Data.");
-		}
-	}
 	protected int getYearsInSimulation() {
 		return getEndYear() - getStartYear() + 1;
 	}

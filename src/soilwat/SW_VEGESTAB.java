@@ -101,7 +101,175 @@ public class SW_VEGESTAB {
 		public SoilLayerParams soilLayerParams = new SoilLayerParams();
 		public TimingParams timingParams = new TimingParams();
 		public TempParams tempParams = new TempParams();
-		public String sppName;
+		public String sppName = "";
+		private LogFileIn log;
+		
+		public SPP_INPUT_DATA(LogFileIn log) {
+			this.log = log;
+		}
+		
+		public void onRead(String sppFile) throws Exception {
+			int nitems=15, lineno=0;
+			LogFileIn f = log;
+			List<String> lines = SW_FILES.readFile(sppFile, getClass().getClassLoader());
+			
+			for (String line : lines) {
+				//Skip Comments and empty lines
+				if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+					line = line.trim();
+					String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
+					switch (lineno) {
+					case 0:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for name line.");
+						sppName = values[0];
+						break;
+					case 1:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for number of layers affecting establishment.");
+						try {
+							soilLayerParams.estab_lyrs = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert number of layers affecting establishment line.");
+						}
+						break;
+					case 2:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for germination (top layer).");
+						try {
+							soilLayerParams.bars[SW_GERM_BARS] = Double.valueOf(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for germination (top layer) line.");
+						}
+						break;
+					case 3:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for establishment (average of top layers).");
+						try {
+							soilLayerParams.bars[SW_ESTAB_BARS] = Double.valueOf(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for establishment (average of top layers) line.");
+						}
+						break;
+					case 4:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for first possible day of germination.");
+						try {
+							timingParams.min_pregerm_days = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert first possible day of germination line.");
+						}
+						break;
+					case 5:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for last possible day of germination.");
+						try {
+							timingParams.max_pregerm_days = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert last possible day of germination line.");
+						}
+						break;
+					case 6:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days for germination to occur.");
+						try {
+							timingParams.min_wetdays_for_germ = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of consecutive 'wet' days for germination to occur line.");
+						}
+						break;
+					case 7:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of consecutive 'dry' days after germination allowing estab.");
+						try {
+							timingParams.max_drydays_postgerm = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of consecutive 'dry' days after germination allowing estab line.");
+						}
+						break;
+					case 8:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days after germination before establishment.");
+						try {
+							timingParams.min_wetdays_for_estab = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert consecutive 'wet' days after germination before establishment line.");
+						}
+						break;
+					case 9:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of days between germination and establishment.");
+						try {
+							timingParams.min_days_germ2estab = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of days between germination and establishment line.");
+						}
+						break;
+					case 10:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of days between germination and establishment.");
+						try {
+							timingParams.max_days_germ2estab = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of days between germination and establishment line.");
+						}
+						break;
+					case 11:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for germination.");
+						try {
+							tempParams.min_temp_germ = Double.valueOf(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for germination line.");
+						}
+						break;
+					case 12:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for germination.");
+						try {
+							tempParams.max_temp_germ = Double.valueOf(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for germination line.");
+						}
+						break;
+					case 13:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for establishment.");
+						try {
+							tempParams.min_temp_estab = Double.valueOf(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for establishment line.");
+						}
+						break;
+					case 14:
+						if(values.length > 1)
+							f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for establishment.");
+						try {
+							tempParams.max_temp_estab = Double.valueOf(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
+						}
+						break;
+					}
+					if(lineno == 0) {
+						if(sppName.length() > 4) {
+							f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
+						}
+					}
+					lineno++;
+				}
+			}
+			if(lineno  < nitems) {
+				f.LogError(LogMode.ERROR, "EstabIn _spp_read : Too few input parameters.");
+			}
+		}
+		
+		public void onWrite(String sppFile) throws Exception {
+			Path sppfile = Paths.get(sppFile);
+			List<String> lines = new ArrayList<String>();
+			lines.add(this.toString());
+			Files.write(sppfile, lines, StandardCharsets.UTF_8);
+		}
 		
 		public String toString() {
 			String out = "";
@@ -129,9 +297,10 @@ public class SW_VEGESTAB {
 		min_swc_estab; 					/* same as min_swc_germ but for establishment */
 										/* this is the average of the swc of the first estab_lyrs */
 				
-		private boolean data;
+		public boolean data;
 		
 		protected SW_VEGESTAB_INFO() {
+			super(null);//This will not use read write functions
 			this.data=false;
 		}
 	}
@@ -148,14 +317,16 @@ public class SW_VEGESTAB {
 	private SW_VEGESTAB_OUTPUTS yrsum, /* conforms to the requirements of the output module */
 								yravg; /* note that there's only one period for output */
 									   /* see also the soilwater and weather modules */
-	private boolean data;
+	public boolean data;
 	private SW_WEATHER SW_Weather;
 	private SW_SOILWATER SW_Soilwat;
 	private SW_MODEL SW_Model;
 	private SW_SOILS SW_Soils;
 	private boolean EchoInits;
+	private LogFileIn log;
 	
-	protected SW_VEGESTAB(SW_WEATHER SW_Weather, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_SOILS SW_Soils) {
+	protected SW_VEGESTAB(LogFileIn log, SW_WEATHER SW_Weather, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_SOILS SW_Soils) {
+		this.log = log;
 		this.use = false;
 		this.count = 0;
 		this.params = new ArrayList<SW_VEGESTAB_INFO>();
@@ -232,76 +403,12 @@ public class SW_VEGESTAB {
 		if(use) {
 			for(int i=0; i<this.count; i++) {
 				estabIn.estabFiles.add(this.prjDirPath.relativize(tempPath.get(i)).toString());
-				estabIn.spps.add(new SPP_INPUT_DATA());
+				estabIn.spps.add(new SPP_INPUT_DATA(log));
 				onGetSPP(estabIn.spps.get(i), this.params.get(i));
 			}
 		}
 	}
 	
-	protected void onRead(Path estabIn, Path prjDir) throws Exception {
-		int lineno=0;
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(estabIn, StandardCharsets.UTF_8);
-		this.prjDirPath = prjDir;
-		
-		for (String line : lines) {
-			//Skip Comments and empty lines
-			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
-				line = line.trim();
-				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
-				switch (lineno) {
-				case 0:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn onRead : Expected only one value for use line.");
-					try {
-						this.use = Integer.parseInt(values[0])>0 ? true : false;
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn onRead : Could not convert use line.");
-					}
-					break;
-				default:
-					tempPath.add(prjDir.resolve(values[0]));
-					//_read_spp(prjDir.resolve(values[0]), values[0]);
-					break;
-				}
-				lineno++;
-			}
-		}
-		if(lineno == 0) {
-			this.use = false;
-		}
-		if(this.use)
-			for (Path path : tempPath) {
-				_read_spp(path);
-			}
-		
-		this.data = true;
-	}
-	
-	protected void onWrite(Path estabIn, Path prjDir) throws Exception {
-		if(this.data) {
-			List<String> lines = new ArrayList<String>();
-			lines.add("# list of filenames for which to check establishment");
-			lines.add("# each filename pertains to a species and contains the");
-			lines.add("# soil moisture and timing parameters required for the");
-			lines.add("# species to establish in a given year.");
-			lines.add("# There is no limit to the number of files in the list.");
-			lines.add("# to suppress checking establishment, comment all the");
-			lines.add("# lines below.");
-			lines.add("");
-			lines.add(String.valueOf(this.use?1:0)+"\t"+"# use flag; 1=check establishment, 0=don't check, ignore following");
-			if(this.params.size() > 0) {
-				for(int i=0; i<this.params.size(); i++) {
-					lines.add(this.params.get(i).sppFileName);
-					_write_spp(prjDir.resolve(this.params.get(i).sppFileName), this.params.get(i));
-				}
-			}
-			Files.write(estabIn, lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.WARN, "EstabIn onWrite : onWrite : No data.");
-		}
-	}
 	private void onSetSPP(SPP_INPUT_DATA spp, String sppFileName) {
 		this.params.add(new SW_VEGESTAB_INFO());
 		this.count = this.params.size();
@@ -343,196 +450,6 @@ public class SW_VEGESTAB {
 		spp.tempParams.max_temp_germ = v.tempParams.max_temp_germ;
 		spp.tempParams.min_temp_estab = v.tempParams.min_temp_estab;
 		spp.tempParams.max_temp_estab = v.tempParams.max_temp_estab;
-	}
-	private void _read_spp(Path sppFile) throws Exception {
-		int nitems=15, lineno=0;
-		
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(sppFile, StandardCharsets.UTF_8);
-		
-		this.params.add(new SW_VEGESTAB_INFO());
-		this.count = this.params.size();
-		SW_VEGESTAB_INFO v = this.params.get(this.count-1);
-		v.sppFileName = sppFile.getFileName().toString();
-		
-		for (String line : lines) {
-			//Skip Comments and empty lines
-			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
-				line = line.trim();
-				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
-				switch (lineno) {
-				case 0:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for name line.");
-					v.sppName = values[0];
-					break;
-				case 1:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for number of layers affecting establishment.");
-					try {
-						v.soilLayerParams.estab_lyrs = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert number of layers affecting establishment line.");
-					}
-					break;
-				case 2:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for germination (top layer).");
-					try {
-						v.soilLayerParams.bars[SW_GERM_BARS] = Double.valueOf(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for germination (top layer) line.");
-					}
-					break;
-				case 3:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for SWP (bars) requirement for establishment (average of top layers).");
-					try {
-						v.soilLayerParams.bars[SW_ESTAB_BARS] = Double.valueOf(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert SWP (bars) requirement for establishment (average of top layers) line.");
-					}
-					break;
-				case 4:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for first possible day of germination.");
-					try {
-						v.timingParams.min_pregerm_days = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert first possible day of germination line.");
-					}
-					break;
-				case 5:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for last possible day of germination.");
-					try {
-						v.timingParams.max_pregerm_days = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert last possible day of germination line.");
-					}
-					break;
-				case 6:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days for germination to occur.");
-					try {
-						v.timingParams.min_wetdays_for_germ = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of consecutive 'wet' days for germination to occur line.");
-					}
-					break;
-				case 7:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of consecutive 'dry' days after germination allowing estab.");
-					try {
-						v.timingParams.max_drydays_postgerm = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of consecutive 'dry' days after germination allowing estab line.");
-					}
-					break;
-				case 8:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of consecutive 'wet' days after germination before establishment.");
-					try {
-						v.timingParams.min_wetdays_for_estab = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert consecutive 'wet' days after germination before establishment line.");
-					}
-					break;
-				case 9:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min number of days between germination and establishment.");
-					try {
-						v.timingParams.min_days_germ2estab = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min number of days between germination and establishment line.");
-					}
-					break;
-				case 10:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max number of days between germination and establishment.");
-					try {
-						v.timingParams.max_days_germ2estab = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max number of days between germination and establishment line.");
-					}
-					break;
-				case 11:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for germination.");
-					try {
-						v.tempParams.min_temp_germ = Double.valueOf(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for germination line.");
-					}
-					break;
-				case 12:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for germination.");
-					try {
-						v.tempParams.max_temp_germ = Double.valueOf(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for germination line.");
-					}
-					break;
-				case 13:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for min temp threshold for establishment.");
-					try {
-						v.tempParams.min_temp_estab = Double.valueOf(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert min temp threshold for establishment line.");
-					}
-					break;
-				case 14:
-					if(values.length > 1)
-						f.LogError(LogMode.ERROR, "EstabIn _read_spp : Expected only one value for max temp threshold for establishment.");
-					try {
-						v.tempParams.max_temp_estab = Double.valueOf(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
-					}
-					break;
-				}
-				if(lineno == 0) {
-					if(v.sppName.length() > 4) {
-						f.LogError(LogMode.ERROR, "EstabIn _spp_read : Could not convert max temp threshold for establishment line.");
-					}
-				}
-				lineno++;
-			}
-		}
-		if(lineno  < nitems) {
-			f.LogError(LogMode.ERROR, "EstabIn _spp_read : Too few input parameters.");
-		}
-		v.data=true;
-	}
-	
-	private void _write_spp(Path sppFile, SW_VEGESTAB_INFO v) throws Exception {
-		if(v.data) {
-			List<String> lines = new ArrayList<String>();
-			lines.add(v.sppName + "\t" + "# 4-char name of species");
-			lines.add("# soil layer parameters");
-			lines.add(v.soilLayerParams.estab_lyrs + "\t" + "# number of layers affecting establishment");
-			lines.add(v.soilLayerParams.bars[SW_GERM_BARS] + "\t" + "# SWP (bars) requirement for germination (top layer)");
-			lines.add(v.soilLayerParams.bars[SW_ESTAB_BARS] + "\t" + "# SWP (bars) requirement for establishment (average of top layers)");
-			lines.add("# timing parameters in days");
-			lines.add(v.timingParams.min_pregerm_days + "\t" + "# first possible day of germination");
-			lines.add(v.timingParams.max_pregerm_days + "\t" + "# last possible day of germination");
-			lines.add(v.timingParams.min_wetdays_for_germ + "\t" + "# min number of consecutive 'wet' days for germination to occur");
-			lines.add(v.timingParams.max_drydays_postgerm + "\t" + "# max number of consecutive 'dry' days after germination allowing estab");
-			lines.add(v.timingParams.min_wetdays_for_estab + "\t" + "# min number of consecutive 'wet' days after germination before establishment");
-			lines.add(v.timingParams.min_days_germ2estab + "\t" + "# min number of days between germination and establishment");
-			lines.add(v.timingParams.max_days_germ2estab + "\t" + "# max number of days between germination and establishment");
-			lines.add("# temperature parameters in C");
-			lines.add(v.tempParams.min_temp_germ + "\t" + "# min temp threshold for germination");
-			lines.add(v.tempParams.max_temp_germ + "\t" + "# max temp threshold for germination");
-			lines.add(v.tempParams.min_temp_estab + "\t" + "# min temp threshold for establishment");
-			lines.add(v.tempParams.max_temp_estab + "\t" + "# max temp threshold for establishment");
-			Files.write(sppFile, lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.WARN, "EstabIn _write_spp : onWrite : No data.");
-		}
 	}
 	
 	private void _checkit(int doy, int sppnum) {
@@ -659,7 +576,7 @@ public class SW_VEGESTAB {
 	
 	private void _sanity_check(int sppnum) throws Exception {
 		/* =================================================== */
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		
 		SW_VEGESTAB_INFO v = params.get(sppnum);
 		double min_transp_lyrs;
@@ -689,7 +606,7 @@ public class SW_VEGESTAB {
 	
 	private void _echo_inits() throws Exception {
 		/* --------------------------------------------------- */
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		
 		f.LogError(LogMode.NOTE, String.format("\n=========================================================\n\n"+
 				"Parameters for the SoilWat Vegetation Establishment Check.\n"+

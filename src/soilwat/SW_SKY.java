@@ -1,15 +1,9 @@
 package soilwat;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
 import soilwat.InputData.CloudIn;
 
 public class SW_SKY {
-	private final String[] comments = new String[]{"# (site:	002_-119.415_39.046	), sky cover (sunrise-sunset),%,Climate Atlas of the US,http://cdo.ncdc.noaa.gov/cgi-bin/climaps/climaps.pl",
+	public static final String[] comments = new String[]{"# (site:	002_-119.415_39.046	), sky cover (sunrise-sunset),%,Climate Atlas of the US,http://cdo.ncdc.noaa.gov/cgi-bin/climaps/climaps.pl",
 			"# Wind speed (m/s),Climate Atlas of the US,http://cdo.ncdc.noaa.gov/cgi-bin/climaps/climaps.pl",
 			"# rel. Humidity (%),Climate Atlas of the US,http://cdo.ncdc.noaa.gov/cgi-bin/climaps/climaps.pl",
 			"# transmissivity (rel), only used in petfunc, but falls out of the equations (a = trans * b, c = a / trans)",
@@ -80,85 +74,6 @@ public class SW_SKY {
 			cloudIn.r_humidity[i] = this.r_humidity[i];
 			cloudIn.transmission[i] = this.transmission[i];
 			cloudIn.snow_density[i] = this.snow_density[i];
-		}
-	}
-	
-	protected void onRead(Path CloudIn) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(CloudIn, StandardCharsets.UTF_8);
-		int lineno=0;
-		
-		for (String line : lines) {
-			//Skip Comments and empty lines
-			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
-				line = line.trim();
-				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
-				if(values.length < 12)
-					f.LogError(LogFileIn.LogMode.ERROR, "swCloud onRead : Line "+String.valueOf(lineno+1)+": Not enough values.");
-				for (int j=0; j<12; j++) {
-					try {
-						switch (lineno) {
-						case 0:
-							cloudcov[j] = Double.parseDouble(values[j]);
-							break;
-						case 1:
-							windspeed[j] = Double.parseDouble(values[j]);
-							break;
-						case 2:
-							r_humidity[j] = Double.parseDouble(values[j]);
-							break;
-						case 3:
-							transmission[j] = Double.parseDouble(values[j]);
-							break;
-						case 4:
-							snow_density[j] = Double.parseDouble(values[j]);
-						default:
-							break;
-						}
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "swCloud onRead : Line:"+String.valueOf(lineno)+" Could not convert string to number." + e.getMessage());
-					}
-				}
-				lineno++;
-			}
-		}
-		this.data = true;
-	}
-	
-	protected void onWrite(Path CloudIn) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
-		if(this.data) {
-			List<String> lines = new ArrayList<String>();
-			String temp = "";
-			for(int i=0;i<5;i++){
-				for(int j=0;j<12;j++) {
-					switch (i) {
-					case 0:
-						temp += Double.toString(cloudcov[j])+" ";
-						break;
-					case 1:
-						temp += Double.toString(windspeed[j])+" ";
-						break;
-					case 2:
-						temp += Double.toString(r_humidity[j])+" ";
-						break;
-					case 3:
-						temp += Double.toString(transmission[j])+" ";
-						break;
-					case 4:
-						temp += Double.toString(snow_density[j])+" ";
-					default:
-						break;
-					}
-				}
-				temp += "\t"+comments[i];
-				lines.add(temp);
-				temp="";
-			}
-
-			Files.write(CloudIn, lines, StandardCharsets.UTF_8);
-		} else {
-			f.LogError(LogFileIn.LogMode.ERROR, "swCloud onWrite : No Data to Write.");
 		}
 	}
 	

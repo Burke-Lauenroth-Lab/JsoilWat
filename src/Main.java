@@ -1,3 +1,4 @@
+import soilwat.InputData;
 import soilwat.SW_CONTROL;
 
 public class Main {
@@ -13,8 +14,11 @@ public class Main {
 			InputOptions opts = new InputOptions();
 			init_args(opts, args);
 
+			InputData idata = new InputData();
+			idata.onRead(opts.ProjectDirectory+"/"+opts.filesIn);
+			
 			SW_CONTROL sim = new SW_CONTROL();
-			sim.onReadInputs(opts.ProjectDirectory+"/"+opts.filesIn);
+			sim.onSetInput(idata);
 			sim.onStartModel(opts.EchoInits, opts.QuietMode, true);
 		} catch(Exception e) {
 			e.printStackTrace();

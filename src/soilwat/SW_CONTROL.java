@@ -1,7 +1,6 @@
 package soilwat;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 
 import events.SoilwatEvent;
@@ -24,6 +23,7 @@ public class SW_CONTROL {
 	private SW_SOILWATER SW_SoilWater;
 	private SW_VEGESTAB SW_VegEstab;
 	private SW_OUTPUT SW_Output;
+	private LogFileIn log;
 	
 	protected SoilwatListener soilwatListener;
 	
@@ -32,17 +32,18 @@ public class SW_CONTROL {
 	}
 	
 	public SW_CONTROL() {
-		SW_Files = new SW_FILES();
-		SW_Model = new SW_MODEL();
+		log = new LogFileIn();
+		SW_Files = new SW_FILES(log);
+		SW_Model = new SW_MODEL(log);
 		SW_Sky = new SW_SKY();
-		SW_Markov = new SW_MARKOV();
-		SW_Weather = new SW_WEATHER(SW_Model, SW_Markov);
-		SW_Soils = new SW_SOILS();
-		SW_VegProd = new SW_VEGPROD();
-		SW_Site = new SW_SITE(SW_VegProd, SW_Soils);
-		SW_SoilWater = new SW_SOILWATER(SW_Model, SW_Site, SW_Soils, SW_Weather, SW_VegProd, SW_Sky);
-		SW_VegEstab = new SW_VEGESTAB(SW_Weather, SW_SoilWater, SW_Model, SW_Soils);
-		SW_Output = new SW_OUTPUT(SW_Soils, SW_SoilWater, SW_Model, SW_Weather, SW_VegEstab);
+		SW_Markov = new SW_MARKOV(log);
+		SW_Weather = new SW_WEATHER(log,SW_Model, SW_Markov);
+		SW_Soils = new SW_SOILS(log);
+		SW_VegProd = new SW_VEGPROD(log);
+		SW_Site = new SW_SITE(log,SW_VegProd, SW_Soils);
+		SW_SoilWater = new SW_SOILWATER(log,SW_Model, SW_Site, SW_Soils, SW_Weather, SW_VegProd, SW_Sky);
+		SW_VegEstab = new SW_VEGESTAB(log,SW_Weather, SW_SoilWater, SW_Model, SW_Soils);
+		SW_Output = new SW_OUTPUT(log,SW_Soils, SW_SoilWater, SW_Model, SW_Weather, SW_VegEstab);
 		SW_Weather.setSoilWater(SW_SoilWater);
 	}
 	
@@ -67,23 +68,45 @@ public class SW_CONTROL {
 	}
 	
 	public void onSetInput(InputData data) throws Exception {
+		//Copy the lines so far from input log file.
+		for(String m : data.log.onGetLog()) {
+			this.log.onGetLog().add(m);
+		}
+		
 		SW_Files.onSetInput(data.filesIn);
+		//System.out.println("filesIn");
 		SW_Model.onSetInput(data.yearsIn);
+		//System.out.println("yearsIn");
 		SW_Sky.onSetInput(data.cloudIn);
+		//System.out.println("cloudIn");
 		SW_Markov.onSetInput(data.markovIn);
+		//System.out.println("markovIn");
 		SW_Weather.onSetInput(data.weatherSetupIn);
+		//System.out.println("weatherSetupIn");
 		SW_Weather.onSetWeatherHist(data.weatherHist);
+		//System.out.println("weatherHist");
 		SW_VegProd.onSetInput(data.prodIn);
+		//System.out.println("prodIn");
 		SW_Soils.onSetInput(data.soilsIn);
+		//System.out.println("soilsIn");
 		SW_Site.onSetInput(data.siteIn);
+		//System.out.println("siteIn");
 		SW_SoilWater.onSetInput(data.swcSetupIn);
-		if(data.swcSetupIn.hist_use)
+		//System.out.println("swcSetupIn");
+		if(data.swcSetupIn.hist_use) {
 			SW_SoilWater.onSetHist(data.swcHist);
+			//System.out.println("swcHist");
+		}
 		SW_VegEstab.onSetInput(data.estabIn);
+		//System.out.println("estabIn");
 		SW_Output.onSetInput(data.outputSetupIn);
+		//System.out.println("outputSetupIn");
 	}
 	
 	public void onGetInput(InputData data) throws Exception {
+		for(String m : this.log.onGetLog()) {
+			data.log.onGetLog().add(m);
+		}
 		SW_Files.onGetInput(data.filesIn);
 		SW_Model.onGetInput(data.yearsIn);
 		SW_Sky.onGetInput(data.cloudIn);
@@ -100,49 +123,11 @@ public class SW_CONTROL {
 		SW_Output.onGetInput(data.outputSetupIn);
 	}
 	
-	public void onReadInputs(String swFiles) throws Exception {
-		SW_Files.onRead(swFiles);
-		SW_Model.onRead(SW_Files.getYearsIn(true));
-		SW_Sky.onRead(SW_Files.getCloudIn(true));
-		SW_Markov.onReadMarkov(SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
-		SW_Weather.onRead(SW_Files.getWeatherSetupIn(true));
-		SW_Weather.onReadHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
-		SW_VegProd.onRead(SW_Files.getPlantProductivityIn(true));
-		SW_Soils.onRead(SW_Files.getSoilsIn(true));
-		SW_Site.onRead(SW_Files.getSiteParametersIn(true));
-		SW_SoilWater.onRead(SW_Files.getSWCSetupIn(true), SW_Files.getWeatherPath(true));
-		SW_VegEstab.onRead(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
-		SW_Output.onRead(SW_Files.getOutputSetupIn(true));
-	}
-	
-	public void onWriteOutputs(String ProjectDirectory) throws Exception {
-		SW_Files.setProjectDirectory(Paths.get(ProjectDirectory));
-		SW_Files.onCreateFiles();
-		SW_Files.onVerify();
-		
-		SW_Files.onWrite();
-		SW_Model.onWrite(SW_Files.getYearsIn(true));
-		SW_Sky.onWrite(SW_Files.getCloudIn(true));
-		SW_Weather.onWrite(SW_Files.getWeatherSetupIn(true));
-		SW_Markov.onWriteMarkov(SW_Files.getMarkovProbabilityIn(true), SW_Files.getMarkovCovarianceIn(true));
-		SW_Weather.onWriteHistory(SW_Files.getWeatherPath(true), SW_Files.getWeatherPrefix());
-		SW_VegProd.onWrite(SW_Files.getPlantProductivityIn(true));
-		SW_Soils.onWrite(SW_Files.getSoilsIn(true));
-		SW_Site.onWrite(SW_Files.getSiteParametersIn(true));
-		SW_SoilWater.onWrite(SW_Files.getSWCSetupIn(true));
-		if(SW_SoilWater.getSoilWat().hist_use) {
-			SW_SoilWater.onWriteHistory(SW_Files.getWeatherPath(true), SW_SoilWater.getSoilWat().filePrefix);
-		}
-		SW_VegEstab.onWrite(SW_Files.getEstablishmentIn(true), SW_Files.getProjectDirectory());
-		SW_Output.onWrite(SW_Files.getOutputSetupIn(true));
-	}
-	
 	public void onStartModel(boolean echo, boolean quiet, boolean writeOutput) throws Exception {
 		int year;
-		LogFileIn f = LogFileIn.getInstance();
-		
+			
 		_set_echo(echo);
-		f.setQuiet(quiet);
+		log.setQuiet(quiet);
 		
 		int years = SW_Model.getYearsInSimulation();
 		double Percent = 0;
@@ -166,8 +151,7 @@ public class SW_CONTROL {
 	}
 	
 	public List<String> onGetLog() {
-		LogFileIn f = LogFileIn.getInstance();
-		return f.onGetLog();
+		return log.onGetLog();
 	}
 	
 	public void onClear() {
@@ -181,7 +165,7 @@ public class SW_CONTROL {
 		SW_SoilWater.onClear();
 		SW_VegEstab.onClear();
 		SW_Output.onClear();
-		LogFileIn.getInstance().onClear();
+		log.onClear();
 	}
 		
 	public boolean onVerify() throws Exception {

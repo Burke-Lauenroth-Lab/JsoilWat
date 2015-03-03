@@ -3,6 +3,7 @@ package soilwat;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,11 +82,118 @@ public class SW_WEATHER {
 		public boolean use_snow;
 		public double pct_snowdrift, pct_snowRunoff;
 		public int days_in_runavg;
-		public SW_TIMES yr;		
+		public SW_TIMES yr = new SW_TIMES();		
 		public double[] scale_precip = new double[Times.MAX_MONTHS], scale_temp_max = new double[Times.MAX_MONTHS], scale_temp_min = new double[Times.MAX_MONTHS];
 		public double[] scale_skyCover = new double[Times.MAX_MONTHS], scale_wind = new double[Times.MAX_MONTHS], scale_rH = new double[Times.MAX_MONTHS], scale_transmissivity = new double[Times.MAX_MONTHS];
+		private LogFileIn log;
+		
+		public WEATHER_INPUT_DATA(LogFileIn log) {
+			this.log = log;
+		}
+		
+		public void onClear() {
+			use_markov = false;
+			use_snow = false;
+			pct_snowdrift = 0;
+			pct_snowRunoff = 0;
+			days_in_runavg = 0;
+			yr.onClear();
+			for(int i=0; i<Times.MAX_MONTHS; i++) {
+				scale_precip[i] = 0;
+				scale_temp_max[i] = 0;
+				scale_temp_min[i] = 0;
+				scale_skyCover[i] = 0;
+				scale_wind[i] = 0;
+				scale_rH[i] = 0;
+				scale_transmissivity[i] = 0;
+			}
+			
+		}
+		
 		public String get_MonthlyScaling_toString(int month) {
 			return String.format("%4s\t%5.2f\t%5.2f\t%5.2f\t%8.2f\t%5.2f\t%5.2f\t%14.2f", String.valueOf(month+1),scale_precip[month],scale_temp_max[month],scale_temp_min[month],scale_skyCover[month],scale_wind[month],scale_rH[month],scale_transmissivity[month]);
+		}
+		
+		public void onRead(String WeatherSetupIn) throws Exception {
+			int nFileItemsRead=0;
+			LogFileIn f = log;
+			List<String> lines = SW_FILES.readFile(WeatherSetupIn, getClass().getClassLoader());
+			
+			for (String line : lines) {
+				//Skip Comments and empty lines
+				if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+					line = line.trim();
+					String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
+					switch (nFileItemsRead) {
+					case 0:
+						try {
+							use_snow = Integer.parseInt(values[0])>0 ? true : false;
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Use Snow : Could not convert string to integer." + e.getMessage());
+						}
+						break;
+					case 1:
+						try {
+							pct_snowdrift = Double.parseDouble(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : pct snow drift : Could not convert string to double." + e.getMessage());
+						}
+						break;
+					case 2:
+						try {
+							pct_snowRunoff = Double.parseDouble(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : pct snow Runoff : Could not convert string to double." + e.getMessage());
+						}
+						break;
+					case 3:
+						try {
+							use_markov = Integer.parseInt(values[0])>0 ? true : false;
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Use Markov : Could not convert string to integer." + e.getMessage());
+						}
+						break;
+					case 4:
+						try {
+							yr.setFirst(Integer.parseInt(values[0]));
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Year First : Could not convert string to integer." + e.getMessage());
+						}
+						break;
+					case 5:
+						try{
+							days_in_runavg = Integer.parseInt(values[0]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Days in Runavg : Could not convert string to integer." + e.getMessage());
+						}
+						break;
+					default:
+						if(nFileItemsRead == 6+Times.MAX_MONTHS)
+							break;
+						try {
+							int month = Integer.parseInt(values[0])-1;
+							scale_precip[month] = Double.parseDouble(values[1]);
+							scale_temp_max[month] = Double.parseDouble(values[2]);
+							scale_temp_min[month] = Double.parseDouble(values[3]);
+							scale_skyCover[month] = Double.parseDouble(values[4]);
+							scale_wind[month] = Double.parseDouble(values[5]);
+							scale_rH[month] = Double.parseDouble(values[6]);
+							scale_transmissivity[month] = Double.parseDouble(values[7]);
+						} catch(NumberFormatException e) {
+							f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Monthly scaling parameters : Could not convert line:"+String.valueOf(nFileItemsRead)+". " + e.getMessage());
+						}
+						break;
+					}
+					nFileItemsRead++;
+				}
+			}
+		}
+		
+		public void onWrite(String WeatherSetupIn) throws Exception{
+			Path pWeath = Paths.get(WeatherSetupIn);
+			List<String> lines = new ArrayList<String>();
+			lines.add(this.toString());
+			Files.write(pWeath, lines, StandardCharsets.UTF_8);
 		}
 		
 		public String toString() {
@@ -129,6 +237,7 @@ public class SW_WEATHER {
 		protected SW_WEATHER_2DAYS now;
 		
 		public WEATHER() {
+			super(null);
 			yr = new SW_TIMES();
 			dysum = new SW_WEATHER_OUTPUTS();
 			wksum = new SW_WEATHER_OUTPUTS();
@@ -225,9 +334,11 @@ public class SW_WEATHER {
 	private boolean data;
 	private int nFileItemsRead;
 	private final int nFileItems=18;
+	private LogFileIn log;
 	
-	protected SW_WEATHER(SW_MODEL SW_Model, SW_MARKOV SW_Markov) {
-		this.hist = new SW_WEATHER_HISTORY();
+	protected SW_WEATHER(LogFileIn log, SW_MODEL SW_Model, SW_MARKOV SW_Markov) {
+		this.log = log;
+		this.hist = new SW_WEATHER_HISTORY(log);
 		this.SW_Markov = SW_Markov;//new SW_MARKOV();
 		this.weather = new WEATHER();
 		this.nFileItemsRead=0;
@@ -257,29 +368,9 @@ public class SW_WEATHER {
 		SW_Markov.setPpt_events(0);
 		this.firsttime = true;
 	}
-	
-	/*protected void onSetDefault(Path ProjectDirectory) {
-		this.data = true;
-		this.firsttime = true;
-		this.weth_found = false;
-		weather.use_markov = false;
-		weather.use_snow = true;
-		weather.pct_snowdrift = 0;
-		weather.pct_snowRunoff = 0;
-		weather.scale_precip = new double[] {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
-		weather.scale_temp_max = new double[] {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
-		weather.scale_temp_min = new double[] {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
-		weather.days_in_runavg = 5;
-		weather.yr = new SW_TIMES();
-		weather.yr.setFirst(1982);
-		weather.yr.setLast(1990);//model endyear
-		this.nFileItemsRead=nFileItems;
-		tail=0;
-		SW_Markov.setPpt_events(0);
-	}*/
 
 	protected boolean onVerify() throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if(this.data) {
 			weather.runavg_list = new double[weather.days_in_runavg];
 			
@@ -310,9 +401,7 @@ public class SW_WEATHER {
 			return false;
 		}
 	}
-	protected void onReadHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
-		hist.onRead(WeatherHistoryFolder, prefix, weather.yr.getFirst(), SW_Model.getEndYear(), weather.use_markov);
-	}
+
 	protected void onSetInput(WEATHER_INPUT_DATA weatherSetupIn) {
 		weather.use_snow = weatherSetupIn.use_snow;
 		weather.pct_snowdrift = weatherSetupIn.pct_snowdrift;
@@ -363,118 +452,7 @@ public class SW_WEATHER {
 			history.add_year(year, this.hist.get_ppt_array(year), this.hist.get_temp_max_array(year), this.hist.get_temp_min_array(year));
 		}
 	}
-	protected void onRead(Path WeatherSetupIn) throws Exception {
-		this.nFileItemsRead=0;
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(WeatherSetupIn, StandardCharsets.UTF_8);
-		
-		for (String line : lines) {
-			//Skip Comments and empty lines
-			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
-				line = line.trim();
-				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
-				switch (this.nFileItemsRead) {
-				case 0:
-					try {
-						weather.use_snow = Integer.parseInt(values[0])>0 ? true : false;
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Use Snow : Could not convert string to integer." + e.getMessage());
-					}
-					break;
-				case 1:
-					try {
-						weather.pct_snowdrift = Double.parseDouble(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : pct snow drift : Could not convert string to double." + e.getMessage());
-					}
-					break;
-				case 2:
-					try {
-						weather.pct_snowRunoff = Double.parseDouble(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : pct snow Runoff : Could not convert string to double." + e.getMessage());
-					}
-					break;
-				case 3:
-					try {
-						weather.use_markov = Integer.parseInt(values[0])>0 ? true : false;
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Use Markov : Could not convert string to integer." + e.getMessage());
-					}
-					break;
-				case 4:
-					try {
-						weather.yr.setFirst(Integer.parseInt(values[0]));
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Year First : Could not convert string to integer." + e.getMessage());
-					}
-					break;
-				case 5:
-					try{
-						weather.days_in_runavg = Integer.parseInt(values[0]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Days in Runavg : Could not convert string to integer." + e.getMessage());
-					}
-					break;
-				default:
-					if(this.nFileItemsRead == 6+Times.MAX_MONTHS)
-						break;
-					try {
-						int month = Integer.parseInt(values[0])-1;
-						weather.scale_precip[month] = Double.parseDouble(values[1]);
-						weather.scale_temp_max[month] = Double.parseDouble(values[2]);
-						weather.scale_temp_min[month] = Double.parseDouble(values[3]);
-						weather.scale_skyCover[month] = Double.parseDouble(values[4]);
-						weather.scale_wind[month] = Double.parseDouble(values[5]);
-						weather.scale_rH[month] = Double.parseDouble(values[6]);
-						weather.scale_transmissivity[month] = Double.parseDouble(values[7]);
-					} catch(NumberFormatException e) {
-						f.LogError(LogFileIn.LogMode.ERROR, "WeatherIn onReadWeatherIn : Monthly scaling parameters : Could not convert line:"+String.valueOf(this.nFileItemsRead)+". " + e.getMessage());
-					}
-					break;
-				}
-				this.nFileItemsRead++;
-			}
-		}
-		this.data = true;
-	}
-
-	protected void onWrite(Path WeatherSetupIn) throws Exception {
-		if(this.data) {
-			List<String> lines = new ArrayList<String>();
-			lines.add("# Weather setup parameters");
-			lines.add("# Location: Chimney Park, WY (41.068° N, 106.1195° W, 2740 m elevation)");
-			lines.add("#");
-			lines.add(String.valueOf(weather.use_snow?1:0)+"\t# 1=allow snow accumulation,   0=no snow effects.");
-			lines.add(String.valueOf(weather.pct_snowdrift)+"\t# % of snow drift per snow event (+ indicates snow addition, - indicates snow taken away from site)");
-			lines.add(String.valueOf(weather.pct_snowRunoff)+"\t# % of snowmelt water as runoff/on per event (>0 indicates runoff, <0 indicates runon)");
-			lines.add(String.valueOf(weather.use_markov?1:0)+"\t# 0=use historical data only, 1=use markov process for missing weather.");
-			lines.add(String.valueOf(weather.yr.getFirst())+"\t# first year to begin historical weather.");
-			lines.add(String.valueOf(weather.days_in_runavg)+"\t # number of days to use in the running average of temperature.");
-			lines.add("");
-			lines.add("# Monthly scaling parameters.");
-			lines.add("# Month 1 = January, Month 2 = February, etc.");
-			lines.add("# PPT = multiplicative for PPT (scale*ppt).");
-			lines.add("# MaxT = additive for max temp (scale+maxtemp).");
-			lines.add("# MinT = additive for min temp (scale+mintemp).");
-			lines.add("# SkyCover = additive for mean monthly sky cover [%]; min(100, max(0, scale + sky cover))");
-			lines.add("# Wind = multiplicative for mean monthly wind speed; max(0, scale * wind speed)");
-			lines.add("# rH = additive for mean monthly relative humidity [%]; min(100, max(0, scale + rel. Humidity))");
-			lines.add("# Transmissivity = multiplicative for mean monthly relative transmissivity; min(1, max(0, scale * transmissivity))");
-			lines.add(String.format("#%3s\t%5s\t%5s\t%5s\t%8s\t%5s\t%5s\t%14s", "Mon","PPT","MaxT","MinT","SkyCover","Wind","rH","Transmissivity"));
-			for(int i=0; i<Times.MAX_MONTHS; i++)
-				lines.add(weather.get_MonthlyScaling_toString(i));
-			Files.write(WeatherSetupIn, lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherIn : No data from files or default.");
-		}
-	}
 	
-	protected void onWriteHistory(Path WeatherHistoryFolder, String prefix) throws Exception {
-		this.hist.onWrite(WeatherHistoryFolder, prefix);
-	}
-
 	protected WEATHER getWeather() {
 		return this.weather;
 	}
@@ -502,8 +480,7 @@ public class SW_WEATHER {
 		}
 		
 		if(!weth_found && !weather.use_markov) {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, String.format("Markov Simulator turned off and weather file found not for year %d",year));
+			log.LogError(LogMode.FATAL, String.format("Markov Simulator turned off and weather file found not for year %d",year));
 		}
 		/* setup today's weather because it's used as a default
 		 * value when weather for the first day is missing.

@@ -1,8 +1,11 @@
 package soilwat;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,6 +22,7 @@ public class SW_WEATHER_HISTORY {
 	private List<SW_WEATHER_HIST> weatherHist;
 	private Map<Integer, Integer> yearToIndex;
 	private boolean data;
+	private LogFileIn log;
 	
 	public class WeatherException extends Exception {
 		private static final long serialVersionUID = 1L;
@@ -160,9 +164,9 @@ public class SW_WEATHER_HISTORY {
 		}
 		
 		public void onRead(Path WeatherHistoryFile, int year) throws Exception {
-			LogFileIn f = LogFileIn.getInstance();
+			LogFileIn f = log;
 			this.nYear = year;
-			List<String> lines = Files.readAllLines(WeatherHistoryFile, StandardCharsets.UTF_8);
+			List<String> lines = SW_FILES.readFile(WeatherHistoryFile.toString(), getClass().getClassLoader());
 			double acc_max=0,acc_min=0,acc=0,acc_ppt=0;
 			int k=0,x=0;
 			int doy=0;
@@ -232,7 +236,7 @@ public class SW_WEATHER_HISTORY {
 					lines.add(String.valueOf(i+1)+"\t"+String.valueOf(this.temp_max[i])+"\t"+String.valueOf(this.temp_min[i])+"\t"+String.valueOf(this.ppt[i]));
 				Files.write(WeatherHistoryFolder.resolve(prefix+"."+this.toString()), lines, StandardCharsets.UTF_8);
 			} else {
-				LogFileIn f = LogFileIn.getInstance();
+				LogFileIn f = log;
 				f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherHistory : No data from files or default.");
 			}
 		}
@@ -286,14 +290,15 @@ public class SW_WEATHER_HISTORY {
 		}
 	}
 
-	public SW_WEATHER_HISTORY() {
+	public SW_WEATHER_HISTORY(LogFileIn log) {
+		this.log = log;
 		this.weatherHist = new ArrayList<SW_WEATHER_HIST>();
 		yearToIndex = new HashMap<Integer,Integer>();
 		this.data = false;
 	}
 	
 	public void onSetYear(int year, double[] tempMax, double[] tempMin, double[] ppt) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if((tempMax.length != tempMin.length) || (tempMax.length != ppt.length) || (tempMin.length != ppt.length)) {
 			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onSet : tempMin tempMax PPT lengths are different from eachother.");
 		}
@@ -325,7 +330,7 @@ public class SW_WEATHER_HISTORY {
 	}
 	
 	public void onRead(Path WeatherHistoryFile, Boolean useMarkov) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		int year = 0;
 		try {
 			year = Integer.parseInt(WeatherHistoryFile.getFileName().toString().split("\\.")[1]);
@@ -335,7 +340,7 @@ public class SW_WEATHER_HISTORY {
 		if(yearToIndex.containsKey(year)) {
 			f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onRead : Contains Data for Year :" +String.valueOf(year));
 		} else {
-			if(Files.exists(WeatherHistoryFile)) {
+			if(Files.exists(WeatherHistoryFile) || WeatherHistoryFile.toString().startsWith("resource:")) {
 				if(this.yearToIndex.size() < this.weatherHist.size()) {//reuse an object
 					for(int i=0; i<this.weatherHist.size(); i++) {
 						if(!this.yearToIndex.containsValue(i)) {//This object is not used
@@ -358,18 +363,70 @@ public class SW_WEATHER_HISTORY {
 		}
 	}
 	
-	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear, Boolean useMarkov) throws Exception {
+	/***
+	 * R was having a problem calling onRead so testing this one.
+	 * @param folder
+	 * @param prefix
+	 */
+	public void onReadAll(String folder, String prefix) {
+		Path WeatherHistoryFolder = Paths.get(folder);
+		try {
+			this.onRead(WeatherHistoryFolder, prefix, 0, 20000, false);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
+		}
+	}
+	
+	public void onRead(Path WeatherHistoryFolder, final String prefix, int startYear, int endYear, Boolean useMarkov) throws Exception {
+		LogFileIn f = log;
+		File[] files = null;
 		if(this.data) {
 			onClear();
 		}
-		for(int i=startYear; i<=endYear; i++) {
-			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)), useMarkov);
+		if(WeatherHistoryFolder.toString().startsWith("resource:")) {
+			String[] names = { "resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1949","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1950","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1951","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1952","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1953","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1954","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1955","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1956","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1957","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1958","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1959","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1960","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1961","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1962","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1963","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1964","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1965","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1966","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1967","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1968","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1969","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1970","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1971","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1972","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1973","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1974","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1975","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1976","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1977","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1978","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1979","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1980","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1981","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1982","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1983","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1984","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1985","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1986","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1987","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1988","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1989","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1990","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1991","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1992","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1993","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1994","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1995","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1996","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1997","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1998","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.1999","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2000","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2001","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2002","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2003","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2004","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2005","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2006","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2007","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2008","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2009","resource:soilwat/data/Input/data_39.0625_-119.4375/weath.2010"};
+			List<File> temp = new ArrayList<File>(names.length);
+			for(int i=0;i<names.length;i++)
+				temp.add(new File(names[i]));
+			files = new File[names.length];
+			files = temp.toArray(files);
+		} else {
+			File dir = WeatherHistoryFolder.toFile();
+			files = dir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.contains(prefix);
+				}
+			});
+		}
+		if (files == null) {
+			return;
+		} else if (files.length == 0) {
+			return;
+		}
+		Arrays.sort(files);
+		boolean first = true;
+		for(File WeatherHistoryFile : files) {
+			int year = 0;
+			try {
+				year = Integer.parseInt(WeatherHistoryFile.toPath().getFileName().toString().split("\\.")[1]);
+			} catch(NumberFormatException n) {
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onRead : Convert Year From Path Failed :" +n.getMessage());
+			}
+			if(year >= startYear && year <= endYear) {
+				this.onRead(WeatherHistoryFile.toPath(), useMarkov);
+				if(first) {
+					this.nCurrentYear=year;
+					first = false;
+				}
+			}
 		}
 		this.data = true;
 	}
 	
 	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if(yearToIndex.containsKey(year)) {
 			int i = this.yearToIndex.get(year);
 			if(this.weatherHist.get(i).getYear() == year) {
@@ -389,7 +446,7 @@ public class SW_WEATHER_HISTORY {
 				this.onWrite(WeatherHistoryFolder, prefix, pair.getKey());
 			}
 		} else {
-			LogFileIn f = LogFileIn.getInstance();
+			LogFileIn f = log;
 			f.LogError(LogFileIn.LogMode.WARN, "WeatherIn onWriteWeatherHistories : No Historical Data.");
 		}
 	}
@@ -449,7 +506,9 @@ public class SW_WEATHER_HISTORY {
 			return false;
 		}
 	}
-	
+	public int get_nDays(int year) {
+		return this.weatherHist.get(yearToIndex.get(year)).nDaysInYear;
+	}
 	public double[] get_ppt_array(int year) {
 		return this.weatherHist.get(yearToIndex.get(year)).ppt;
 	}

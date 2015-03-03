@@ -105,8 +105,10 @@ public class SW_FLOW {
 	private SW_VEGPROD SW_VegProd;
 	private SW_SKY SW_Sky;
 	private SW_FLOW_PARAMS p;
+	private LogFileIn log;
 	
-	public SW_FLOW(SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_SOILWATER SW_Soilwat, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
+	public SW_FLOW(LogFileIn log, SW_MODEL SW_Model, SW_SITE SW_Site, SW_SOILS SW_Soils, SW_SOILWATER SW_Soilwat, SW_WEATHER SW_Weather, SW_VEGPROD SW_VegProd, SW_SKY SW_Sky) {
+		this.log = log;
 		soil_temp_error = false;
 		soil_temp_init = false;
 		fusion_pool_init = false;
@@ -1239,8 +1241,7 @@ public class SW_FLOW {
 			swp_avg = p.swpot_avg_forb;
 			break;
 		default:
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, "SW_FLOW transp_weighted_avg type:"+type+" not Supported.");
+			log.LogError(LogMode.FATAL, "SW_FLOW transp_weighted_avg type:"+type+" not Supported.");
 			break;
 		}
 		
@@ -1252,7 +1253,7 @@ public class SW_FLOW {
 
 			for (i = 0; i < n_layers; i++) {
 				if (tr_regions[i] == r) {
-					swp += tr_coeff[i] * SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
+					swp += tr_coeff[i] * SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
 					sumco += tr_coeff[i];
 				}
 			}
@@ -1405,8 +1406,7 @@ public class SW_FLOW {
 			Es_param_limit = SW_VegProd.getEsParamLimit().forb;
 			break;
 		default:
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, "SW_FLOW pot_soil_evap type:"+type+" not Supported.");
+			log.LogError(LogMode.FATAL, "SW_FLOW pot_soil_evap type:"+type+" not Supported.");
 			break;
 		}
 		
@@ -1417,7 +1417,7 @@ public class SW_FLOW {
 		for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
 			x = lyrWidths[i] * lyrEvapCo[i];
 			sumwidth += x;
-			avswp += x * SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
+			avswp += x * SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
 		}
 
 		avswp /= sumwidth;
@@ -1466,7 +1466,7 @@ public class SW_FLOW {
 		for (i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs; i++) {
 			x = lyrWidths[i] * lyrEvapCo[i];
 			sumwidth += x;
-			avswp += x * SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
+			avswp += x * SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
 		}
 
 		avswp /= sumwidth;
@@ -1574,8 +1574,7 @@ public class SW_FLOW {
 			shade_range = SW_VegProd.getShade().forb.range;
 			break;
 		default:
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, "SW_FLOW pot_soil_evap type:"+type+" not Supported.");
+			log.LogError(LogMode.FATAL, "SW_FLOW pot_soil_evap type:"+type+" not Supported.");
 			break;
 		}
 		
@@ -1742,7 +1741,7 @@ public class SW_FLOW {
 		double sumswp = 0.0, swc_avail, q;
 
 		for (i = 0; i < nlyrs; i++) {
-			swpfrac[i] = coeff[i] / SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
+			swpfrac[i] = coeff[i] / SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
 			sumswp += swpfrac[i];
 		}
 
@@ -1889,9 +1888,9 @@ public class SW_FLOW {
 		hydred[0] = 0.; /* no hydred in top layer */
 
 		for (i = 0; i < nlyrs; i++) {
-			swp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
+			swp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
 			relCondroot[i] = Math.min( 1., Math.max(0., 1./(1. + Defines.powe(swp[i]/swp50, shapeCond) ) ) );
-			swpwp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk_Wiltpts[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
+			swpwp[i] = SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk_Wiltpts[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
 			hydredmat[0][i] = hydredmat[i][0] = 0.; /* no hydred in top layer */
 		}
 
@@ -1972,7 +1971,6 @@ public class SW_FLOW {
 		double meanAirTemp = SW_Site.getSoilTemperature().meanAirTemp;
 		int nRgr = SW_Site.get_stNRGR();
 		
-		LogFileIn f = LogFileIn.getInstance();
 		// local vars
 		int i, k;
 		int[] equal_x1_x2 = new int[3];
@@ -1995,7 +1993,7 @@ public class SW_FLOW {
 		// if there's less then 2 lyrs of soil, or the max layer depth < 30 cm the function quits (& prints out an error message) so it doesn't blow up later...
 		if ((nlyrs < 2) || Defines.LT(stValues.depths[nlyrs - 1], deltaX + deltaX)) {
 			if (!soil_temp_error) { // if the error hasn't been reported yet... print an error to the stderr and one to the logfile
-				f.LogError(LogMode.NOTE, String.format("\nSOIL_TEMP FUNCTION ERROR: (there needs to be >= 2 soil layers, with a maximum combined depth of >= %5.2f cm)... soil temperature will NOT be calculated\n", (deltaX + deltaX)) );
+				log.LogError(LogMode.NOTE, String.format("\nSOIL_TEMP FUNCTION ERROR: (there needs to be >= 2 soil layers, with a maximum combined depth of >= %5.2f cm)... soil temperature will NOT be calculated\n", (deltaX + deltaX)) );
 				soil_temp_error = true;
 			}
 			return; // exits the function
@@ -2158,7 +2156,7 @@ public class SW_FLOW {
 		double deltaX = SW_Site.getSoilTemperature().stDeltaX;
 		int nRgr = SW_Site.get_stNRGR();
 		
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		boolean toDebug = false;
 		int i, j, k, x1 = 1, x2 = 1; 
 		double T1, cs, sh, sm, pe, deltaT, deltaTemp, tc, fH2O, fp, part1, part2, acc, maxLyrDepth;

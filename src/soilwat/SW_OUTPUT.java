@@ -881,9 +881,11 @@ public class SW_OUTPUT {
 	private SW_WEATHER SW_Weather;
 	private SW_VEGESTAB SW_VegEstab;
 	private boolean EchoInits;
+	private LogFileIn log;
 	
 	
-	protected SW_OUTPUT(SW_SOILS SW_Soils, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_WEATHER SW_Weather, SW_VEGESTAB SW_VegEstab) {
+	protected SW_OUTPUT(LogFileIn log,SW_SOILS SW_Soils, SW_SOILWATER SW_SoilWater, SW_MODEL SW_Model, SW_WEATHER SW_Weather, SW_VEGESTAB SW_VegEstab) {
+		this.log = log;
 		this.SW_Output = new SW_OUT[SW_OUTNKEYS];
 		for(int i=0; i<SW_OUTNKEYS; i++)
 			this.SW_Output[i] = new SW_OUT();
@@ -903,7 +905,7 @@ public class SW_OUTPUT {
 	}
 	
 	protected boolean onVerify(boolean deepdrain, Path OutputDirectory) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if(data) {
 			//Set the outputs for the Periods
 			for (OutKey k : OutKey.values()) {
@@ -1014,6 +1016,10 @@ public class SW_OUTPUT {
 				SW_Output[k.idx()].filename_prefix = out.outputs[k.idx()].filename_prefix;
 				SW_Output[k.idx()].first_orig = out.outputs[k.idx()].first_orig;
 				SW_Output[k.idx()].last_orig = out.outputs[k.idx()].last_orig;
+			} else {
+				if(k != OutKey.eSW_LastKey && k != OutKey.eSW_NoKey) {
+					SW_Output[k.idx()].use = false;
+				}
 			}
 		}
 		this.data = true;
@@ -1045,163 +1051,6 @@ public class SW_OUTPUT {
 				out.outputs[k.idx()].first_orig = SW_Output[k.idx()].first_orig;
 				out.outputs[k.idx()].last_orig = SW_Output[k.idx()].last_orig;
 			}
-		}
-	}
-	
-	protected void onRead(Path OutputSetupIn) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
-		List<String> lines = Files.readAllLines(OutputSetupIn, StandardCharsets.UTF_8);
-		
-		useTimeStep = false;
-		OutKey k = OutKey.eSW_NoKey;
-		
-		for (String line : lines) {
-			//Skip Comments and empty lines
-			if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
-				line = line.trim();
-				String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
-				
-				if(values[0].equals("TIMESTEP")) {
-					for(int i=1; i<values.length; i++) {
-						timeStep[OutPeriod.getEnum(values[i].toUpperCase()).idx()] = true;
-						//numPeriod++;
-					}
-					for(int i=0; i<SW_OUTNKEYS; i++)//Go through the OUTs set the use Period flags
-						SW_Output[i].usePeriods = timeStep;
-					useTimeStep=true;
-					continue;
-				} else {
-					if(values.length < 6) {
-						if(values[0].equals("OUTSEP")) {
-							if(values[1].equals("t"))
-								_sep="\t";
-							else if(values[1].equals("s"))
-								_sep=" ";
-							else
-								_sep=values[1];
-							continue;
-						} else {
-							f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Insufficient key parameters for item.");
-							continue;
-						}
-					}
-					k = OutKey.getEnum(values[0]);
-					if(!useTimeStep) {
-						timeStep[OutPeriod.getEnum(values[2]).idx()] = true;
-						SW_Output[k.idx()].usePeriods[OutPeriod.getEnum(values[2]).idx()] = true;
-						SW_Output[k.idx()].periodColumn = OutPeriod.getEnum(values[2]);
-					}
-					
-				}
-				
-				//Set the values		
-				SW_Output[k.idx()].mykey = k;
-				SW_Output[k.idx()].myobj = k.objType();
-				SW_Output[k.idx()].sumtype = OutSum.getEnum(values[1]);
-				SW_Output[k.idx()].periodColumn = OutPeriod.getEnum(values[2]);
-				SW_Output[k.idx()].filename_prefix = values[5];
-				try {
-					SW_Output[k.idx()].first_orig = Integer.valueOf(values[3]);
-					if(values[4].toLowerCase().equals("end"))
-						SW_Output[k.idx()].last_orig = 366;
-					else
-						SW_Output[k.idx()].last_orig = Integer.valueOf(values[4]);
-				} catch(NumberFormatException e) {
-					f.LogError(LogMode.ERROR, "OutputSetupIn onRead: Could not covert start or end."+e.getMessage());
-				}
-				if(SW_Output[k.idx()].sumtype == OutSum.eSW_Off && SW_Output[k.idx()].last_orig == 0) {
-					SW_Output[k.idx()].last_orig = 366;
-				}
-				if (SW_Output[k.idx()].last_orig == 0) {
-					f.LogError(LogMode.ERROR, "OutputSetupIn onRead : Invalid ending day");
-				}
-			}
-		}
-		this.data = true;
-	}
-	
-	protected void onWrite(Path OutputSetupIn) throws Exception {
-		if(this.data) {
-			List<String> lines = new ArrayList<String>();
-			lines.add("# Output setup file for SOILWAT v4 compiled on Mac OS X (20100202)");
-			lines.add("#");
-			lines.add("# Notes:");
-			lines.add("# Time periods available:  DY,WK,MO,YR");
-			lines.add("#   eg, if DY is chosen then 100,200 would mean to use the second hundred days");
-			lines.add("#   But if YR is chosen, start and end numbers are in days so only those days");
-			lines.add("#   are reported for the yearly average.");
-			lines.add("# Some keys from older versions (fortran and the c versions mimicking the fortran");
-			lines.add("#   version) are not currently implemented:");
-			lines.add("#   ALLH20, WTHR.");
-			lines.add("#");
-			lines.add("# ESTABL only produces yearly output, namely, DOY for each species requested.");
-			lines.add("#   Thus, to minimize typo errors, all flags are ignored except the filename.");
-			lines.add("#   Output is simply the day of the year establishment occurred for each species");
-			lines.add("#   in each year of the model run.  Refer to the estabs.in file for more info.");
-			lines.add("#");
-			lines.add("# DEEPSWC produces output only if the deepdrain flag is set in siteparam.in.");
-			lines.add("#");
-			lines.add("# Filename prefixes should not have a file extension.");
-			lines.add("# Case is unimportant.");
-			lines.add("#");
-			lines.add("# SUMTYPEs are one of the following:");
-			lines.add("#  OFF - no output for this variable");
-			lines.add("#  SUM - sum the variable for each day in the output period");
-			lines.add("#  AVG - average the variable over the output period");
-			lines.add("#  FIN - output value of final day in the period; soil water variables only.");
-			lines.add("# Note that SUM and AVG are the same if timeperiod = dy.");
-			lines.add("#");
-			lines.add("# (3-Sep-03) OUTSEP key indicates the output separator.  This method");
-			lines.add("# allows older files to work with the new version.  The default is a");
-			lines.add("# tab.  Other options are 's' or 't' for space or tab (no quotes)");
-			lines.add("# or any other printable character as itself (eg, :;| etc).  The given");
-			lines.add("# separator will apply to all of the output files.  Note that only lowercase");
-			lines.add("# letters 's' or 't' are synonyms.");
-			lines.add("#");
-			lines.add("# (01/17/2013) TIMESTEP key indicates which periods you want to output.");
-			lines.add("# You can output all the periods at a time, just one, or however many");
-			lines.add("# you want. To change which periods to output type 'dy' for day,");
-			lines.add("# 'wk' for week, 'mo' for month, and 'yr' for year after TIMESTEP");
-			lines.add("# in any order. For example: 'TIMESTEP mo wk' will output for month and week");
-			if(_sep.equals("\t"))
-				lines.add("OUTSEP t");
-			else if(_sep.equals(" "))
-				lines.add("OUTSEP s");
-			else
-				lines.add("OUTSEP "+_sep);
-			if(useTimeStep) {
-				String temp="TIMESTEP";
-				for(int i=0; i<numPeriods; i++) {
-					if(timeStep[i] == true) {
-						temp+=" ";
-						switch(i) {
-						case 0:
-							temp+="dy";
-							break;
-						case 1:
-							temp+="wk";
-							break;
-						case 2:
-							temp+="mo";
-							break;
-						case 3:
-							temp+="yr";
-							break;
-						}
-					}
-				}
-				lines.add(temp);
-			}
-			lines.add("");
-			lines.add(String.format("#     %4s     %7s   %6s   %5s    %3s    %15s   %7s","key","SUMTYPE","PERIOD","start","end","filename_prefix","comment"));
-			for(int i=0; i<SW_OUTNKEYS; i++) {
-				if(SW_Output[i].use)
-					lines.add(SW_Output[i].toString());
-			}
-			Files.write(OutputSetupIn, lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.WARN, "OutputSetupIn : onWrite : No data.");
 		}
 	}
 	
@@ -1266,8 +1115,7 @@ public class SW_OUTPUT {
 		case eVES:
 			return;
 		default:
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, "Invalid object type in SW_OUT_sum_today().");
+			log.LogError(LogMode.FATAL, "Invalid object type in SW_OUT_sum_today().");
 			break;
 		}
 		
@@ -1394,8 +1242,7 @@ public class SW_OUTPUT {
 							t = output.first; /* always output this period */
 							break;
 						default:
-							LogFileIn f = LogFileIn.getInstance();
-							f.LogError(LogMode.FATAL, "Invalid period in SW_OUT_write_today().");
+							log.LogError(LogMode.FATAL, "Invalid period in SW_OUT_write_today().");
 						}
 						if (!writeit || t < SW_Output[k].first || t > SW_Output[k].last)
 							continue;
@@ -1523,8 +1370,7 @@ public class SW_OUTPUT {
 			s.surfaceRunoff += v.surfaceRunoff;
 			break;
 		default:
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogMode.FATAL, "PGMR: Invalid key in sumof_wth");
+			log.LogError(LogMode.FATAL, "PGMR: Invalid key in sumof_wth");
 			break;
 		}
 	}
@@ -1662,7 +1508,6 @@ public class SW_OUTPUT {
 		 * one greater than the period being summarized.
 		 */
 		/* 	20091015 (drs) ppt is divided into rain and snow and all three values are output into precip */
-		LogFileIn f = LogFileIn.getInstance();
 		int Yesterday = Defines.Yesterday;
 
 		SW_SOILWATER.SW_SOILWAT_OUTPUTS savg = null, ssumof = null;
@@ -1674,7 +1519,7 @@ public class SW_OUTPUT {
 		int elyrs = SW_Soils.getLayersInfo().n_evap_lyrs;		
 
 		if (!(otyp == ObjType.eSWC || otyp == ObjType.eWTH))
-			f.LogError(LogMode.FATAL, "Invalid object type in OUT_averagefor().");
+			log.LogError(LogMode.FATAL, "Invalid object type in OUT_averagefor().");
 
 		for(int k=0; k<SW_OUTNKEYS; k++)
 		{
@@ -1711,7 +1556,7 @@ public class SW_OUTPUT {
 							break;
 
 						default:
-							f.LogError(LogMode.FATAL, "Programmer: Invalid period in average_for().");
+							log.LogError(LogMode.FATAL, "Programmer: Invalid period in average_for().");
 						} /* end switch(pd) */
 
 						if (SW_Output[k].period != pd || SW_Output[k].myobj != otyp || curr_pd < SW_Output[k].first || curr_pd > SW_Output[k].last)
@@ -1867,7 +1712,7 @@ public class SW_OUTPUT {
 							break;
 
 						default:
-							f.LogError(LogMode.FATAL, "PGMR: Invalid key in average_for "+OutKey.fromInt(k).toString());
+							log.LogError(LogMode.FATAL, "PGMR: Invalid key in average_for "+OutKey.fromInt(k).toString());
 						}
 					}
 				} /* end of for loop */
@@ -1884,7 +1729,6 @@ public class SW_OUTPUT {
 		SW_VEGESTAB v = SW_VegEstab; /* vegestab only gets summed yearly */
 		SW_VEGESTAB.SW_VEGESTAB_OUTPUTS vsum = null;
 
-		LogFileIn f = LogFileIn.getInstance();
 		int pd = 0;
 
 		for(int k=0; k<SW_OUTNKEYS; k++)
@@ -1914,7 +1758,7 @@ public class SW_OUTPUT {
 				vsum = v.get_yrsum(); /* yearly, y'see */
 				break;
 			default:
-				f.LogError(LogMode.FATAL, "PGMR: Invalid outperiod in collect_sums()");
+				log.LogError(LogMode.FATAL, "PGMR: Invalid outperiod in collect_sums()");
 			}
 
 			if (pd >= SW_Output[k].first && pd <= SW_Output[k].last) {
@@ -1937,8 +1781,6 @@ public class SW_OUTPUT {
 	}
 	
 	private void _echo_outputs() throws Exception {
-		/* --------------------------------------------------- */
-		LogFileIn f = LogFileIn.getInstance();
 		String outconfig ="";
 		outconfig += "\n===============================================\n  Output Configuration:\n";
 		for(int k=0; k<SW_OUTNKEYS; k++)
@@ -1963,7 +1805,7 @@ public class SW_OUTPUT {
 			outconfig += "\n";
 		}
 		outconfig += "\n----------  End of Output Configuration ---------- \n";
-		f.LogError(LogMode.NOTE, outconfig);
+		log.LogError(LogMode.NOTE, outconfig);
 	}
 	
 	protected boolean get_echoinits() {

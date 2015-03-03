@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public class LogFileIn {
-	private static LogFileIn instance = null;
+	//private static LogFileIn instance = null;
 	private Path pLogFile;
 	private boolean quiet = true;
 	private boolean bLogged;
@@ -17,7 +17,7 @@ public class LogFileIn {
 	private boolean fileGood = false;
 	private List<String> lines;
 	
-	private LogFileIn() {
+	public LogFileIn() {
 		setbLogged(false);
 		lines = new ArrayList<String>();
 	}
@@ -34,12 +34,12 @@ public class LogFileIn {
 		this.bLogged = bLogged;
 	}
 
-	public static LogFileIn getInstance() {
-		if(instance == null) {
-			instance = new LogFileIn();
-		}
-		return instance;
-	}
+	//public static LogFileIn getInstance() {
+	//	if(instance == null) {
+	//		instance = new LogFileIn();
+	//	}
+	//	return instance;
+	//}
 	
 	public void onClear() {
 		lines.clear();
@@ -86,6 +86,14 @@ public class LogFileIn {
 	}
 	public List<String> onGetLog() {
 		return this.lines;
+	}
+	
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for(String s : lines) {
+		    builder.append(s);
+		}
+		return builder.toString();
 	}
 
 	public Path getLogFile() {

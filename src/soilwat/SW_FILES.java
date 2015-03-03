@@ -1,31 +1,57 @@
 package soilwat;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class SW_FILES {
 	public static class FILES_INPUT_DATA {
-		public String ProjectDirectory;
-		public String OutputDirectory;
-		public String WeatherPathAndPrefix;
-		public String FilesIn;
-		public String YearsIn;
-		public String LogFile;
-		public String SiteParametersIn;
-		public String SoilsIn;
-		public String WeatherSetupIn;
-		public String MarkovProbabilityIn;
-		public String MarkovCovarianceIn;
-		public String CloudIn;
-		public String PlantProductivityIn;
-		public String EstablishmentIn;
-		public String SWCSetupIn;
-		public String OutputSetupIn;
+		public String ProjectDirectory = "";
+		public String OutputDirectory = "";
+		public String WeatherPathAndPrefix ="";
+		public String FilesIn = "";
+		public String YearsIn = "";
+		public String LogFile = "";
+		public String SiteParametersIn="";
+		public String SoilsIn="";
+		public String WeatherSetupIn="";
+		public String MarkovProbabilityIn="";
+		public String MarkovCovarianceIn="";
+		public String CloudIn="";
+		public String PlantProductivityIn="";
+		public String EstablishmentIn="";
+		public String SWCSetupIn="";
+		public String OutputSetupIn="";
+		private LogFileIn log;
+		
+		public FILES_INPUT_DATA(LogFileIn log) {
+			this.log = log;
+		}
+		
+		public void onClear() {
+			ProjectDirectory = "";
+			OutputDirectory = "";
+			WeatherPathAndPrefix ="";
+			FilesIn = "";
+			YearsIn = "";
+			LogFile = "";
+			SiteParametersIn="";
+			SoilsIn="";
+			WeatherSetupIn="";
+			MarkovProbabilityIn="";
+			MarkovCovarianceIn="";
+			CloudIn="";
+			PlantProductivityIn="";
+			EstablishmentIn="";
+			SWCSetupIn="";
+			OutputSetupIn="";
+		}
 		
 		public static int LongestString(String... args) {
 			int maxLength = 0;
@@ -41,8 +67,202 @@ public class SW_FILES {
 		    return maxLength;
 		}
 		
+		protected void onCreateDirectoriesAndFiles() throws Exception {
+			LogFileIn f = log;
+
+				if(Files.notExists(Paths.get(ProjectDirectory))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory).toString() + " : Directory does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,OutputDirectory))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,OutputDirectory));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,OutputDirectory).toString()+" : Directory does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,Paths.get(WeatherPathAndPrefix).getParent().toString()))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,Paths.get(WeatherPathAndPrefix).getParent().toString()));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,Paths.get(WeatherPathAndPrefix).getParent().toString()).toString()+" : Directory does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,FilesIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,FilesIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,FilesIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,FilesIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,YearsIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,YearsIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,YearsIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,YearsIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,SiteParametersIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,SiteParametersIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,SiteParametersIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,SiteParametersIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,SoilsIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,SoilsIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,SoilsIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,SoilsIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,WeatherSetupIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,WeatherSetupIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,WeatherSetupIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,WeatherSetupIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,MarkovProbabilityIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,MarkovProbabilityIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,MarkovProbabilityIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,MarkovProbabilityIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,MarkovCovarianceIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,MarkovCovarianceIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,MarkovCovarianceIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,MarkovCovarianceIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,CloudIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,CloudIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,CloudIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,CloudIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,PlantProductivityIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,PlantProductivityIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,PlantProductivityIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,PlantProductivityIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,EstablishmentIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,EstablishmentIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,EstablishmentIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,EstablishmentIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,SWCSetupIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,SWCSetupIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,SWCSetupIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,SWCSetupIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+				if(Files.notExists(Paths.get(ProjectDirectory,OutputSetupIn))) {
+					try {
+						Files.createDirectories(Paths.get(ProjectDirectory,OutputSetupIn).getParent());
+						Files.createFile(Paths.get(ProjectDirectory,OutputSetupIn));
+					} catch (IOException e) {
+						f.LogError(LogFileIn.LogMode.ERROR, Paths.get(ProjectDirectory,OutputSetupIn).toString()+" : file does not exist and can not be created."+e.getMessage());
+					}
+				}
+			
+		}
+		
+		public void onRead(String swFiles) throws IOException{
+			Path pFilesIn = Paths.get(swFiles);
+			this.ProjectDirectory = pFilesIn.getParent().toString();
+			this.FilesIn = pFilesIn.getFileName().toString();
+			List<String> lines = SW_FILES.readFile(swFiles, getClass().getClassLoader());
+			
+			int nFileItemsRead = 0;
+			
+			for (String line : lines) {
+				//Skip Comments and empty lines
+				if(!line.matches("^\\s*#.*") && !line.matches("^[\\s]*$")) {
+					line = line.trim();
+					String[] values = line.split("#")[0].split("[ \t]+");//Remove comment after data
+					switch (nFileItemsRead) {
+					case 0:
+						this.YearsIn =  values[0];
+						break;
+					case 1:
+						this.LogFile = values[0];
+						break;
+					case 2:
+						this.SiteParametersIn = values[0];
+						break;
+					case 3:
+						this.SoilsIn = values[0];
+						break;
+					case 4:
+						this.WeatherSetupIn = values[0];
+						break;
+					case 5:
+						this.WeatherPathAndPrefix = values[0];
+						break;
+					case 6:
+						this.MarkovProbabilityIn = values[0];
+						break;
+					case 7:
+						this.MarkovCovarianceIn = values[0];
+						break;
+					case 8:
+						this.CloudIn = values[0];
+						break;
+					case 9:
+						this.PlantProductivityIn = values[0];
+						break;
+					case 10:
+						this.EstablishmentIn = values[0];
+						break;
+					case 11:
+						this.SWCSetupIn = values[0];
+						break;
+					case 12:
+						this.OutputDirectory = values[0];
+						break;
+					case 13:
+						this.OutputSetupIn = values[0];
+						break;
+					}
+					nFileItemsRead++;
+				}
+			}			
+		}
+		
+		public void onWrite(String swFiles) throws Exception{
+			Path pFilesIn = Paths.get(swFiles);
+			List<String> lines = new ArrayList<String>();
+			lines.add(this.toString());
+			Files.write(pFilesIn, lines, StandardCharsets.UTF_8);
+		}
+		
 		public String toString() {
 			int length = LongestString(ProjectDirectory,OutputDirectory,WeatherPathAndPrefix,FilesIn,YearsIn,LogFile,SiteParametersIn,SoilsIn,WeatherSetupIn,MarkovProbabilityIn,MarkovCovarianceIn,CloudIn,PlantProductivityIn,EstablishmentIn,SWCSetupIn,OutputSetupIn);
+			if(length == 0)
+				length++;
 			String format = "%-"+String.valueOf(length)+"s%s";
 			String out = "";
 			out+="# List of input files for SOILWAT v32\n";
@@ -76,11 +296,7 @@ public class SW_FILES {
 			return out;
 		}
 	}
-	/* Private Member Values*/
-	//Line index Values
-	private final static int nYearsIn=4, nLogFile=5, nSiteParameters=8, nSoils=9, nWeatherSetup=12, nWeatherPath=13, nWeatherPrefix=13,
-			nMarkovProbability=14,nMarkovCovariance=15,nCloud=16,nPlantProductivity=19,nEstablishment=20,nSWCSetup=23, nOutputDirectory=26,
-			nOutputSetup=27;
+
 	//Path to Project Directory
 	private Path pProjectDirectory;
 	//'relative' path for output files: / for same directory, or e.g., Output/
@@ -116,34 +332,37 @@ public class SW_FILES {
 	//define output quantities
 	private Path pOutputSetupIn;
 	private boolean data;
-	private boolean verified;
+	public boolean verified;
+	private LogFileIn log;
 	
 	/* Constructor */
-	protected SW_FILES() {
+	protected SW_FILES(LogFileIn log) {
 		this.data = false;
 		this.verified = false;
+		this.log = log;
 	}
-	/*protected void onSetDefault() {
-		this.pProjectDirectory = Paths.get("");//should get the current working directory
-		this.pOutputDirectory = Paths.get("Output/");
-		this.pWeatherPath = Paths.get("Input/data_39.0625_-119.4375/");
-		this.sWeatherPrefix = "weath";
-		this.pFilesIn = Paths.get("files_v30.in");
-		this.pYearsIn = Paths.get("Input/years.in");
-		this.pLogFile = Paths.get("Output/logfile.log");
-		this.pSiteParametersIn = Paths.get("Input/siteparam_v26.in");
-		this.pSoilsIn = Paths.get("Input/soils_v23.in");
-		this.pWeatherSetupIn = Paths.get("Input/weathsetup_v20.in");
-		this.pMarkovProbabilityIn = Paths.get("Input/data_39.0625_-119.4375/mkv_prob.in");
-		this.pMarkovCovarianceIn = Paths.get("Input/data_39.0625_-119.4375/mkv_covar.in");
-		this.pCloudIn = Paths.get("Input/data_39.0625_-119.4375/cloud_v20.in");
-		this.pPlantProductivityIn = Paths.get("Input/sbe_prod_v21.in");
-		this.pEstablishmentIn = Paths.get("Input/estab.in");
-		this.pSWCSetupIn = Paths.get("Input/swcsetup.in");
-		this.pOutputSetupIn = Paths.get("Input/outsetup_v27.in");
-		this.data = true;
-		this.verified = false;
-	}*/
+	
+	/***
+	 * Helper function to read from file or resource contained within the Jar file.
+	 * @param File
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> readFile(String File, ClassLoader classLoader) throws IOException {
+		List<String> lines = new ArrayList<String>();
+		if(File.startsWith("resource:")) {
+			File = File.replaceFirst("resource:", "");
+			InputStream in = classLoader.getResourceAsStream(File);
+			Scanner scanner = new Scanner(in);
+			while (scanner.hasNextLine()) {
+				lines.add(scanner.nextLine());
+			}
+			scanner.close();
+		} else {
+			lines = Files.readAllLines(Paths.get(File), StandardCharsets.UTF_8);
+		}
+		return lines;
+	}
 	
 	protected void onClear() {
 		this.data = false;
@@ -168,7 +387,7 @@ public class SW_FILES {
 	}
 	
 	protected boolean onVerify() throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if(this.data) {
 			//create directories if they do not exist
 			List<String> messages = new ArrayList<String>();
@@ -219,126 +438,6 @@ public class SW_FILES {
 		}
 	}
 	
-	protected void onCreateFiles() throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
-		if(this.data) {
-			if(Files.notExists(pProjectDirectory)) {
-				try {
-					Files.createDirectories(pProjectDirectory);
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, pProjectDirectory.toString() + " : Directory does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getOutputDirectory(true))) {
-				try {
-					Files.createDirectories(this.getOutputDirectory(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getOutputDirectory(true).toString()+" : Directory does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(getWeatherPath(true))) {
-				try {
-					Files.createDirectories(getWeatherPath(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, getWeatherPath(true).toString()+" : Directory does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getFilesIn(true))) {
-				try {
-					Files.createFile(this.getFilesIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getFilesIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getYearsIn(true))) {
-				try {
-					Files.createDirectories(this.getYearsIn(true).getParent());
-					Files.createFile(this.getYearsIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getYearsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getSiteParametersIn(true))) {
-				try {
-					Files.createFile(this.getSiteParametersIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getSiteParametersIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getSoilsIn(true))) {
-				try {
-					Files.createFile(this.getSoilsIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getSoilsIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getWeatherSetupIn(true))) {
-				try {
-					Files.createFile(this.getWeatherSetupIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getWeatherSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getMarkovProbabilityIn(true))) {
-				try {
-					Files.createFile(this.getMarkovProbabilityIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovProbabilityIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getMarkovCovarianceIn(true))) {
-				try {
-					Files.createFile(this.getMarkovCovarianceIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getMarkovCovarianceIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getCloudIn(true))) {
-				try {
-					Files.createFile(this.getCloudIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getCloudIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getPlantProductivityIn(true))) {
-				try {
-					Files.createFile(this.getPlantProductivityIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getPlantProductivityIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getEstablishmentIn(true))) {
-				try {
-					Files.createFile(this.getEstablishmentIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getEstablishmentIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getSWCSetupIn(true))) {
-				try {
-					Files.createFile(this.getSWCSetupIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getSWCSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getSWCSetupIn(true))) {
-				try {
-					Files.createFile(this.getSWCSetupIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getSWCSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-			if(Files.notExists(this.getOutputSetupIn(true))) {
-				try {
-					Files.createFile(this.getOutputSetupIn(true));
-				} catch (IOException e) {
-					f.LogError(LogFileIn.LogMode.ERROR, this.getOutputSetupIn(true).toString()+" : file does not exist and can not be created."+e.getMessage());
-				}
-			}
-		} else {
-			f.LogError(LogFileIn.LogMode.ERROR, "FilesIn CreateFiles : No Data To Create File Structure.");
-		}
-	}
 	protected void onSetInput(FILES_INPUT_DATA filesIn) {
 		this.pProjectDirectory = Paths.get(filesIn.ProjectDirectory);
 		this.pFilesIn = Paths.get(filesIn.FilesIn);
@@ -376,68 +475,6 @@ public class SW_FILES {
 		filesIn.SWCSetupIn = this.pSWCSetupIn.toString();
 		filesIn.OutputDirectory = this.pOutputDirectory.toString();
 		filesIn.OutputSetupIn = this.pOutputSetupIn.toString();
-	}
-	/* Public Functions */
-	protected void onRead(String swFiles) throws IOException{
-		this.pFilesIn = Paths.get(swFiles);
-		this.pProjectDirectory = this.pFilesIn.getParent();
-		this.pFilesIn = this.pFilesIn.getFileName();
-		List<String> lines = Files.readAllLines(getFilesIn(true), StandardCharsets.UTF_8);
-		
-		this.pYearsIn =  Paths.get(lines.get(nYearsIn).split("[ \t]+")[0]);
-		this.pLogFile = Paths.get(lines.get(nLogFile).split("[ \t]+")[0]);
-		this.pSiteParametersIn = Paths.get(lines.get(nSiteParameters).split("[ \t]+")[0]);
-		this.pSoilsIn = Paths.get(lines.get(nSoils).split("[ \t]+")[0]);
-		this.pWeatherSetupIn = Paths.get(lines.get(nWeatherSetup).split("[ \t]+")[0]);
-		this.pWeatherPath = Paths.get(lines.get(nWeatherPath).split("[ \t]+")[0]).getParent();
-		this.sWeatherPrefix = Paths.get(lines.get(nWeatherPrefix).split("[ \t]+")[0]).getFileName().toString();
-		this.pMarkovProbabilityIn = Paths.get(lines.get(nMarkovProbability).split("[ \t]+")[0]);
-		this.pMarkovCovarianceIn = Paths.get(lines.get(nMarkovCovariance).split("[ \t]+")[0]);
-		this.pCloudIn = Paths.get(lines.get(nCloud).split("[ \t]+")[0]);
-		this.pPlantProductivityIn = Paths.get(lines.get(nPlantProductivity).split("[ \t]+")[0]);
-		this.pEstablishmentIn = Paths.get(lines.get(nEstablishment).split("[ \t]+")[0]);
-		this.pSWCSetupIn = Paths.get(lines.get(nSWCSetup).split("[ \t]+")[0]);
-		this.pOutputDirectory = Paths.get(lines.get(nOutputDirectory).split("[ \t]+")[0]);
-		this.pOutputSetupIn = Paths.get(lines.get(nOutputSetup).split("[ \t]+")[0]);
-		this.data = true;
-	}
-	
-	protected void onWrite() throws Exception{
-		if(this.data && this.verified) {
-			List<String> lines = new ArrayList<String>();
-			lines.add("# List of input files for SOILWAT v32");
-			lines.add("# This is the first file read. Simulation information = ");
-			lines.add("");
-			lines.add("# Model");
-			lines.add(this.pYearsIn.toString() + "\t# years for model operation");
-			lines.add(this.pLogFile.toString() + "\t# errors or important info (can also be stdout)");
-			lines.add("");
-			lines.add("#Site");
-			lines.add(this.pSiteParametersIn.toString() + "\t# site parameters");
-			lines.add(this.pSoilsIn.toString() + "\t# soil layer definitions");
-			lines.add("");
-			lines.add("#Weather");
-			lines.add(this.pWeatherSetupIn.toString() + "\t# weather parameters");
-			lines.add(this.pWeatherPath.toString()+ "/" + this.sWeatherPrefix + "\t# data file containing historical weather (can include path)");
-			lines.add(this.pMarkovProbabilityIn.toString() + "\t# precip probs; required for markov weather");
-			lines.add(this.pMarkovCovarianceIn.toString() + "\t# covariance table required for markov weather");
-			lines.add(this.pCloudIn.toString() + "\t# general atmospheric params");
-			lines.add("");
-			lines.add("#Vegetation");
-			lines.add(this.pPlantProductivityIn.toString() + "\t# productivity values");
-			lines.add(this.pEstablishmentIn.toString() + "\t# plant establishment start file");
-			lines.add("");
-			lines.add("#SWC measurements");
-			lines.add(this.pSWCSetupIn.toString() + "\t# params for handling measured swc");
-			lines.add("");
-			lines.add("#Output");
-			lines.add(this.pOutputDirectory + "\t# 'relative' path for output files: / for same directory, or e.g., Output/");
-			lines.add(this.pOutputSetupIn.toString() + "\t# define output quantities");
-			Files.write(getFilesIn(true), lines, StandardCharsets.UTF_8);
-		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.WARN, "FilesIn onWrite : No Data to Write or not Verified.");
-		}
 	}
 	
 	/* GETTERS AND SETTERS */

@@ -1,8 +1,11 @@
 package soilwat;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +24,7 @@ public class SW_SOILWAT_HISTORY {
 	private List<SW_SOILWAT_HIST> swcHist;
 	private Map<Integer, Integer> yearToIndex;
 	private boolean data; 
+	private LogFileIn log;
 	
 	public String toString() {
 		String out = "SWC History List\n";
@@ -64,9 +68,9 @@ public class SW_SOILWAT_HISTORY {
 		}
 		
 		public void onRead(Path swcHistoryFile, int year) throws Exception {
-			LogFileIn f = LogFileIn.getInstance();
+			LogFileIn f = log;
 			this.nYear = year;
-			List<String> lines = Files.readAllLines(swcHistoryFile, StandardCharsets.UTF_8);
+			List<String> lines = SW_FILES.readFile(swcHistoryFile.toString(), getClass().getClassLoader());
 			int doy=0, lyr=0;
 			
 			for (String line : lines) {
@@ -107,8 +111,7 @@ public class SW_SOILWAT_HISTORY {
 						lines.add(String.format("%4d %5d %8f %8f", i+1, j+1, this.swc[i][j], this.std_err[i][j]));
 				Files.write(swcHistoryFile.resolve(prefix+"."+this.toString()), lines, StandardCharsets.UTF_8);
 			} else {
-				LogFileIn f = LogFileIn.getInstance();
-				f.LogError(LogFileIn.LogMode.WARN, "SwcHistory onWrite : No data from files or default.");
+				log.LogError(LogFileIn.LogMode.WARN, "SwcHistory onWrite : No data from files or default.");
 			}
 		}
 		
@@ -133,14 +136,15 @@ public class SW_SOILWAT_HISTORY {
 		}
 	}
 	
-	public SW_SOILWAT_HISTORY() {
+	public SW_SOILWAT_HISTORY(LogFileIn log) {
+		this.log = log;
 		this.swcHist = new ArrayList<SW_SOILWAT_HIST>();
 		yearToIndex = new HashMap<Integer,Integer>();
 		this.data = false;
 	}
 	
 	public void onRead(Path swcHistoryFile) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		int year = 0;
 		try {
 			year = Integer.parseInt(swcHistoryFile.getFileName().toString().split("\\.")[1]);
@@ -150,7 +154,7 @@ public class SW_SOILWAT_HISTORY {
 		if(yearToIndex.containsKey(year)) {
 			f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onRead : Contains Data for Year :" +String.valueOf(year));
 		} else {
-			if(Files.exists(swcHistoryFile)) {
+			if(Files.exists(swcHistoryFile) || swcHistoryFile.toString().startsWith("resource:")) {
 				if(this.yearToIndex.size() < this.swcHist.size()) {//reuse an object
 					for(int i=0; i<this.swcHist.size(); i++) {
 						if(!this.yearToIndex.containsValue(i)) {//This object is not used
@@ -172,15 +176,72 @@ public class SW_SOILWAT_HISTORY {
 		}
 	}
 	
-	public void onRead(Path WeatherHistoryFolder, String prefix, int startYear, int endYear) throws Exception {
-		for(int i=startYear; i<=endYear; i++) {
-			this.onRead(WeatherHistoryFolder.resolve(prefix+"."+String.valueOf(i)));
+	/***
+	 * R was having a problem calling onRead so testing this one.
+	 * @param folder
+	 * @param prefix
+	 */
+	public void onReadAll(String folder, String prefix) {
+		Path WeatherHistoryFolder = Paths.get(folder);
+		try {
+			this.onRead(WeatherHistoryFolder, prefix, 0, 20000);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
 		}
-		this.nCurrentYear=startYear;
+	}
+	
+	public void onRead(Path SWCHistoryFolder, final String prefix, int startYear, int endYear) throws Exception {
+		LogFileIn f = log;
+		File[] files = null;
+		if(this.data) {
+			onClear();
+		}
+		if(SWCHistoryFolder.toString().startsWith("resource:")) {
+			String[] names = {""};//EXAMPLE PROJECT DOESN'T HAVE
+			if(names == null || names[0]=="")
+				return;
+			List<File> temp = new ArrayList<File>(names.length);
+			for(int i=0;i<names.length;i++)
+				temp.add(new File(names[i]));
+			files = new File[names.length];
+			files = temp.toArray(files);
+		} else {
+			File dir = SWCHistoryFolder.toFile();
+			files = dir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.contains(prefix);
+				}
+			});
+		}
+		if(files == null) {
+			return;
+		} else if(files.length == 0) {
+			return;
+		}
+		Arrays.sort(files);
+		boolean first = true;
+		for(File WeatherHistoryFile : files) {
+			int year = 0;
+			try {
+				year = Integer.parseInt(WeatherHistoryFile.toPath().getFileName().toString().split("\\.")[1]);
+			} catch(NumberFormatException n) {
+				f.LogError(LogFileIn.LogMode.ERROR, "WeatherHistoryIn onRead : Convert Year From Path Failed :" +n.getMessage());
+			}
+			if(year >= startYear && year <= endYear) {
+				this.onRead(WeatherHistoryFile.toPath());
+				if(first) {
+					this.nCurrentYear=year;
+					first = false;
+				}
+			}
+		}
+		this.data = true;
 	}
 	
 	public void onWrite(Path WeatherHistoryFolder, String prefix, int year) throws Exception {
-		LogFileIn f = LogFileIn.getInstance();
+		LogFileIn f = log;
 		if(yearToIndex.containsKey(year)) {
 			int i = this.yearToIndex.get(year);
 			if(this.swcHist.get(i).getYear() == year) {
@@ -201,8 +262,8 @@ public class SW_SOILWAT_HISTORY {
 				this.onWrite(WeatherHistoryFolder, prefix, pair.getKey());
 			}
 		} else {
-			LogFileIn f = LogFileIn.getInstance();
-			f.LogError(LogFileIn.LogMode.ERROR, "swcHistory onWrite : No Historical Data.");
+			LogFileIn f = log;
+			f.LogError(LogFileIn.LogMode.NOTE, "swcHistory onWrite : No Historical Data.");
 		}
 	}
 	
@@ -328,6 +389,26 @@ public class SW_SOILWAT_HISTORY {
 			Collections.sort(temp);
 		}
 		return temp;
+	}
+	
+	public int getStartYear() {
+		List<Integer> temp = new ArrayList<Integer>();
+		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+			Integer key = entry.getKey();
+			temp.add(key);
+		}
+		Collections.sort(temp);
+		return Collections.min(temp);
+	}
+	
+	public int getEndYear() {
+		List<Integer> temp = new ArrayList<Integer>();
+		for(Map.Entry<Integer, Integer> entry : yearToIndex.entrySet()) {
+			Integer key = entry.getKey();
+			temp.add(key);
+		}
+		Collections.sort(temp);
+		return Collections.max(temp);
 	}
 	
 	public int getDays() {
