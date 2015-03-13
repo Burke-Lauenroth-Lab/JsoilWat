@@ -583,31 +583,31 @@ public class SW_OUTPUT {
 			case eSW_AllH2O:
 				break;
 			case eSW_VWCBulk:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_VWCMatric:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_SWCBulk:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_SWABulk:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_SWAMatric:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_SWPMatric:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_SurfaceWater:
 				i+=1;
 				break;
 			case eSW_Transp:
-				i+=SW_Soils.getLayersInfo().n_layers*5;
+				i+=SW_Soils.layersInfo.n_layers*5;
 				break;
 			case eSW_EvapSoil:
-				i+=SW_Soils.getLayersInfo().n_evap_lyrs;
+				i+=SW_Soils.layersInfo.n_evap_lyrs;
 				break;
 			case eSW_EvapSurface:
 				i+=7;
@@ -616,10 +616,10 @@ public class SW_OUTPUT {
 				i+=6;
 				break;
 			case eSW_LyrDrain:
-				i+=SW_Soils.getLayersInfo().n_layers-1;
+				i+=SW_Soils.layersInfo.n_layers-1;
 				break;
 			case eSW_HydRed:
-				i+=SW_Soils.getLayersInfo().n_layers*5;
+				i+=SW_Soils.layersInfo.n_layers*5;
 				break;
 			case eSW_ET:
 				break;
@@ -630,7 +630,7 @@ public class SW_OUTPUT {
 				i+=1;
 				break;
 			case eSW_WetDays:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_SnowPack:
 				i+=2;
@@ -639,7 +639,7 @@ public class SW_OUTPUT {
 				i+=1;
 				break;
 			case eSW_SoilTemp:
-				i+=SW_Soils.getLayersInfo().n_layers;
+				i+=SW_Soils.layersInfo.n_layers;
 				break;
 			case eSW_AllVeg:
 				break;
@@ -708,8 +708,8 @@ public class SW_OUTPUT {
 			case eSW_SWABulk:
 			case eSW_SWAMatric:
 			case eSW_SWPMatric:
-				names = new String[SW_Soils.getLayersInfo().n_layers];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+				names = new String[SW_Soils.layersInfo.n_layers];
+				for(int i=0;i<SW_Soils.layersInfo.n_layers;i++) {
 					names[i] = "Layer "+String.valueOf(i+1);
 				}
 				break;
@@ -717,8 +717,8 @@ public class SW_OUTPUT {
 				names = new String[]{"Surface Water"};
 				break;
 			case eSW_Transp:
-				names = new String[SW_Soils.getLayersInfo().n_layers*5];
-				nlyr = SW_Soils.getLayersInfo().n_layers;
+				names = new String[SW_Soils.layersInfo.n_layers*5];
+				nlyr = SW_Soils.layersInfo.n_layers;
 				for(int i=0;i<nlyr;i++) {
 					names[i+(nlyr*0)] = "Total Layer "+String.valueOf(i+1);
 					names[i+(nlyr*1)] = "Trees Layer "+String.valueOf(i+1);
@@ -728,8 +728,8 @@ public class SW_OUTPUT {
 				}
 				break;
 			case eSW_EvapSoil:
-				names = new String[SW_Soils.getLayersInfo().n_evap_lyrs];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_evap_lyrs;i++) {
+				names = new String[SW_Soils.layersInfo.n_evap_lyrs];
+				for(int i=0;i<SW_Soils.layersInfo.n_evap_lyrs;i++) {
 					names[i] = "Evaporation Layer "+String.valueOf(i+1);
 				}
 				break;
@@ -740,14 +740,14 @@ public class SW_OUTPUT {
 				names = new String[]{"Total", "Trees", "Shrubs", "Forbs", "Grasses", "Litter"};
 				break;
 			case eSW_LyrDrain:
-				names = new String[SW_Soils.getLayersInfo().n_layers-1];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_layers-1;i++) {
+				names = new String[SW_Soils.layersInfo.n_layers-1];
+				for(int i=0;i<SW_Soils.layersInfo.n_layers-1;i++) {
 					names[i] = "Layer "+String.valueOf(i+1);
 				}
 				break;
 			case eSW_HydRed:
-				names = new String[SW_Soils.getLayersInfo().n_layers*5];
-				nlyr = SW_Soils.getLayersInfo().n_layers;
+				names = new String[SW_Soils.layersInfo.n_layers*5];
+				nlyr = SW_Soils.layersInfo.n_layers;
 				for(int i=0;i<nlyr;i++) {
 					names[i+(nlyr*0)] = "Total Layer "+String.valueOf(i+1);
 					names[i+(nlyr*1)] = "Trees Layer "+String.valueOf(i+1);
@@ -765,8 +765,8 @@ public class SW_OUTPUT {
 				names = new String[]{"Potential Evaporation"};
 				break;
 			case eSW_WetDays:
-				names = new String[SW_Soils.getLayersInfo().n_layers];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+				names = new String[SW_Soils.layersInfo.n_layers];
+				for(int i=0;i<SW_Soils.layersInfo.n_layers;i++) {
 					names[i] = "Lyr"+String.valueOf(i+1);
 				}
 				break;
@@ -777,8 +777,8 @@ public class SW_OUTPUT {
 				names = new String[]{"Deep Drainage"};
 				break;
 			case eSW_SoilTemp:
-				names = new String[SW_Soils.getLayersInfo().n_layers];
-				for(int i=0;i<SW_Soils.getLayersInfo().n_layers;i++) {
+				names = new String[SW_Soils.layersInfo.n_layers];
+				for(int i=0;i<SW_Soils.layersInfo.n_layers;i++) {
 					names[i] = "Layer "+String.valueOf(i+1);
 				}
 				break;
@@ -1038,7 +1038,7 @@ public class SW_OUTPUT {
 				//Set the values		
 				out.outputs[k.idx()].mykey = k;
 				
-				out.outputs[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : true;
+				out.outputs[k.idx()].use = (SW_Output[k.idx()].sumtype == OutSum.eSW_Off) ? false : (SW_Output[k.idx()].use)?true:false;
 				if(k==OutKey.eSW_Estab) {
 					out.outputs[k.idx()].use = SW_VegEstab.get_use();
 				} else if(k==OutKey.eSW_AllVeg || k==OutKey.eSW_ET || k==OutKey.eSW_AllWthr || k==OutKey.eSW_AllH2O) {
@@ -1376,8 +1376,8 @@ public class SW_OUTPUT {
 	}
 	
 	private void sumof_swc(SW_SOILWATER.SOILWAT v, SW_SOILWATER.SW_SOILWAT_OUTPUTS s, OutKey k) {
-		int lyrs = SW_Soils.getLayersInfo().n_layers;
-		int elyrs = SW_Soils.getLayersInfo().n_evap_lyrs;
+		int lyrs = SW_Soils.layersInfo.n_layers;
+		int elyrs = SW_Soils.layersInfo.n_evap_lyrs;
 		int Today = Defines.Today;
 		
 		switch (k) {
@@ -1486,7 +1486,7 @@ public class SW_OUTPUT {
 			break;
 
 		case eSW_DeepSWC:
-			s.deep += v.swcBulk[Today][SW_Soils.getLayersInfo().deep_lyr];
+			s.deep += v.swcBulk[Today][SW_Soils.layersInfo.deep_lyr];
 			break;
 
 		case eSW_SoilTemp:
@@ -1515,8 +1515,8 @@ public class SW_OUTPUT {
 		int curr_pd = 0;
 		double div = 0.; /* if sumtype=AVG, days in period; if sumtype=SUM, 1 */
 		
-		int lyrs = SW_Soils.getLayersInfo().n_layers;
-		int elyrs = SW_Soils.getLayersInfo().n_evap_lyrs;		
+		int lyrs = SW_Soils.layersInfo.n_layers;
+		int elyrs = SW_Soils.layersInfo.n_evap_lyrs;		
 
 		if (!(otyp == ObjType.eSWC || otyp == ObjType.eWTH))
 			log.LogError(LogMode.FATAL, "Invalid object type in OUT_averagefor().");
@@ -1632,7 +1632,7 @@ public class SW_OUTPUT {
 							break;
 
 						case eSW_DeepSWC:
-							savg.deep = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][SW_Soils.getLayersInfo().deep_lyr] : ssumof.deep / div;
+							savg.deep = (SW_Output[k].sumtype == OutSum.eSW_Fnl) ? SW_SoilWater.getSoilWat().swcBulk[Yesterday][SW_Soils.layersInfo.deep_lyr] : ssumof.deep / div;
 							break;
 
 						case eSW_SurfaceWater:

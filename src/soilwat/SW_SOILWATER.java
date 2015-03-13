@@ -235,7 +235,7 @@ public class SW_SOILWATER {
 			yravg.onClear();
 		}
 		protected double[] get_vwcBulkRow(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -256,7 +256,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_vwcMatricRow(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double convert=0;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -279,7 +279,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_swcBulkRow(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -300,7 +300,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_swpMatricRow(SW_OUTPUT.OutPeriod pd) throws Exception {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -325,7 +325,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_swaBulkRow(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -346,7 +346,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_swaMatricRow(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double convert=0;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
@@ -383,7 +383,7 @@ public class SW_SOILWATER {
 			}
 		}
 		protected double[] get_transp(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr*5];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -420,7 +420,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_evapSoil(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_evap_lyrs;
+			int nlyr = SW_Soils.layersInfo.n_evap_lyrs;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -521,7 +521,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_lyrdrain(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers-1;
+			int nlyr = SW_Soils.layersInfo.n_layers-1;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -542,7 +542,7 @@ public class SW_SOILWATER {
 			return tmp;
 		}
 		protected double[] get_hydred(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr*5];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -607,7 +607,7 @@ public class SW_SOILWATER {
 			}
 		}
 		protected double[] get_wetdays(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -656,7 +656,7 @@ public class SW_SOILWATER {
 			}
 		}
 		public double[] get_soiltemp(SW_OUTPUT.OutPeriod pd) {
-			int nlyr = SW_Soils.getLayersInfo().n_layers;
+			int nlyr = SW_Soils.layersInfo.n_layers;
 			double[] tmp = new double[nlyr];
 			for(int i=0; i<nlyr; i++) {
 				switch (pd) {
@@ -710,7 +710,7 @@ public class SW_SOILWATER {
 	protected boolean onVerify() {
 		// gets the soil temperatures from where they are read in the SW_Site struct for use later
 		// SW_Site.c must call it's read function before this, or it won't work
-		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
+		for(int i=0; i<SW_Soils.layersInfo.n_layers; i++) {
 			soilwat.sTemp[i] = SW_Soils.getLayer(i).sTemp;
 		}
 		soilwat.yr.equals(SW_Model.getEndYear());
@@ -776,11 +776,11 @@ public class SW_SOILWATER {
 			SW_Flow.SW_Water_Flow();
 		}
 
-		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++)
+		for(int i=0; i<SW_Soils.layersInfo.n_layers; i++)
 			soilwat.is_wet[i] = (Defines.GE( soilwat.swcBulk[Defines.Today][i], SW_Soils.getLayer(i).swcBulk_wet));
 	}
 	protected void SW_SWC_end_doy() {
-		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
+		for(int i=0; i<SW_Soils.layersInfo.n_layers; i++) {
 			this.soilwat.swcBulk[Defines.Yesterday][i] = soilwat.swcBulk[Defines.Today][i];
 		}
 		soilwat.snowpack[Defines.Yesterday] = soilwat.snowpack[Defines.Today];
@@ -794,7 +794,7 @@ public class SW_SOILWATER {
 		soilwat.yrsum.onClear();
 		
 		/* reset the swc */
-		for(int lyr=0; lyr<SW_Soils.getLayersInfo().n_layers; lyr++) {
+		for(int lyr=0; lyr<SW_Soils.layersInfo.n_layers; lyr++) {
 			if(reset) {
 				soilwat.swcBulk[Today][lyr] = soilwat.swcBulk[Yesterday][lyr] = SW_Soils.getLayer(lyr).swcBulk_init;
 				soilwat.drain[lyr]=0;
@@ -815,7 +815,7 @@ public class SW_SOILWATER {
 			hist.setCurrentYear(year);
 		}
 		if(SW_Site.getDeepdrain()) {
-			soilwat.swcBulk[Today][SW_Soils.getLayersInfo().deep_lyr] = 0.;
+			soilwat.swcBulk[Today][SW_Soils.layersInfo.deep_lyr] = 0.;
 		}
 	}
 	protected void SW_SWC_adjust_swc(int doy) throws Exception {
@@ -829,14 +829,14 @@ public class SW_SOILWATER {
 		
 		switch (soilwat.method) {
 		case SW_Adjust_Avg:
-			for(int lyr=0; lyr<SW_Soils.getLayersInfo().n_layers; lyr++)
+			for(int lyr=0; lyr<SW_Soils.layersInfo.n_layers; lyr++)
 			{
 				soilwat.swcBulk[Today][lyr] += hist.getSWC(doy)[lyr];
 				soilwat.swcBulk[Today][lyr] /= 2.;
 			}
 			break;
 		case SW_Adjust_StdErr:
-			for(int lyr=0; lyr<SW_Soils.getLayersInfo().n_layers; lyr++)
+			for(int lyr=0; lyr<SW_Soils.layersInfo.n_layers; lyr++)
 			{
 				upper = hist.getSWC(doy)[lyr] + hist.getStd_err(doy)[lyr];
 				lower = hist.getSWC(doy)[lyr] - hist.getStd_err(doy)[lyr];
@@ -853,7 +853,7 @@ public class SW_SOILWATER {
 
 		/* this will guarantee that any method will not lower swc */
 		/* below the minimum defined for the soil layers          */
-		for(int lyr=0; lyr<SW_Soils.getLayersInfo().n_layers; lyr++)
+		for(int lyr=0; lyr<SW_Soils.layersInfo.n_layers; lyr++)
 			soilwat.swcBulk[Today][lyr] = Math.max(soilwat.swcBulk[Today][lyr], SW_Soils.getLayer(lyr).swcBulk_min);
 	}
 	protected void SW_SWC_adjust_snow(SW_WEATHER_2DAYS now) {

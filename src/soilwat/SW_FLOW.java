@@ -1,6 +1,7 @@
 package soilwat;
 
 import soilwat.LogFileIn.LogMode;
+import soilwat.SW_SOILS.LayersInfo;
 import soilwat.SW_SOILWATER.SOILWAT;
 
 
@@ -194,6 +195,7 @@ public class SW_FLOW {
 	/*            The Water Flow                           */
 	/* --------------------------------------------------- */
 	public void SW_Water_Flow() throws Exception {
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 		int Today = Defines.Today;
 		int Yesterday = Defines.Yesterday;
 		
@@ -482,72 +484,72 @@ public class SW_FLOW {
 		/* bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().bareGround, 0.) && Defines.EQ(soilWat.snowpack[Today], 0.)) {
 			/* remove bare-soil evap from swv */
-			remove_from_soil(lyrEvap_BareGround, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_bs, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_BareGround, layersInfo.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_bs, lyrSWCBulk_HalfWiltpts);
 		} else {
 			/* Set daily array to zero, no evaporation */
-			for (int i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
+			for (int i = 0; i < layersInfo.n_evap_lyrs;)
 				lyrEvap_BareGround[i++] = 0.;
 		}
 
 		/* Tree transpiration and bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().tree, 0.) && Defines.GT(p.snowdepth_scale_tree, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrEvap_Tree, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_tree, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Tree, layersInfo.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_tree, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrTransp_Tree, SW_Soils.getLayersInfo().n_transp_lyrs_tree, lyrTranspCo_Tree, p.transp_rate_tree, lyrSWCBulk_atSWPcrit_Tree);
+			remove_from_soil(lyrTransp_Tree, layersInfo.n_transp_lyrs_tree, lyrTranspCo_Tree, p.transp_rate_tree, lyrSWCBulk_atSWPcrit_Tree);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
-			for (int i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
+			for (int i = 0; i < layersInfo.n_evap_lyrs;)
 				lyrEvap_Tree[i++] = 0.;
-			for (int i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_tree;)
+			for (int i = 0; i < layersInfo.n_transp_lyrs_tree;)
 				lyrTransp_Tree[i++] = 0.;
 		}
 
 		/* Shrub transpiration and bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().shrub, 0.) && Defines.GT(p.snowdepth_scale_shrub, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrEvap_Shrub, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_shrub, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Shrub, layersInfo.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_shrub, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrTransp_Shrub, SW_Soils.getLayersInfo().n_transp_lyrs_shrub, lyrTranspCo_Shrub, p.transp_rate_shrub, lyrSWCBulk_atSWPcrit_Shrub);
+			remove_from_soil(lyrTransp_Shrub, layersInfo.n_transp_lyrs_shrub, lyrTranspCo_Shrub, p.transp_rate_shrub, lyrSWCBulk_atSWPcrit_Shrub);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
-			for (int i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
+			for (int i = 0; i < layersInfo.n_evap_lyrs;)
 				lyrEvap_Shrub[i++] = 0.;
-			for (int i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_shrub;)
+			for (int i = 0; i < layersInfo.n_transp_lyrs_shrub;)
 				lyrTransp_Shrub[i++] = 0.;
 		}
 
 		/* Forb transpiration and bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().forb, 0.) && Defines.GT(p.snowdepth_scale_forb, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrEvap_Forb, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_forb, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Forb, layersInfo.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_forb, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrTransp_Forb, SW_Soils.getLayersInfo().n_transp_lyrs_forb, lyrTranspCo_Forb, p.transp_rate_forb, lyrSWCBulk_atSWPcrit_Forb);
+			remove_from_soil(lyrTransp_Forb, layersInfo.n_transp_lyrs_forb, lyrTranspCo_Forb, p.transp_rate_forb, lyrSWCBulk_atSWPcrit_Forb);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
 			int i;
-			for (i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
+			for (i = 0; i < layersInfo.n_evap_lyrs;)
 				lyrEvap_Forb[i++] = 0.;
-			for (i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_forb;)
+			for (i = 0; i < layersInfo.n_transp_lyrs_forb;)
 				lyrTransp_Forb[i++] = 0.;
 		}
 
 		/* Grass transpiration & bare-soil evaporation */
 		if (Defines.GT(SW_VegProd.getVegetationComposition().grass, 0.) && Defines.GT(p.snowdepth_scale_grass, 0.)) {
 			/* remove bare-soil evap from swc */
-			remove_from_soil(lyrEvap_Grass, SW_Soils.getLayersInfo().n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_grass, lyrSWCBulk_HalfWiltpts);
+			remove_from_soil(lyrEvap_Grass, layersInfo.n_evap_lyrs, lyrEvapCo, p.soil_evap_rate_grass, lyrSWCBulk_HalfWiltpts);
 
 			/* remove transp from swc */
-			remove_from_soil(lyrTransp_Grass, SW_Soils.getLayersInfo().n_transp_lyrs_grass, lyrTranspCo_Grass, p.transp_rate_grass, lyrSWCBulk_atSWPcrit_Grass);
+			remove_from_soil(lyrTransp_Grass, layersInfo.n_transp_lyrs_grass, lyrTranspCo_Grass, p.transp_rate_grass, lyrSWCBulk_atSWPcrit_Grass);
 		} else {
 			/* Set daily array to zero, no evaporation or transpiration */
 			int i;
-			for (i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs;)
+			for (i = 0; i < layersInfo.n_evap_lyrs;)
 				lyrEvap_Grass[i++] = 0.;
-			for (i = 0; i < SW_Soils.getLayersInfo().n_transp_lyrs_grass;)
+			for (i = 0; i < layersInfo.n_transp_lyrs_grass;)
 				lyrTransp_Grass[i++] = 0.;
 		}
 
@@ -617,15 +619,16 @@ public class SW_FLOW {
 		 *       see also Site.c.
 		 */
 		SOILWAT soilWat = SW_Soilwat.getSoilWat();
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 		
 		
-		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
+		for(int i=0; i<layersInfo.n_layers; i++) {
 			lyrSWCBulk[i] = soilWat.swcBulk[Defines.Today][i];
 			lyroldsTemp[i] = soilWat.sTemp[i];
 		}
 		
 		if(SW_Model.getDOY() == SW_Model.getFirstdoy()) {
-			for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++) {
+			for(int i=0; i<layersInfo.n_layers; i++) {
 				SW_SOILS.SW_LAYER_INFO lyr = SW_Soils.getLayer(i);
 				lyrTrRegions_Tree[i] = lyr.my_transp_rgn_tree;
 				lyrTrRegions_Forb[i] = lyr.my_transp_rgn_forb;
@@ -655,27 +658,27 @@ public class SW_FLOW {
 				lyrHydRed_Grass[i] = 0.;
 			}
 			
-			for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_tree; i++)
+			for(int i=0; i<layersInfo.n_transp_lyrs_tree; i++)
 			{
 				lyrTranspCo_Tree[i] = SW_Soils.getLayer(i).transp_coeff_tree;
 			}
 
-			for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_shrub; i++)
+			for(int i=0; i<layersInfo.n_transp_lyrs_shrub; i++)
 			{
 				lyrTranspCo_Shrub[i] = SW_Soils.getLayer(i).transp_coeff_shrub;
 			}
 
-			for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_forb; i++)
+			for(int i=0; i<layersInfo.n_transp_lyrs_forb; i++)
 			{
 				lyrTranspCo_Forb[i] = SW_Soils.getLayer(i).transp_coeff_forb;
 			}
 
-			for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_grass; i++)
+			for(int i=0; i<layersInfo.n_transp_lyrs_grass; i++)
 			{
 				lyrTranspCo_Grass[i] = SW_Soils.getLayer(i).transp_coeff_grass;
 			}
 
-			for(int i=0; i<SW_Soils.getLayersInfo().n_evap_lyrs; i++) {
+			for(int i=0; i<layersInfo.n_evap_lyrs; i++) {
 				lyrEvapCo[i] = SW_Soils.getLayer(i).evap_coeff;
 			}
 		}/* end firsttime stuff */
@@ -686,8 +689,9 @@ public class SW_FLOW {
 		 * the appropriate records.
 		 */
 		SOILWAT soilWat = SW_Soilwat.getSoilWat();
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 		
-		for(int i=0; i<SW_Soils.getLayersInfo().n_layers; i++)
+		for(int i=0; i<layersInfo.n_layers; i++)
 		{
 			soilWat.swcBulk[Defines.Today][i] = lyrSWCBulk[i];
 			soilWat.drain[i] = lyrDrain[i];
@@ -699,29 +703,29 @@ public class SW_FLOW {
 		}
 
 		if (SW_Site.getDeepdrain())
-			soilWat.swcBulk[Defines.Today][SW_Soils.getLayersInfo().deep_lyr] = drainout;
+			soilWat.swcBulk[Defines.Today][layersInfo.deep_lyr] = drainout;
 
-		for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_tree; i++)
+		for(int i=0; i<layersInfo.n_transp_lyrs_tree; i++)
 		{
 			soilWat.transpiration_tree[i] = lyrTransp_Tree[i];
 		}
 
-		for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_shrub; i++)
+		for(int i=0; i<layersInfo.n_transp_lyrs_shrub; i++)
 		{
 			soilWat.transpiration_shrub[i] = lyrTransp_Shrub[i];
 		}
 
-		for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_forb; i++)
+		for(int i=0; i<layersInfo.n_transp_lyrs_forb; i++)
 		{
 			soilWat.transpiration_forb[i] = lyrTransp_Forb[i];
 		}
 
-		for(int i=0; i<SW_Soils.getLayersInfo().n_transp_lyrs_grass; i++)
+		for(int i=0; i<layersInfo.n_transp_lyrs_grass; i++)
 		{
 			soilWat.transpiration_grass[i] = lyrTransp_Grass[i];
 		}
 
-		for(int i=0; i<SW_Soils.getLayersInfo().n_evap_lyrs; i++)
+		for(int i=0; i<layersInfo.n_evap_lyrs; i++)
 		{
 			soilWat.evaporation[i] = lyrEvap_BareGround[i] + lyrEvap_Tree[i] + lyrEvap_Forb[i] + lyrEvap_Shrub[i] + lyrEvap_Grass[i];
 		}
@@ -948,7 +952,8 @@ public class SW_FLOW {
 		 **********************************************************************/
 		int i;
 		int j;
-		double[] d = new double[SW_Soils.getLayersInfo().n_layers];
+		LayersInfo layersInfo = SW_Soils.layersInfo;
+		double[] d = new double[layersInfo.n_layers];
 		double push;
 
 		if (stValues.lyrFrozen[0] == 0) {
@@ -956,13 +961,13 @@ public class SW_FLOW {
 			(standingWater[Defines.Today]) = 0.;
 		}
 
-		for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
+		for (i = 0; i < layersInfo.n_layers; i++) {
 			if (stValues.lyrFrozen[i] == 0 && stValues.lyrFrozen[i + 1] == 0) {
 				/* calculate potential saturated percolation */
 				d[i] = Math.max(0., (1. - lyrImpermeability[i]) * (lyrSWCBulk[i] - lyrSWCBulk_FieldCaps[i]) );
 				lyrDrain[i] = d[i];
 
-				if (i < SW_Soils.getLayersInfo().n_layers - 1) { /* percolate up to next-to-last layer */
+				if (i < layersInfo.n_layers - 1) { /* percolate up to next-to-last layer */
 					lyrSWCBulk[i + 1] += d[i];
 					lyrSWCBulk[i] -= d[i];
 				} else { /* percolate last layer */
@@ -973,7 +978,7 @@ public class SW_FLOW {
 		}
 
 		/* adjust (i.e., push water upwards) if water content of a layer is now above saturated water content */
-		for (j = SW_Soils.getLayersInfo().n_layers; j >= 0; j--) {
+		for (j = layersInfo.n_layers; j >= 0; j--) {
 			if (stValues.lyrFrozen[i] == 0) {
 				if (Defines.GT(lyrSWCBulk[j], lyrSWCBulk_Saturated[j])) {
 					push = lyrSWCBulk[j] - lyrSWCBulk_Saturated[j];
@@ -989,7 +994,7 @@ public class SW_FLOW {
 		}
 		if(debug) {
 			String temp = "";
-			for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
+			for (i = 0; i < layersInfo.n_layers; i++) {
 				temp+=String.format(" %7f", lyrSWCBulk[i]);
 			}
 			System.out.println(String.format("%26s%s", "infiltrate_water_high: ",temp));
@@ -1214,28 +1219,29 @@ public class SW_FLOW {
 		int n_layers=0;
 		int[] tr_regions = lyrTrRegions_Grass;
 		double[] tr_coeff = lyrTranspCo_Grass;
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 		
 		switch (type) {
 		case "grass":
-			n_layers=SW_Soils.getLayersInfo().n_transp_lyrs_grass;
+			n_layers=layersInfo.n_transp_lyrs_grass;
 			tr_regions = lyrTrRegions_Grass;
 			tr_coeff = lyrTranspCo_Grass;
 			swp_avg = p.swpot_avg_grass;
 			break;
 		case "shrub":
-			n_layers=SW_Soils.getLayersInfo().n_transp_lyrs_shrub;
+			n_layers=layersInfo.n_transp_lyrs_shrub;
 			tr_regions = lyrTrRegions_Shrub;
 			tr_coeff = lyrTranspCo_Shrub;
 			swp_avg = p.swpot_avg_shrub;
 			break;
 		case "tree":
-			n_layers=SW_Soils.getLayersInfo().n_transp_lyrs_tree;
+			n_layers=layersInfo.n_transp_lyrs_tree;
 			tr_regions = lyrTrRegions_Tree;
 			tr_coeff = lyrTranspCo_Tree;
 			swp_avg = p.swpot_avg_tree;
 			break;
 		case "forb":
-			n_layers=SW_Soils.getLayersInfo().n_transp_lyrs_forb;
+			n_layers=layersInfo.n_transp_lyrs_forb;
 			tr_regions = lyrTrRegions_Forb;
 			tr_coeff = lyrTranspCo_Forb;
 			swp_avg = p.swpot_avg_forb;
@@ -1248,7 +1254,7 @@ public class SW_FLOW {
 		int r, i;
 		double swp, sumco;
 
-		for (r = 1; r <= SW_Soils.getLayersInfo().n_transp_rgn; r++) {
+		for (r = 1; r <= layersInfo.n_transp_rgn; r++) {
 			swp = sumco = 0.0;
 
 			for (i = 0; i < n_layers; i++) {
@@ -1383,6 +1389,7 @@ public class SW_FLOW {
 		double totagb=0;
 		double fbse=0;
 		double Es_param_limit=0;
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 		
 		switch (type) {
 		case "grass":
@@ -1414,7 +1421,7 @@ public class SW_FLOW {
 		int i;
 
 		/* get the weighted average of swp in the evap layers */
-		for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
+		for (i = 0; i < layersInfo.n_layers; i++) {
 			x = lyrWidths[i] * lyrEvapCo[i];
 			sumwidth += x;
 			avswp += x * SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
@@ -1461,9 +1468,10 @@ public class SW_FLOW {
 		 **********************************************************************/
 		double x, avswp = 0.0, sumwidth = 0.0;
 		int i;
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 		
 		/* get the weighted average of swp in the evap layers */
-		for (i = 0; i < SW_Soils.getLayersInfo().n_evap_lyrs; i++) {
+		for (i = 0; i < layersInfo.n_evap_lyrs; i++) {
 			x = lyrWidths[i] * lyrEvapCo[i];
 			sumwidth += x;
 			avswp += x * SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), doy, i);
@@ -1739,6 +1747,7 @@ public class SW_FLOW {
 		int i;
 		double[] swpfrac = new double[Defines.MAX_LAYERS];
 		double sumswp = 0.0, swc_avail, q;
+		LayersInfo layersInfo = SW_Soils.layersInfo;
 
 		for (i = 0; i < nlyrs; i++) {
 			swpfrac[i] = coeff[i] / SW_SOILWATER.SW_SWCbulk2SWPmatric(log,SW_Soils.getLayer(i).fractionVolBulk_gravel, lyrSWCBulk[i], SW_Soils.getLayer(i).width, SW_Soils.getLayer(i).psisMatric, SW_Soils.getLayer(i).thetasMatric, SW_Soils.getLayer(i).bMatric, SW_Model.getYear(), SW_Model.getDOY(), i);
@@ -1759,7 +1768,7 @@ public class SW_FLOW {
 		}
 		if(debug) {
 			String temp = "";
-			for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
+			for (i = 0; i < layersInfo.n_layers; i++) {
 				temp+=String.format(" %7f", lyrSWCBulk[i]);
 			}
 			System.out.println(String.format("%26s%s", "remove_from_soil: ",temp));
@@ -1801,7 +1810,8 @@ public class SW_FLOW {
 		 drain - drainage from each soil water layer
 		 drainout - added low drainout (to already calculated high drainout)
 		 **********************************************************************/
-		int nlyrs = SW_Soils.getLayersInfo().n_layers;	
+		LayersInfo layersInfo = SW_Soils.layersInfo;
+		int nlyrs = layersInfo.n_layers;	
 		
 		int i;
 		int j;
@@ -1848,7 +1858,7 @@ public class SW_FLOW {
 		}
 		if(debug) {
 			String temp = "";
-			for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
+			for (i = 0; i < nlyrs; i++) {
 				temp+=String.format(" %7f", lyrSWCBulk[i]);
 			}
 			System.out.println(String.format("%26s%s", "infiltrate_water_low: ",temp));
@@ -1879,7 +1889,8 @@ public class SW_FLOW {
 		 hydred - hydraulic redistribtion for each soil water layer (cm/day/layer)
 
 		 **********************************************************************/
-		int nlyrs = SW_Soils.getLayersInfo().n_layers;
+		LayersInfo layersInfo = SW_Soils.layersInfo;
+		int nlyrs = layersInfo.n_layers;
 		int i, j;
 		double[] swp = new double[nlyrs], swpwp = new double[nlyrs], relCondroot = new double[nlyrs];
 		double[][] hydredmat = new double[nlyrs][nlyrs];
@@ -1939,7 +1950,7 @@ public class SW_FLOW {
 		}
 		if(debug) {
 			String temp = "";
-			for (i = 0; i < SW_Soils.getLayersInfo().n_layers; i++) {
+			for (i = 0; i < nlyrs; i++) {
 				if(stValues.lyrFrozen[i] == 0)
 					temp+=String.format(" %7f", lyrSWCBulk[i]);
 			}
@@ -1963,7 +1974,7 @@ public class SW_FLOW {
 		double[] bDensity = lyrbDensity;
 		double[] width = lyrWidths;
 		double[] oldsTemp = lyroldsTemp;
-		int nlyrs = SW_Soils.getLayersInfo().n_layers;
+		int nlyrs = SW_Soils.layersInfo.n_layers;
 		double[] fc = lyrSWCBulk_FieldCaps;
 		double[] wp = lyrSWCBulk_Wiltpts;
 		double deltaX = SW_Site.getSoilTemperature().stDeltaX;
@@ -2141,7 +2152,7 @@ public class SW_FLOW {
 		double[] width = lyrWidths;
 		double[] oldsTemp = lyroldsTemp;
 		double[] sTemp = lyrsTemp;
-		int nlyrs = SW_Soils.getLayersInfo().n_layers;
+		int nlyrs = SW_Soils.layersInfo.n_layers;
 		double[] fc = lyrSWCBulk_FieldCaps;
 		double[] wp = lyrSWCBulk_Wiltpts;
 		double bmLimiter = SW_Site.getSoilTemperature().bmLimiter;

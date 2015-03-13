@@ -809,7 +809,7 @@ public class SW_VEGPROD {
 	 *
 	 *
 	 */
-	private void SW_VPD_init() {
+	protected void SW_VPD_init() {
 		int doy; /* base1 */
 
 		if (Defines.GT(vegComp.grass, 0.)) {

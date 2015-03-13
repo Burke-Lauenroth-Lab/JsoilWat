@@ -369,7 +369,7 @@ public class SW_SITE {
 	}
 	
 	protected boolean onVerify() throws Exception {
-		SW_Soils.getLayersInfo().n_transp_rgn = transpirationRegions.get_nRegions();
+		SW_Soils.layersInfo.n_transp_rgn = transpirationRegions.get_nRegions();
 		_init_site_info();
 		if(EchoInits)
 			_echo_inputs("");
@@ -458,7 +458,7 @@ public class SW_SITE {
 		int wiltminflag=0, initminflag=0;
 		double evsum=0., trsum_forb = 0., trsum_tree = 0., trsum_shrub = 0., trsum_grass = 0., swcmin_help1, swcmin_help2;
 		
-		SW_SOILS.LayersInfo layersInfo = SW_Soils.getLayersInfo();
+		SW_SOILS.LayersInfo layersInfo = SW_Soils.layersInfo;
 		
 		/* sp->deepdrain indicates an extra (dummy) layer for deep drainage
 		 * has been added, so n_layers really should be n_layers -1

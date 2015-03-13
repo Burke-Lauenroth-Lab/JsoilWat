@@ -1,5 +1,9 @@
 package soilwat;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import soilwat.InputData.SoilsIn;
 import soilwat.LogFileIn.LogMode;
 
@@ -85,16 +89,30 @@ public class SW_SOILS {
 			my_transp_rgn_forb = 0;
 		}
 	}
-	protected class LayersInfo {
+	public class LayersInfo {
 		public int n_layers, /* total number of soil layers */
 		n_transp_rgn, /* soil layers are grouped into n transp. regions */
 		n_evap_lyrs, /* number of layers in which evap is possible */
 		n_transp_lyrs_forb, n_transp_lyrs_tree, n_transp_lyrs_shrub, n_transp_lyrs_grass, /* layer index of deepest transp. region       */
 		deep_lyr; /* index of deep drainage layer if deepdrain, 0 otherwise */
+		
+		/**
+		 * This function returns the max number of transp lyrs of grass,shrub,tree,forb
+		 * @return int between 0 and max layers.
+		 */
+		public int getTrLyrs() {
+			List<Integer> lengths = new ArrayList<Integer>();
+			lengths.add(n_transp_lyrs_forb);
+			lengths.add(n_transp_lyrs_grass);
+			lengths.add(n_transp_lyrs_shrub);
+			lengths.add(n_transp_lyrs_tree);
+			return Collections.max(lengths);
+		}
+		
 	}
 	
 	private SW_LAYER_INFO[] layers;
-	private LayersInfo layersInfo;
+	protected LayersInfo layersInfo;
 	private double[] widths;
 	private boolean EchoInits;
 	private boolean data;
@@ -371,7 +389,16 @@ public class SW_SOILS {
 		this.EchoInits = echo;
 	}
 	protected LayersInfo getLayersInfo() {
-		return layersInfo;
+		LayersInfo li = new LayersInfo();
+		li.deep_lyr = this.layersInfo.deep_lyr;
+		li.n_evap_lyrs = this.layersInfo.n_evap_lyrs;
+		li.n_layers = this.layersInfo.n_layers;
+		li.n_transp_lyrs_forb = this.layersInfo.n_transp_lyrs_forb;
+		li.n_transp_lyrs_grass = this.layersInfo.n_transp_lyrs_grass;
+		li.n_transp_lyrs_shrub = this.layersInfo.n_transp_lyrs_shrub;
+		li.n_transp_lyrs_tree = this.layersInfo.n_transp_lyrs_tree;
+		li.n_transp_rgn = this.layersInfo.n_transp_rgn;
+		return li;
 	}
 	protected SW_LAYER_INFO getLayer(int lyr) {
 		return this.layers[lyr];

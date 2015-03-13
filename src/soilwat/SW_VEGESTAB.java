@@ -581,7 +581,7 @@ public class SW_VEGESTAB {
 		SW_VEGESTAB_INFO v = params.get(sppnum);
 		double min_transp_lyrs;
 
-		min_transp_lyrs = Math.min(SW_Soils.getLayersInfo().n_transp_lyrs_tree, Math.min(SW_Soils.getLayersInfo().n_transp_lyrs_forb, Math.min(SW_Soils.getLayersInfo().n_transp_lyrs_shrub, SW_Soils.getLayersInfo().n_transp_lyrs_grass)));
+		min_transp_lyrs = Math.min(SW_Soils.layersInfo.n_transp_lyrs_tree, Math.min(SW_Soils.layersInfo.n_transp_lyrs_forb, Math.min(SW_Soils.layersInfo.n_transp_lyrs_shrub, SW_Soils.layersInfo.n_transp_lyrs_grass)));
 
 		if (v.soilLayerParams.estab_lyrs > min_transp_lyrs) {
 			f.LogError(LogMode.FATAL, String.format( "%s : Layers requested (estab_lyrs) > (# transpiration layers=%d).", v.sppFileName, min_transp_lyrs));
